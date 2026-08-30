@@ -16,8 +16,8 @@ LambdaCDM reference posterior.
 
 - `main.tex` - manuscript source with the evidence section and data-availability
   statement updated.
-- `R_Universe_evidence_audited_20260830.pdf` - compiled PDF corresponding to
-  the updated manuscript.
+- `R_Universe_evidence_audited_20260830.pdf` - compiled evidence-audited PDF.
+  The authoritative source for the public GitHub artifact links is `main.tex`.
 - `references.bib`, `graf.tex`, `download*.png` - source bibliography and
   supporting manuscript assets.
 - `EVIDENCE_MANIFEST.md` - SHA-256 manifest for the manuscript, PDF, figures,
