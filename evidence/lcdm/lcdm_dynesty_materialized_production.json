@@ -1,0 +1,55 @@
+{
+  "bound": "multi",
+  "checkpoint": "/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_local_runs/lcdm_joint_posterior/lcdm_dynesty_materialized_production.pkl",
+  "config": "inference/lcdm_joint_planck_late_matched_materialized.yaml",
+  "dlogz": 0.3,
+  "logZ": -1291.3199169376812,
+  "logZerr": 2.813517742757359,
+  "maxcall": 20000,
+  "method": "dynesty dynamic nested sampling",
+  "minus_2_logZ": 2582.6398338753625,
+  "ncall": 20264,
+  "nlive": 250,
+  "parameters": [
+    "omega_m0",
+    "omega_r0",
+    "ombh2",
+    "logA",
+    "ns",
+    "tau",
+    "A_planck"
+  ],
+  "prior_bounds": {
+    "A_planck": [
+      0.95,
+      1.05
+    ],
+    "logA": [
+      2.7,
+      3.4
+    ],
+    "ns": [
+      0.9,
+      1.05
+    ],
+    "ombh2": [
+      0.02,
+      0.025
+    ],
+    "omega_m0": [
+      0.25,
+      0.38
+    ],
+    "omega_r0": [
+      7.5e-05,
+      0.000115
+    ],
+    "tau": [
+      0.01,
+      0.12
+    ]
+  },
+  "sample": "rwalk",
+  "status": "completed",
+  "workers": 1
+}
