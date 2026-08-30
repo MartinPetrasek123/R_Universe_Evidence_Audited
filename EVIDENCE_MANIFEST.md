@@ -3,6 +3,10 @@
 Generated for the evidence-audited R-Universe manuscript package on
 2026-08-30.
 
+Manuscript source and rendered PDF were refreshed on 2026-08-31 to include the
+expanded replacement-criterion framing. The numerical evidence artifacts and
+reported evidence values are unchanged.
+
 Canonical repository URL:
 
 <https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited>
