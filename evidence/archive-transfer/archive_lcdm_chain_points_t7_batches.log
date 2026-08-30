@@ -1,0 +1,227 @@
+START Sun Aug 30 09:30:55 CEST 2026
+source=/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points
+dest=/Volumes/T7/codex_evidence_archive_20260829/lcdm_chain_points_batches_20260830
+method=batch_tar_delete_after_success
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/c455b499571977ec22ed9fe9
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/5cdcc6f0decab6ebdb57cccd.tar.gz
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/7a759f3368ef749d243a9a8b
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/f9631d80fd7b02aefa77bf98
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/2e76dd343aa78200d1822da9
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/da3e38304a00fd8dd8678508
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/babbfc8894048ab353595f84.tar.gz
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/5b3adf36206a066b1fc1b19c
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/90c9236527ff592ecc42e0f7
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/dc2f1e5b3ecfde3411aa5aa2.tar.gz
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/154ced46045b62be04304549.tar.gz
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/7152ec77e1c27fe45c4d5b59.tar.gz
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/f102e60c25542ec2f391edf4.tar.gz
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/cb0a0cbd84a7db963f434d52.tar.gz
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/eeab8f60b95cd80000de1ac6
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/b32717fedff2071dc8de8098
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/e55ed3996226ec8881d45968
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/037c2542c75eeb8eee5b2c00
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/dd3a59368fb3e755029c3e58.tar.gz
+/Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/74f339bb6f7a4f787a71e604
+BATCH_START Sun Aug 30 09:30:58 CEST 2026 batch=0 count=200 archive=/Volumes/T7/codex_evidence_archive_20260829/lcdm_chain_points_batches_20260830/lcdm_chain_points_batch_000000.tar
+PARTIAL_DELETE_START Sun Aug 30 21:08:07 CEST 2026 before_current=01b61eb9273e1df7f3a13fff count=197
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0006e56d7c28d69407b1cc31
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/000fef9e9a3840ff70277d40
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/001171513fd2d75b4dad56bb
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0013f7ca3caf600273ef5219
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0015b1d529547358c2560791
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0017e92d46534322c548597c
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0018764b417576770178bc9f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0019915ef925693c5f9b9f42
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/001b172749394a77a6aa4ab8
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/001d3515435d4595a6ce2203
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/002325c5942a7e929543d79c
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0023fc4daedb425379e9e73f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00277bc6e1b0baa6b7fb8a12
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00297f05861aa38d8d345ac9
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0029c3eecef7d5bc859cf253
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/002a5c2ab3b4127e774c3bb2
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:07 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/002aa0949ad0c739d35c6b37
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/002d8bfdfed5ef4f2bb78b42
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/002de7df6ce0c169fd423ac8
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/002f1a6d5685107d5ab72af8
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00334c7097118b4047a21a38
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0035a5e17fba1270a683292b
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0038d25961a53e1b3541ad2c
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/003aa8fa9b4f6449992b8c25
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0043e8a370a2111b685fcb2d
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0044a03c39eef0b2b757d4bf
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0044bc33631ae43bd6c431da
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0046e03437083302f8c13060
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0047872b31bbc3ed3d15f63e
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/004938d8a23982fb4f10ea8a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0049ecf4c71ee823a41c3e34
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/004a4011f5b1639ea698062e
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/004a4e6754f364925dfa1cad
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/004badcc8a0516c8477cad42
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/004cebec8146cbda5afeb730
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/004d878a3f1b9c3a5ea2458d
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/004e5e1fa8b61792fe50bfb4
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/004fb8ce1acd13666e3ab616
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0056ef5376263b842a549995
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/005e51c706e252e49bb280cc
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/005fe4a690fd70ad9bc52e10
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/006050be497cb3e06af11d4e
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0062c3139febee68ff12232c
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0062d1210fece66d17135ea7
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00632fe3d38833ebfb9893fb
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0064db6af10a08feae1b4e40
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0065515a64edf3e33987fd8e
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00663d654728e48f282926c4
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0066553897ebe61aad714369
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/006d1d61afc4bad367cf68b0
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00701dd5699bcfc40b1042f8
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0071421ab526dfede620cf6a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0075b38509692c43232e5c8b
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00767fc4f41de1bd482d5f06
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/007b41a904185927fbd96037
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/007cfc3d71134c2122759cef
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/007d0e26ce45d965e4042b2c
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/008380624e4bd3918047f5b6
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/008a4ff47b3b0776ecda6571
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/008b1bcf6ebe942c1e979e73
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/008b47fbe22798afd111d03a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/008d39655d847b4964cdbdab
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/008eff0dde1e91af73179852
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00920d6fd59e523c7ee88a45
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00944918789bfbf18b9f8fc5
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00950638b92bf8cf2faedcb1
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0097f3101634470bcef3a9b4
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/009aa9a06a1a46684b67a627
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/009b5ff1c459f8f0640a61f8
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/009e3fcab8e2298b8dea87c1
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/009e488745a94ba2287b7538
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/009f4ad414246a1139056cd1
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/009f5f400bf53cc0360094c7
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00a2d48e464d33ceb40ec17b
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00a57720aeb1cd00a22e6830
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00a8db1bbb74cc8088ada9b9
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00a8fd7120d986f46a38ed6f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00a9bd25795b21720cab4a7f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00a9ceffeb943685ab05d834
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00aa045179a9754debea52b9
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00aa09545a81f5e235696efa
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:08 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00acb7ef75938e69fc4b6532
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00ae8adcedb9c893ef78a3d1
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00af324599915ec9576b79fd
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00b001dcd6a2bed100804a4a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00b228570f23663da43fcca0
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00b31dd5821cdf50292b3bad
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00b360d5fae514ef20b626b6
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00b7c067d4358929458efc6f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00b8f99a219413710a079239
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00bbbd2f7cfd4c31b458c526
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00c09f809c85d5667baf954b
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00c210103e266bdd4d992cba
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00c3b58868dc73a3538a17b2
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00c563852fa50b25e258b118
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00c645826d8b69603676d256
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00c7642cbdae771e2ce48551
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00cad32fa59f79577c518000
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00cc31086f5b68013a1ba058
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00cda8f30eba8ec0cb1acee0
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00cea700bb0b7523bd135e01
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00d2aef8127d295f0674f1c5
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00d5c45424d61fd46fecef8b
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00d7965dfe7a98b8defff553
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00d7f9d0c012bb159500ad78
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00d8d1558596d68d3c60dd64
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00d9772f6e0075fa6054064c
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00e10c58dae6da1e26ced83b
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00e1df41da017506d1d799c8
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00e4a8d037272ffbb204b300
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00e5a8945fbf8e37fdbd2bac
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00ea0a2463d47864e4b18ddc
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00eb9a917c4797e215f7719f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00f25f45bf063a7739b10a9b
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00f45ca48b6e187d9d33856f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00f6bf965d6ab7721049cde6
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/00ff65b45bba5ddec6ce12c4
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01036ed931d6ca9084cd7a1a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0103a3ba3658a4d927473f49
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01047126bf93346513cc8926
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0106f934e02ad90c55a48142
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0107542b6a6a53a36ee75bfc
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/010ede1c8b4c57c4763f2d45
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/010f4847b2911e9107fd1a10
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0110a762dc748a2c248d79f2
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/011257073fe559d3e320a9df
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0113f09b0a7b1db520fe0cf9
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0116641b1c1e88a54135aad6
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/011666f60716d8214416aa04
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0117a8ee4090f3f5ce2757f2
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/011aefe915c91c4f9b741046
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/011c07effa584779ef6965ec
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/011c921b027a1d41019fe7d6
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/011dbe2cd8425e4da35c836f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/011f1aba52ac7cc5043775c9
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/012232619e74c53752f5a1c2
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/012362381f4d5a4982904cbe
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0123775aa627e8d40f47c736
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01254157d1ff45a588775539
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01257867b891b583e6c786c8
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/012d99bdc545eb23d020cedf
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/013104ba3090fab1f6743cf6
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0131d87e595d377152d6fcbc
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0133851360d3ef80e8f9268c
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:09 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0133b9b81cf26fd4f355bba8
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/013469c836fe30302be866f8
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0136f014288625980e7d7a70
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01386be010f945f4945b732c
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/013938338b697dba0e0bfd07
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0139744622d5cf4e647a679f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/013e58af55200dc691e6555d
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/013f98e04790fa44e016284f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/013fc36a4098619f04cccb37
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/014152f5b21f20561996e010
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/014206a2905dcf074c4df903
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/014292a897c9bd3efad9d043
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01433244d3b86326c87a5f4a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0146266e4e26efbe96f48e3d
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/014cdbe574cd2e436e47fd6a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01526f608fa582884c77a0de
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01530bbff96a9ed297487220
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01580cf2cdfea3e373ea542d
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/015a37d1c8d1623923552d9d
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/015ac3c6b633271f56d495c5
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/015bcfa261a9542ec7cc598a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/015c2139d96f4e2f03541a8d
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/015ec218d4308e688ab2307f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01621cb0bb39a0745502acea
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01645e5c7e583eae660af63b
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01666ba2b8becd03d868b8db
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0167aa6fe73c0869ddd1a2a3
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/016942a6cb99a1706999839a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/016e8fbdb2d5830f04f68f86
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/016fb5405f2ce2ffe396422a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01726d594853be4a8084ab94
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0177cc8c618656961b883441
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/017ad9b698a21e7614b6a1b2
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/017b1bcd6eb3f63fb667db3a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/017de19b67784ac8852064d4
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0182f36b4a84e659fdcf1ad6
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/018345832a9190517a542c15
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/018347e6c3ba821b688e504f
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01880f9ebfb10bb1fa39a4b9
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0188e7d77c3afe65a7a8048d
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/019093dab99f702d46b341ca
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0191e6071ad4a5a6ec23e54a
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/0195ffe069ece96be521d506
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/019716a8c59d3feee4aa68a2
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/019be4ef53ce19e837b0e11b
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01a2ee9537faf9b359bc05dc
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01a46d8b90cf3fea6af19d77
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01aa9586c4a34d3a43265748
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01ab338fd7ff0f211c9c1d57
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01ab3a64383de2ba8b8c25b0
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01af824236e5ccbb163b3cff
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:10 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01b247b357e1619943ae909e
+PARTIAL_DELETE_ONE Sun Aug 30 21:08:11 CEST 2026 /Users/mpetr/Documents/Codex/2026-08-27/poi/work/lcdm_chain_points/01b585a410d2f374ad3a5707
+PARTIAL_DELETE_DONE Sun Aug 30 21:08:11 CEST 2026 before_current=01b61eb9273e1df7f3a13fff count=197
+BATCH_TAR_DONE Sun Aug 30 21:21:21 CEST 2026 batch=0 bytes=341082112
+BATCH_DELETE_DONE Sun Aug 30 21:21:21 CEST 2026 batch=0
+BATCH_START Sun Aug 30 21:21:24 CEST 2026 batch=1 count=200 archive=/Volumes/T7/codex_evidence_archive_20260829/lcdm_chain_points_batches_20260830/lcdm_chain_points_batch_000001.tar
