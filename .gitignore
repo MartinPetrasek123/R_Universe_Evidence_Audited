@@ -1,0 +1,14 @@
+.DS_Store
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fls
+*.fdb_latexmk
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.log
+!evidence/**/*.log
+main.tex.bak-*
