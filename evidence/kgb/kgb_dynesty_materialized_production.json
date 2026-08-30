@@ -1,0 +1,60 @@
+{
+  "bound": "multi",
+  "checkpoint": "/Users/mpetr/Documents/Codex/2026-08-27/poi/work/kgb_t7_posterior_extract/kgb_dynesty_materialized_production.pkl",
+  "config": "/Users/mpetr/Documents/Codex/2026-08-27/poi/work/t7_kgb_root/R_Universe_Global_KGB_Completion/inference/kgb_joint_planck_late_production_final_materialized.yaml",
+  "dlogz": 0.3,
+  "logZ": -1335.599690469821,
+  "logZerr": 2.8042019114790784,
+  "maxcall": 20000,
+  "method": "dynesty dynamic nested sampling over explicit Cobaya uniform priors",
+  "minus_2_logZ": 2671.199380939642,
+  "ncall": 20268,
+  "nlive": 250,
+  "parameters": [
+    "alpha",
+    "omega_m0",
+    "omega_r0",
+    "ombh2",
+    "logA",
+    "ns",
+    "tau",
+    "A_planck"
+  ],
+  "prior_bounds": {
+    "A_planck": [
+      0.95,
+      1.05
+    ],
+    "alpha": [
+      0.0,
+      0.95
+    ],
+    "logA": [
+      2.7,
+      3.4
+    ],
+    "ns": [
+      0.9,
+      1.05
+    ],
+    "ombh2": [
+      0.02,
+      0.025
+    ],
+    "omega_m0": [
+      0.25,
+      0.38
+    ],
+    "omega_r0": [
+      7.5e-05,
+      0.000115
+    ],
+    "tau": [
+      0.01,
+      0.12
+    ]
+  },
+  "repo_root": "/Users/mpetr/Documents/Codex/2026-08-27/poi/work/t7_kgb_root/R_Universe_Global_KGB_Completion",
+  "sample": "rwalk",
+  "status": "completed"
+}
