@@ -1,0 +1,36 @@
+{
+  "comparison": "covariant KGB R-Universe versus local LambdaCDM",
+  "probe_family": "Planck 2018 CMB plus lensing, Pantheon+, DESI DR2 BAO, and cosmic chronometers",
+  "convergence_requirement": {
+    "dlogz_max": 0.3,
+    "nlive": 250,
+    "sample": "rwalk",
+    "bound": "multi"
+  },
+  "kgb": {
+    "status": "converged",
+    "logZ": -1250.3771730462715,
+    "logZerr": 0.4241603584574464,
+    "minus_2_logZ": 2500.754346092543,
+    "ncall": 157132,
+    "achieved_dlogz": 0.298987164967541,
+    "artifact": "evidence/kgb/kgb_dynesty_materialized_production.json"
+  },
+  "lcdm": {
+    "status": "converged",
+    "logZ": -1250.9013480259352,
+    "logZerr": 0.41356920558342064,
+    "minus_2_logZ": 2501.8026960518705,
+    "ncall": 151268,
+    "achieved_dlogz": 0.29912794572777185,
+    "artifact": "evidence/lcdm/lcdm_dynesty_materialized_production.json"
+  },
+  "derived": {
+    "delta_logZ_kgb_minus_lcdm": 0.5241749796637123,
+    "delta_logZ_numerical_uncertainty_quadrature": 0.5924115946651036,
+    "delta_over_numerical_uncertainty": 0.8848155309317229,
+    "minus_2_delta_logZ": -1.0483499593274246,
+    "bayes_factor_kgb_over_lcdm": 1.6890647606059777,
+    "interpretation": "weak point-estimate preference for KGB; not decisive at the achieved numerical precision"
+  }
+}

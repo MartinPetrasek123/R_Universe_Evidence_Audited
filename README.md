@@ -8,16 +8,17 @@ Canonical repository URL:
 
 <https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited>
 
-The current manuscript includes the completed production Bayesian-evidence
-comparison between the covariant KGB R-Universe realization and a local
-LambdaCDM reference posterior.
+The current manuscript source includes the fully converged production
+Bayesian-evidence comparison between the covariant KGB R-Universe realization
+and a local LambdaCDM reference posterior.
 
 ## Main Files
 
 - `main.tex` - manuscript source with the evidence section and data-availability
   statement updated.
-- `R_Universe_evidence_audited_20260830.pdf` - compiled evidence-audited PDF.
-  The authoritative source for the public GitHub artifact links is `main.tex`.
+- `R_Universe_evidence_audited_20260830.pdf` - previous compiled manuscript
+  snapshot. It predates the final converged evidence update; regenerate it from
+  the authoritative `main.tex` before the next release.
 - `references.bib`, `graf.tex`, `download*.png` - source bibliography and
   supporting manuscript assets.
 - `EVIDENCE_MANIFEST.md` - SHA-256 manifest for the manuscript, PDF, figures,
@@ -29,18 +30,17 @@ The completed dynamic nested-sampling evidence records report:
 
 | Model | logZ | logZ error | -2 logZ | Calls | Status |
 | --- | ---: | ---: | ---: | ---: | --- |
-| Covariant KGB R-Universe | -1335.599690469821 | 2.8042019114790784 | 2671.199380939642 | 20268 | completed |
-| Local LambdaCDM reference | -1291.3199169376812 | 2.813517742757359 | 2582.6398338753625 | 20264 | completed |
+| Covariant KGB R-Universe | -1250.3771730462715 | 0.4241603584574464 | 2500.754346092543 | 157132 | converged |
+| Local LambdaCDM reference | -1250.9013480259352 | 0.41356920558342064 | 2501.8026960518705 | 151268 | converged |
 
 With the convention that larger `logZ` is favored,
 
-`Delta logZ = logZ_KGB - logZ_LCDM = -44.27977353213983`.
+`Delta logZ = logZ_KGB - logZ_LCDM = +0.5241749796637123`.
 
-Thus this specific production marginal-likelihood comparison favors the local
-LambdaCDM reference under the declared priors and probe set. The manuscript
-therefore presents the KGB R-Universe realization as a physical candidate with a
-completed posterior and evidence audit, not as an empirical evidence winner over
-LambdaCDM.
+The quadrature-combined numerical uncertainty is `0.5924115946651036`, and the
+Bayes factor is `B_KGB,LambdaCDM = exp(Delta logZ) = 1.6890647606059777`.
+Thus the point estimate weakly favors KGB under the declared priors and probe
+set, but the preference is not decisive at the achieved numerical precision.
 
 ## Evidence Artifacts
 
@@ -56,6 +56,10 @@ LCDM:
 - `evidence/lcdm/lcdm_dynesty_materialized_production.log`
 - `evidence/lcdm/lcdm_dynesty_materialized_production.pkl`
 
+Comparison:
+
+- `evidence/evidence_comparison.json`
+
 Archive-transfer audit:
 
 - `evidence/archive-transfer/archive_lcdm_chain_points_t7_batches.log`
@@ -66,9 +70,9 @@ likelihood packages are not redistributed here.
 ## Reproduction Notes
 
 The JSON files are the quickest way to verify the reported evidence numbers.
-The `.pkl` checkpoint files preserve the completed dynesty state used for the
-reported evidence summaries. The `.log` files preserve the production run
-records.
+The `.pkl` checkpoint files preserve the converged dynesty states used for the
+reported evidence summaries. The `.log` files preserve the complete production
+and checkpoint-continuation records.
 
 Direct artifact links:
 

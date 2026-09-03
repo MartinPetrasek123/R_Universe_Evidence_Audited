@@ -1,14 +1,15 @@
 {
+  "achieved_dlogz": 0.298987164967541,
   "bound": "multi",
   "checkpoint": "/Users/mpetr/Documents/Codex/2026-08-27/poi/work/kgb_t7_posterior_extract/kgb_dynesty_materialized_production.pkl",
   "config": "/Users/mpetr/Documents/Codex/2026-08-27/poi/work/t7_kgb_root/R_Universe_Global_KGB_Completion/inference/kgb_joint_planck_late_production_final_materialized.yaml",
   "dlogz": 0.3,
-  "logZ": -1335.599690469821,
-  "logZerr": 2.8042019114790784,
-  "maxcall": 20000,
+  "logZ": -1250.3771730462715,
+  "logZerr": 0.4241603584574464,
+  "maxcall": 50000,
   "method": "dynesty dynamic nested sampling over explicit Cobaya uniform priors",
-  "minus_2_logZ": 2671.199380939642,
-  "ncall": 20268,
+  "minus_2_logZ": 2500.754346092543,
+  "ncall": 157132,
   "nlive": 250,
   "parameters": [
     "alpha",
@@ -55,6 +56,9 @@
     ]
   },
   "repo_root": "/Users/mpetr/Documents/Codex/2026-08-27/poi/work/t7_kgb_root/R_Universe_Global_KGB_Completion",
+  "resumed": true,
   "sample": "rwalk",
-  "status": "completed"
+  "status": "converged",
+  "worker_start_method": "spawn",
+  "workers": 9
 }
