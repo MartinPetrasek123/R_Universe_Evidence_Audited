@@ -14,10 +14,14 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from pathlib import Path
 import csv
+import hashlib
 import math
+import platform
+import sys
 from statistics import mean, pstdev
 
 import numpy as np
+import reportlab
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -38,6 +42,7 @@ SENS_SIGMA_FACTORS = (0.75, 1.0, 1.25)
 SENS_TAU_RET = (4, 6, 10)
 N_SENS_BATCHES = 5
 N_ABLATION_BATCHES = 20
+N_EVENT_SAMPLE_ROWS = 40
 
 
 @dataclass(frozen=True)
@@ -210,6 +215,95 @@ def summarize_events(spec: SystemSpec, rng: np.random.Generator, tau_ret: int = 
         )
 
     return add_derived(totals)
+
+
+def collect_event_sample(spec: SystemSpec, rng: np.random.Generator, max_rows: int) -> list[dict[str, float | int | str]]:
+    x, y = simulate_hidden(spec, rng)
+    post = filter_posterior(spec, y)
+    rows: list[dict[str, float | int | str]] = []
+
+    for i in range(N_TRAJ):
+        yi = y[i]
+        xi = x[i]
+        pi = post[i]
+        armed = True
+        crossings: list[int] = []
+        for t, obs in enumerate(yi):
+            if armed and obs >= THETA_CROSS:
+                crossings.append(t)
+                armed = False
+            elif not armed and obs <= HYST_LOW:
+                armed = True
+
+        event_id = 0
+        for t in crossings:
+            if pi[t] < POST_COMMIT:
+                continue
+            v = t + VALIDATION_LAG
+            end = v + TAU_RET
+            event_id += 1
+            if end >= T:
+                rows.append(
+                    {
+                        "system": spec.short,
+                        "trajectory_id": i,
+                        "event_id": event_id,
+                        "t_cross": t,
+                        "t_validate": v,
+                        "t_end": end,
+                        "y_cross": yi[t],
+                        "posterior_commit": pi[t],
+                        "posterior_validate": "",
+                        "min_posterior_retention": "",
+                        "latent_retained": "",
+                        "posterior_retained": "",
+                        "domain_truth": "",
+                        "domain_observed": "",
+                        "latent_truth_z": "",
+                        "operational_decision_a": "",
+                        "outcome": "pending",
+                    }
+                )
+                continue
+
+            posterior_retained = pi[v] >= POST_VALIDATE and float(np.min(pi[v : end + 1])) >= POST_RET
+            latent_retained = xi[v] == 1 and bool(np.all(xi[v : end + 1] == 1))
+            domain_truth = rng.random() <= spec.domain_valid_prob
+            domain_observed = rng.random() <= spec.domain_valid_prob
+            latent_truth = latent_retained and domain_truth
+            accepted = posterior_retained and domain_observed
+            if accepted and latent_truth:
+                outcome = "true_positive"
+            elif accepted:
+                outcome = "false_acceptance"
+            elif latent_truth:
+                outcome = "false_rejection"
+            else:
+                outcome = "true_negative_or_downstream_rejection"
+            rows.append(
+                {
+                    "system": spec.short,
+                    "trajectory_id": i,
+                    "event_id": event_id,
+                    "t_cross": t,
+                    "t_validate": v,
+                    "t_end": end,
+                    "y_cross": yi[t],
+                    "posterior_commit": pi[t],
+                    "posterior_validate": pi[v],
+                    "min_posterior_retention": float(np.min(pi[v : end + 1])),
+                    "latent_retained": int(latent_retained),
+                    "posterior_retained": int(posterior_retained),
+                    "domain_truth": int(domain_truth),
+                    "domain_observed": int(domain_observed),
+                    "latent_truth_z": int(latent_truth),
+                    "operational_decision_a": int(accepted),
+                    "outcome": outcome,
+                }
+            )
+            if len(rows) >= max_rows:
+                return rows
+    return rows
 
 
 def run_batch(seed: int, tau_ret: int = TAU_RET, sigma_factor: float = 1.0) -> dict[str, dict[str, float]]:
@@ -427,6 +521,73 @@ def write_ablation_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
         writer.writerows(rows)
 
 
+def write_event_sample_csv(path: Path) -> None:
+    rows: list[dict[str, float | int | str]] = []
+    rng = np.random.default_rng(MASTER_SEED + 777)
+    for spec in SYSTEMS:
+        rows.extend(collect_event_sample(spec, rng, N_EVENT_SAMPLE_ROWS // 2))
+    fields = [
+        "system",
+        "trajectory_id",
+        "event_id",
+        "t_cross",
+        "t_validate",
+        "t_end",
+        "y_cross",
+        "posterior_commit",
+        "posterior_validate",
+        "min_posterior_retention",
+        "latent_retained",
+        "posterior_retained",
+        "domain_truth",
+        "domain_observed",
+        "latent_truth_z",
+        "operational_decision_a",
+        "outcome",
+    ]
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def write_reproducibility_manifest(path: Path, output_files: list[Path]) -> None:
+    lines = [
+        "# VSTF HMM Benchmark Reproducibility Manifest",
+        "",
+        f"Python: {sys.version.split()[0]}",
+        f"Platform: {platform.platform()}",
+        f"NumPy: {np.__version__}",
+        f"ReportLab: {reportlab.Version}",
+        f"Master seed: {MASTER_SEED}",
+        f"Trajectories per batch: {N_TRAJ}",
+        f"Monte Carlo batches: {N_BATCHES}",
+        f"Sensitivity batches per cell: {N_SENS_BATCHES}",
+        f"Ablation batches per cell: {N_ABLATION_BATCHES}",
+        f"Event-sample rows: {N_EVENT_SAMPLE_ROWS}",
+        "",
+        "Reproduction command:",
+        "",
+        "```bash",
+        "python3 vstf_hmm_benchmark.py",
+        "```",
+        "",
+        "SHA-256 outputs:",
+        "",
+    ]
+    for file_path in output_files:
+        lines.append(f"- `{file_path.name}`: `{sha256(file_path)}`")
+    path.write_text("\n".join(lines) + "\n")
+
+
 def draw_bar(c: canvas.Canvas, x: float, y: float, width: float, height: float, frac: float, color) -> None:
     c.setFillColor(colors.whitesmoke)
     c.rect(x, y, width, height, fill=1, stroke=0)
@@ -517,7 +678,17 @@ def main() -> None:
     write_metric_csv(out_dir / "vstf_hmm_benchmark_monte_carlo.csv", stats)
     write_sensitivity_csv(out_dir / "vstf_hmm_benchmark_sensitivity.csv", sens)
     write_ablation_csv(out_dir / "vstf_hmm_benchmark_ablations.csv", abl)
-    write_pdf(out_dir / "vstf_hmm_benchmark.pdf", aggregate, stats, sens)
+    output_files = [
+        out_dir / "vstf_hmm_benchmark_summary.csv",
+        out_dir / "vstf_hmm_benchmark_monte_carlo.csv",
+        out_dir / "vstf_hmm_benchmark_sensitivity.csv",
+        out_dir / "vstf_hmm_benchmark_ablations.csv",
+        out_dir / "vstf_hmm_event_sample.csv",
+        out_dir / "vstf_hmm_benchmark.pdf",
+    ]
+    write_event_sample_csv(output_files[4])
+    write_pdf(output_files[5], aggregate, stats, sens)
+    write_reproducibility_manifest(out_dir / "REPRODUCIBILITY.md", output_files)
 
     print("Monte Carlo benchmark")
     for short in ("A", "B"):
