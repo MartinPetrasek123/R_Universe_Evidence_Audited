@@ -43,6 +43,8 @@ SENS_TAU_RET = (4, 6, 10)
 N_SENS_BATCHES = 5
 N_ABLATION_BATCHES = 20
 N_EVENT_SAMPLE_ROWS = 40
+N_RANDOM_SYSTEM_PAIRS = 30
+N_RANDOM_PAIR_BATCHES = 5
 
 
 @dataclass(frozen=True)
@@ -448,6 +450,62 @@ def sensitivity() -> list[dict[str, float]]:
     return rows
 
 
+def draw_random_spec(name: str, short: str, rng: np.random.Generator) -> SystemSpec:
+    return SystemSpec(
+        name=name,
+        short=short,
+        p01=float(rng.uniform(0.01, 0.15)),
+        p10=float(rng.uniform(0.03, 0.25)),
+        sigma=float(rng.uniform(0.15, 0.55)),
+        domain_valid_prob=float(rng.uniform(0.60, 0.95)),
+        energy_base=float(rng.uniform(80.0, 105.0)),
+        energy_per_crossing=float(rng.uniform(0.75, 1.40)),
+        energy_per_committed=float(rng.uniform(1.10, 2.60)),
+        energy_per_valid=float(rng.uniform(1.60, 3.40)),
+    )
+
+
+def random_parameter_stress() -> list[dict[str, float | int]]:
+    rng = np.random.default_rng(MASTER_SEED + 123_456)
+    rows: list[dict[str, float | int]] = []
+    for pair_id in range(N_RANDOM_SYSTEM_PAIRS):
+        spec_a = draw_random_spec(f"Random pair {pair_id} A", "A", rng)
+        spec_b = draw_random_spec(f"Random pair {pair_id} B", "B", rng)
+        raw_discordant = 0
+        crossing_discordant = 0
+        retained_discordant = 0
+        ratios = []
+        for batch_id in range(N_RANDOM_PAIR_BATCHES):
+            batch = run_pair(MASTER_SEED + 200_000 + pair_id * 10_000 + batch_id * 1009, spec_a, spec_b)
+            raw_order = math.copysign(1.0, batch["A"]["raw_per_energy"] - batch["B"]["raw_per_energy"])
+            crossing_order = math.copysign(1.0, batch["A"]["crossings_per_energy"] - batch["B"]["crossings_per_energy"])
+            retained_order = math.copysign(1.0, batch["A"]["retained_per_energy"] - batch["B"]["retained_per_energy"])
+            vste_order = math.copysign(1.0, batch["A"]["vste"] - batch["B"]["vste"])
+            raw_discordant += int(raw_order != vste_order)
+            crossing_discordant += int(crossing_order != vste_order)
+            retained_discordant += int(retained_order != vste_order)
+            ratios.append(batch["B"]["vste"] / max(batch["A"]["vste"], 1e-12))
+        rows.append(
+            {
+                "pair_id": pair_id,
+                "n_batches": N_RANDOM_PAIR_BATCHES,
+                "raw_vste_discordance": raw_discordant / N_RANDOM_PAIR_BATCHES,
+                "crossing_vste_discordance": crossing_discordant / N_RANDOM_PAIR_BATCHES,
+                "retained_vste_discordance": retained_discordant / N_RANDOM_PAIR_BATCHES,
+                "mean_vste_ratio_b_over_a": mean(ratios),
+                "a_p01": spec_a.p01,
+                "a_p10": spec_a.p10,
+                "a_sigma": spec_a.sigma,
+                "a_domain_valid_prob": spec_a.domain_valid_prob,
+                "b_p01": spec_b.p01,
+                "b_p10": spec_b.p10,
+                "b_sigma": spec_b.sigma,
+                "b_domain_valid_prob": spec_b.domain_valid_prob,
+            }
+        )
+    return rows
+
+
 def write_summary_csv(path: Path, aggregate: dict[str, dict[str, float]]) -> None:
     fields = [
         "system",
@@ -515,6 +573,31 @@ def write_ablation_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
                 "raw_to_vste_reversal_probability",
                 "crossing_to_vste_reversal_probability",
                 "mean_vste_ratio_b_over_a",
+            ],
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def write_random_parameter_stress_csv(path: Path, rows: list[dict[str, float | int]]) -> None:
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "pair_id",
+                "n_batches",
+                "raw_vste_discordance",
+                "crossing_vste_discordance",
+                "retained_vste_discordance",
+                "mean_vste_ratio_b_over_a",
+                "a_p01",
+                "a_p10",
+                "a_sigma",
+                "a_domain_valid_prob",
+                "b_p01",
+                "b_p10",
+                "b_sigma",
+                "b_domain_valid_prob",
             ],
         )
         writer.writeheader()
@@ -674,20 +757,23 @@ def main() -> None:
     aggregate, stats = monte_carlo()
     sens = sensitivity()
     abl = ablations()
+    random_stress = random_parameter_stress()
     write_summary_csv(out_dir / "vstf_hmm_benchmark_summary.csv", aggregate)
     write_metric_csv(out_dir / "vstf_hmm_benchmark_monte_carlo.csv", stats)
     write_sensitivity_csv(out_dir / "vstf_hmm_benchmark_sensitivity.csv", sens)
     write_ablation_csv(out_dir / "vstf_hmm_benchmark_ablations.csv", abl)
+    write_random_parameter_stress_csv(out_dir / "vstf_hmm_random_parameter_stress.csv", random_stress)
     output_files = [
         out_dir / "vstf_hmm_benchmark_summary.csv",
         out_dir / "vstf_hmm_benchmark_monte_carlo.csv",
         out_dir / "vstf_hmm_benchmark_sensitivity.csv",
         out_dir / "vstf_hmm_benchmark_ablations.csv",
+        out_dir / "vstf_hmm_random_parameter_stress.csv",
         out_dir / "vstf_hmm_event_sample.csv",
         out_dir / "vstf_hmm_benchmark.pdf",
     ]
-    write_event_sample_csv(output_files[4])
-    write_pdf(output_files[5], aggregate, stats, sens)
+    write_event_sample_csv(output_files[5])
+    write_pdf(output_files[6], aggregate, stats, sens)
     write_reproducibility_manifest(out_dir / "REPRODUCIBILITY.md", output_files)
 
     print("Monte Carlo benchmark")
@@ -726,6 +812,11 @@ def main() -> None:
             f"crossing_to_vste={row['crossing_to_vste_reversal_probability']:.3g}, "
             f"ratio={row['mean_vste_ratio_b_over_a']:.3g}"
         )
+    print(
+        "random parameter stress: "
+        f"{len(random_stress)} pairs x {N_RANDOM_PAIR_BATCHES} batches, "
+        f"mean raw/VSTE discordance={mean(float(r['raw_vste_discordance']) for r in random_stress):.3g}"
+    )
 
 
 if __name__ == "__main__":

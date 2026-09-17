@@ -12,6 +12,7 @@ This repository contains the manuscript and reproducibility materials for:
 - `vstf_hmm_benchmark_monte_carlo.csv` - multi-seed robustness summary.
 - `vstf_hmm_benchmark_sensitivity.csv` - sensitivity sweep over observation noise and retention window.
 - `vstf_hmm_benchmark_ablations.csv` - controlled A/B ablation summary.
+- `vstf_hmm_random_parameter_stress.csv` - random-parameter A/B stress test over transition, noise, domain-validity, and energy-ledger ranges.
 - `vstf_hmm_event_sample.csv` - machine-readable event-level audit sample showing segmentation, latent truth, and operational decisions.
 - `vstf_hmm_benchmark.pdf` - generated benchmark figure referenced by the manuscript.
 - `REPRODUCIBILITY.md` - Python/library versions, seed policy, reproduction command, and SHA-256 output hashes.
