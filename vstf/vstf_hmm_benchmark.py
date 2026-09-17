@@ -5,7 +5,8 @@ The benchmark is a reproducible methodological stress test. It compares two
 synthetic systems with similar raw activity efficiency but different retention,
 domain validity, and full-boundary cost. It repeats the experiment over
 independent seeds, computes latent-ground-truth error rates, and runs a small
-sensitivity sweep so that the ranking reversal is not tied to one realization.
+sensitivity sweep plus controlled ablations so that the ranking reversal is not
+tied to one realization or one simultaneously changed parameter bundle.
 """
 
 from __future__ import annotations
@@ -36,6 +37,7 @@ HYST_LOW = 0.35
 SENS_SIGMA_FACTORS = (0.75, 1.0, 1.25)
 SENS_TAU_RET = (4, 6, 10)
 N_SENS_BATCHES = 5
+N_ABLATION_BATCHES = 20
 
 
 @dataclass(frozen=True)
@@ -112,13 +114,19 @@ def add_derived(row: dict[str, float]) -> dict[str, float]:
     row = dict(row)
     row["raw_per_energy"] = row["raw_activity"] / row["energy"]
     row["crossings_per_energy"] = row["crossings"] / row["energy"]
+    row["committed_per_energy"] = row["committed"] / row["energy"]
+    row["retained_per_energy"] = row["retained"] / row["energy"]
     row["vste"] = row["valid_vst"] / row["energy"]
     row["candidate_yield"] = row["valid_vst"] / max(row["crossings"], 1.0)
     row["commit_yield"] = row["valid_vst"] / max(row["committed"], 1.0)
     row["retention_yield"] = row["retained"] / max(row["committed"], 1.0)
     row["validity_yield"] = row["valid_vst"] / max(row["retained"], 1.0)
-    row["false_success_fraction"] = row["false_success"] / max(row["committed"], 1.0)
-    row["false_success_resolved_fraction"] = row["false_success"] / max(row["false_success"] + row["valid_vst"], 1.0)
+    row["downstream_rejection_fraction"] = row["false_success"] / max(row["committed"], 1.0)
+    row["downstream_rejection_resolved_fraction"] = row["false_success"] / max(row["false_success"] + row["valid_vst"], 1.0)
+    row["true_positive"] = row["valid_vst"] - row["false_acceptance"]
+    row["precision_ppv"] = row["true_positive"] / max(row["valid_vst"], 1.0)
+    row["sensitivity_tpr"] = row["true_positive"] / max(row["latent_valid"], 1.0)
+    row["false_discovery_fraction"] = row["false_acceptance"] / max(row["valid_vst"], 1.0)
     row["far"] = row["false_acceptance"] / max(row["resolved"] - row["latent_valid"], 1.0)
     row["frr"] = row["false_rejection"] / max(row["latent_valid"], 1.0)
     row["pending_fraction"] = row["pending"] / max(row["committed"], 1.0)
@@ -227,13 +235,19 @@ def monte_carlo() -> tuple[dict[str, dict[str, float]], dict[str, float]]:
     derived = {
         "raw_per_energy",
         "crossings_per_energy",
+        "committed_per_energy",
+        "retained_per_energy",
         "vste",
         "candidate_yield",
         "commit_yield",
         "retention_yield",
         "validity_yield",
-        "false_success_fraction",
-        "false_success_resolved_fraction",
+        "downstream_rejection_fraction",
+        "downstream_rejection_resolved_fraction",
+        "true_positive",
+        "precision_ppv",
+        "sensitivity_tpr",
+        "false_discovery_fraction",
         "far",
         "frr",
         "pending_fraction",
@@ -250,12 +264,18 @@ def monte_carlo() -> tuple[dict[str, dict[str, float]], dict[str, float]]:
     vste_a = [b["A"]["vste"] for b in batches]
     vste_b = [b["B"]["vste"] for b in batches]
     reversal = [ra > rb and vb > va for ra, rb, va, vb in zip(raw_a, raw_b, vste_a, vste_b)]
+    crossing_reversal = [b["A"]["crossings_per_energy"] > b["B"]["crossings_per_energy"] and b["B"]["vste"] > b["A"]["vste"] for b in batches]
+    committed_reversal = [b["A"]["committed_per_energy"] > b["B"]["committed_per_energy"] and b["B"]["vste"] > b["A"]["vste"] for b in batches]
+    retained_reversal = [b["A"]["retained_per_energy"] > b["B"]["retained_per_energy"] and b["B"]["vste"] > b["A"]["vste"] for b in batches]
     vste_a_ci = mean_ci(vste_a)
     vste_b_ci = mean_ci(vste_b)
     stats = {
         "n_batches": float(N_BATCHES),
         "n_traj_per_batch": float(N_TRAJ),
         "ranking_reversal_probability": sum(reversal) / len(reversal),
+        "crossing_to_vste_reversal_probability": sum(crossing_reversal) / len(crossing_reversal),
+        "committed_to_vste_reversal_probability": sum(committed_reversal) / len(committed_reversal),
+        "retained_to_vste_reversal_probability": sum(retained_reversal) / len(retained_reversal),
         "mean_vste_ratio_b_over_a": mean(vb / va for va, vb in zip(vste_a, vste_b)),
         "mean_raw_ratio_a_over_b": mean(ra / rb for ra, rb in zip(raw_a, raw_b)),
         "vste_a_mean": vste_a_ci[0],
@@ -266,6 +286,60 @@ def monte_carlo() -> tuple[dict[str, dict[str, float]], dict[str, float]]:
         "vste_b_ci_high": vste_b_ci[2],
     }
     return aggregate, stats
+
+
+def ablation_systems(kind: str) -> tuple[SystemSpec, SystemSpec]:
+    if kind == "combined":
+        return SYSTEM_A, SYSTEM_B
+    common = SYSTEM_A
+    if kind == "dynamics_only":
+        return common, replace(common, p01=SYSTEM_B.p01, p10=SYSTEM_B.p10, name="System B: dynamics-only", short="B")
+    if kind == "noise_only":
+        return common, replace(common, sigma=SYSTEM_B.sigma, name="System B: noise-only", short="B")
+    if kind == "domain_only":
+        return common, replace(common, domain_valid_prob=SYSTEM_B.domain_valid_prob, name="System B: domain-only", short="B")
+    if kind == "cost_only":
+        return common, replace(
+            common,
+            energy_base=SYSTEM_B.energy_base,
+            energy_per_crossing=SYSTEM_B.energy_per_crossing,
+            energy_per_committed=SYSTEM_B.energy_per_committed,
+            energy_per_valid=SYSTEM_B.energy_per_valid,
+            name="System B: cost-only",
+            short="B",
+        )
+    if kind == "equal_domain":
+        return SYSTEM_A, replace(SYSTEM_B, domain_valid_prob=SYSTEM_A.domain_valid_prob, name="System B: equal-domain", short="B")
+    raise ValueError(kind)
+
+
+def run_pair(seed: int, spec_a: SystemSpec, spec_b: SystemSpec) -> dict[str, dict[str, float]]:
+    rng = np.random.default_rng(seed)
+    return {"A": summarize_events(spec_a, rng), "B": summarize_events(spec_b, rng)}
+
+
+def ablations() -> list[dict[str, float | str]]:
+    rows: list[dict[str, float | str]] = []
+    for kind in ["dynamics_only", "noise_only", "domain_only", "cost_only", "equal_domain", "combined"]:
+        spec_a, spec_b = ablation_systems(kind)
+        reversals = []
+        crossing_reversals = []
+        ratios = []
+        for i in range(N_ABLATION_BATCHES):
+            batch = run_pair(MASTER_SEED + 90_000 + 1009 * i, spec_a, spec_b)
+            reversals.append(batch["A"]["raw_per_energy"] > batch["B"]["raw_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            crossing_reversals.append(batch["A"]["crossings_per_energy"] > batch["B"]["crossings_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            ratios.append(batch["B"]["vste"] / max(batch["A"]["vste"], 1e-12))
+        rows.append(
+            {
+                "ablation": kind,
+                "n_batches": float(N_ABLATION_BATCHES),
+                "raw_to_vste_reversal_probability": sum(reversals) / len(reversals),
+                "crossing_to_vste_reversal_probability": sum(crossing_reversals) / len(crossing_reversals),
+                "mean_vste_ratio_b_over_a": mean(ratios),
+            }
+        )
+    return rows
 
 
 def sensitivity() -> list[dict[str, float]]:
@@ -297,13 +371,19 @@ def write_summary_csv(path: Path, aggregate: dict[str, dict[str, float]]) -> Non
         "energy",
         "raw_per_energy",
         "crossings_per_energy",
+        "committed_per_energy",
+        "retained_per_energy",
         "vste",
         "candidate_yield",
         "commit_yield",
         "retention_yield",
         "validity_yield",
-        "false_success_fraction",
-        "false_success_resolved_fraction",
+        "downstream_rejection_fraction",
+        "downstream_rejection_resolved_fraction",
+        "true_positive",
+        "precision_ppv",
+        "sensitivity_tpr",
+        "false_discovery_fraction",
         "far",
         "frr",
         "pending_fraction",
@@ -327,6 +407,22 @@ def write_metric_csv(path: Path, stats: dict[str, float]) -> None:
 def write_sensitivity_csv(path: Path, rows: list[dict[str, float]]) -> None:
     with path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["sigma_factor", "tau_ret", "reversal_probability"])
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def write_ablation_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "ablation",
+                "n_batches",
+                "raw_to_vste_reversal_probability",
+                "crossing_to_vste_reversal_probability",
+                "mean_vste_ratio_b_over_a",
+            ],
+        )
         writer.writeheader()
         writer.writerows(rows)
 
@@ -385,16 +481,16 @@ def write_pdf(path: Path, aggregate: dict[str, dict[str, float]], stats: dict[st
         c.drawString(58, yy - 8, "Valid VST / energy")
         draw_bar(c, 145, yy - 10, 155, 9, summary["vste"] / max_vste, colors.HexColor("#6d5cae"))
         c.drawRightString(350, yy - 9, f"{summary['vste']:.4f}")
-        c.drawString(375, yy + 4, f"FAR={summary['far']:.2%}, FRR={summary['frr']:.2%}")
+        c.drawString(375, yy + 4, f"PPV={summary['precision_ppv']:.1%}, TPR={summary['sensitivity_tpr']:.1%}")
 
     c.setFont("Helvetica-Bold", 10)
     c.drawString(42, 146, "C. Multi-seed robustness")
     c.setFont("Helvetica", 8)
     lines = [
-        f"Ranking reversal probability: {stats['ranking_reversal_probability']:.1%}",
+        f"Raw-sample to VSTE reversal: {stats['ranking_reversal_probability']:.1%}",
+        f"Crossing-event to VSTE reversal: {stats['crossing_to_vste_reversal_probability']:.1%}",
         f"Mean B/A VSTE ratio: {stats['mean_vste_ratio_b_over_a']:.2f}",
-        f"Mean A/B raw-efficiency ratio: {stats['mean_raw_ratio_a_over_b']:.3f}",
-        f"B VSTE 95% CI: [{stats['vste_b_ci_low']:.5f}, {stats['vste_b_ci_high']:.5f}]",
+        f"VSTE CIs are Monte Carlo intervals.",
     ]
     for i, line in enumerate(lines):
         c.drawString(58, 128 - i * 12, line)
@@ -416,9 +512,11 @@ def main() -> None:
     out_dir = Path("/Users/mpetr/Desktop")
     aggregate, stats = monte_carlo()
     sens = sensitivity()
+    abl = ablations()
     write_summary_csv(out_dir / "vstf_hmm_benchmark_summary.csv", aggregate)
     write_metric_csv(out_dir / "vstf_hmm_benchmark_monte_carlo.csv", stats)
     write_sensitivity_csv(out_dir / "vstf_hmm_benchmark_sensitivity.csv", sens)
+    write_ablation_csv(out_dir / "vstf_hmm_benchmark_ablations.csv", abl)
     write_pdf(out_dir / "vstf_hmm_benchmark.pdf", aggregate, stats, sens)
 
     print("Monte Carlo benchmark")
@@ -434,18 +532,29 @@ def main() -> None:
             "false_success",
             "false_acceptance",
             "false_rejection",
+            "true_positive",
             "latent_valid",
             "pending",
             "energy",
             "raw_per_energy",
+            "crossings_per_energy",
+            "committed_per_energy",
+            "retained_per_energy",
             "vste",
             "candidate_yield",
-            "far",
-            "frr",
+            "precision_ppv",
+            "sensitivity_tpr",
+            "false_discovery_fraction",
         ]:
             print(f"  {key}: {row[key]:.6g}")
     for key, value in stats.items():
         print(f"{key}: {value:.6g}")
+    for row in abl:
+        print(
+            f"ablation {row['ablation']}: raw_to_vste={row['raw_to_vste_reversal_probability']:.3g}, "
+            f"crossing_to_vste={row['crossing_to_vste_reversal_probability']:.3g}, "
+            f"ratio={row['mean_vste_ratio_b_over_a']:.3g}"
+        )
 
 
 if __name__ == "__main__":

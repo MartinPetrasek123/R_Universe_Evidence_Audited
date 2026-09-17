@@ -2,6 +2,9 @@ metric,value
 n_batches,100.0
 n_traj_per_batch,10000.0
 ranking_reversal_probability,0.78
+crossing_to_vste_reversal_probability,1.0
+committed_to_vste_reversal_probability,1.0
+retained_to_vste_reversal_probability,0.0
 mean_vste_ratio_b_over_a,3.102553685484142
 mean_raw_ratio_a_over_b,1.007293744855737
 vste_a_mean,0.0022194753700825374

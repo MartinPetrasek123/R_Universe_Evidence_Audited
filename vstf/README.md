@@ -7,10 +7,11 @@ This repository contains the manuscript and reproducibility materials for:
 ## Files
 
 - `main.tex` - LaTeX manuscript.
-- `vstf_hmm_benchmark.py` - deterministic hidden-Markov simulation benchmark with multi-seed robustness, latent-ground-truth error rates, and sensitivity sweep.
+- `vstf_hmm_benchmark.py` - deterministic hidden-Markov simulation benchmark with multi-seed robustness, event-level baselines, latent-ground-truth error rates, sensitivity sweep, and controlled ablations.
 - `vstf_hmm_benchmark_summary.csv` - aggregate benchmark results.
 - `vstf_hmm_benchmark_monte_carlo.csv` - multi-seed robustness summary.
 - `vstf_hmm_benchmark_sensitivity.csv` - sensitivity sweep over observation noise and retention window.
+- `vstf_hmm_benchmark_ablations.csv` - controlled A/B ablation summary.
 - `vstf_hmm_benchmark.pdf` - generated benchmark figure referenced by the manuscript.
 
 ## Reproducibility

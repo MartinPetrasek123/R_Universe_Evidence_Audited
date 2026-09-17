@@ -1,0 +1,7 @@
+ablation,n_batches,raw_to_vste_reversal_probability,crossing_to_vste_reversal_probability,mean_vste_ratio_b_over_a
+dynamics_only,20.0,1.0,1.0,2.3875112560468943
+noise_only,20.0,0.0,1.0,1.748055998829979
+domain_only,20.0,0.7,0.7,1.2168817702009342
+cost_only,20.0,0.0,0.0,1.096935183868302
+equal_domain,20.0,0.65,1.0,2.5414159941848964
+combined,20.0,0.65,1.0,3.090790270423044
