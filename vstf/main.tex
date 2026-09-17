@@ -8,9 +8,12 @@
 \usepackage{amsmath,amssymb,amsfonts,amsthm}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{tabularx}
+\usepackage{adjustbox}
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{xurl}
 \usepackage{xcolor}
 
 \hypersetup{
@@ -25,6 +28,7 @@
 \setlist[itemize]{leftmargin=1.4em}
 \setlist[enumerate]{leftmargin=1.6em}
 \renewcommand{\arraystretch}{1.15}
+\graphicspath{{./}{/Users/mpetr/Desktop/}{/Users/mpetr/Desktop/VSTF_GitHub/}{/Users/mpetr/Desktop/R_Universe/vstf/}}
 
 \newtheorem{definition}{Definition}
 \newtheorem{principle}{Principle}
@@ -52,7 +56,7 @@
 \newcommand{\Treturn}{T_{\mathrm{return}}}
 
 \title{\textbf{Valid State Transition Framework}\\
-\large An Operational Standard for Stabilized Outcomes in Physical, Biological, and Computational Systems}
+\large A Pre-Specified Event-Level Adjudication Framework for Stabilized Outcomes}
 
 \author{Martin Petrasek\\
 Institute for Resonant Synthesis and Field Physics (IRSFP)\\
@@ -119,7 +123,7 @@ The intended contribution is therefore:
   + \mathrm{pre\mbox{-}specification}.
 \]
 
-The word ``framework'' is used intentionally. A stronger theory-level claim would require additional axioms, identifiability results, or nontrivial theorems beyond the operational standard developed here.
+The word ``framework'' is used intentionally. VSTF is a proposed operational framework and protocol grammar, not a consensus or standards-body standard. A stronger theory-level claim would require additional axioms, identifiability results, or nontrivial theorems beyond the operational framework developed here.
 
 \section{Contributions and Defensible Novelty}
 
@@ -137,6 +141,7 @@ First-passage and exit-time analysis & Hitting, exit, and dwell events under spe
 Reliability/yield metrics & Pass/fail counts and accepted outputs. & Cross-domain coupling of yield with latent-state localization, distinguishability, retention, and cost boundaries. \\
 Clinical prediction standards & Calibration, discrimination, utility, external validation, and risk-of-bias assessment. & A state-transition vocabulary that prevents instability features from being called clinical events without validation. \\
 Conformity assessment & Acceptance/rejection rules under measurement uncertainty, acceptance intervals, and producer/consumer risk. & Extension from static object conformity to temporally segmented dynamic transitions with retention, state semantics, rejected-event accounting, and cost-normalized reporting. \\
+Temporal logic and runtime verification & Formal temporal predicates over traces or signals, including online monitoring and robustness of temporal specifications. & Measurement uncertainty, reference validity, domain admissibility, cost-boundary governance, rejected-event accounting, and claim restrictions around a temporal predicate. \\
 Hidden semi-Markov and segmental models & Explicit state durations, latent segments, and dwell-time structure \cite{yu2010hsmm}. & A cross-domain adjudication layer that locks detection, retention, domain validity, and denominator governance before an event enters an outcome numerator. \\
 Stochastic thermodynamics & Trajectory-level work, heat, entropy production, and fluctuation relations. & Separation of thermodynamic dissipation from accepted stabilized outcome counts. \\
 \bottomrule
@@ -389,7 +394,7 @@ When a latent or independently adjudicated reference-standard validity exists, d
 \[
   Z_k\in\{0,1\},
 \]
-where $Z_k=1$ means that event $k$ is valid under the target state, retention, and domain-validity semantics according to that reference standard, independently of whether the measurement rule accepted it. In hardware benchmarks this may be a latent truth; in clinical or biological settings it is often a fallible but independently justified reference standard. In noiseless task benchmarks $A_k$ and $Z_k$ may coincide, but under measurement uncertainty they are distinct. False acceptance and false rejection are defined as
+where $Z_k=1$ means that event $k$ is valid under the target state, retention, and domain-validity semantics according to that reference standard, independently of whether the measurement rule accepted it. In hardware benchmarks this may be a latent simulator or reference state; in clinical or biological settings it is often a fallible but independently justified reference standard. In noiseless task benchmarks $A_k$ and $Z_k$ may coincide, but under measurement uncertainty they are distinct. False acceptance and false rejection are defined as
 \[
   FP=\#\{k:A_k=1,\ Z_k=0\},
   \qquad
@@ -412,9 +417,9 @@ When state-validity predicates cannot be observed without error, the hard operat
 \[
   p_k=\Pr(Z_k=1\mid \mathcal{Y}_k,D_{\mathrm{train}}),
   \qquad
-  \E[N_{\VST}^{\mathrm{true}}\mid Y,D_{\mathrm{train}}]=\sum_k p_k.
+  \E[N_{\VST}^{\mathrm{ref}}\mid Y,D_{\mathrm{train}}]=\sum_k p_k.
 \]
-Here $\mathcal{Y}_k$ is the event-specific data packet: the observations used for commitment, validation, retention, distinguishability, domain validity, and censoring status. If $A_k$ is a deterministic function of $\mathcal{Y}_k$ under a locked protocol, then $\Pr(A_k=1\mid\mathcal{Y}_k)=A_k$ is trivial; the nontrivial uncertainty concerns $Z_k$, not the existence of the operational decision. The variance of the probabilistic true-valid count should be reported as
+Here $\mathcal{Y}_k$ is the event-specific data packet: the observations used for commitment, validation, retention, distinguishability, domain validity, and censoring status. If $A_k$ is a deterministic function of $\mathcal{Y}_k$ under a locked protocol, then $\Pr(A_k=1\mid\mathcal{Y}_k)=A_k$ is trivial; the nontrivial uncertainty concerns $Z_k$, not the existence of the operational decision. The variance of the probabilistic reference-valid count should be reported as
 \[
   \mathrm{Var}\!\left(\sum_k Z_k\mid \mathcal{Y},D_{\mathrm{train}}\right)
   =
@@ -435,11 +440,11 @@ The validity predicates are a logical conjunction, not a collection of statistic
 
 When $p_k=\Pr(Z_k=1\mid\mathcal{Y}_k,D_{\mathrm{train}})$ depends on estimated model parameters $\theta$--for example $p_0$, $K_\theta$, $P_M$, classifier calibration, or a covariance model--event uncertainty should be separated from parameter uncertainty:
 \[
-  \mathrm{Var}(N_{\VST}^{\mathrm{true}}\mid D)
+  \mathrm{Var}(N_{\VST}^{\mathrm{ref}}\mid D)
   =
-  \E_\theta\!\left[\mathrm{Var}(N_{\VST}^{\mathrm{true}}\mid D,\theta)\mid D\right]
+  \E_\theta\!\left[\mathrm{Var}(N_{\VST}^{\mathrm{ref}}\mid D,\theta)\mid D\right]
   +
-  \mathrm{Var}_\theta\!\left(\E[N_{\VST}^{\mathrm{true}}\mid D,\theta]\mid D\right).
+  \mathrm{Var}_\theta\!\left(\E[N_{\VST}^{\mathrm{ref}}\mid D,\theta]\mid D\right).
 \]
 The first term is event uncertainty; the second is model or parameter uncertainty. Posterior sampling, nested bootstrap, clustered bootstrap, or another pre-specified procedure should be used when model-based probabilities are reported.
 \end{definition}
@@ -598,6 +603,20 @@ Reliability engineering, benchmark validation, clinical prediction methodology, 
 \subsection{Conformity Assessment Under Measurement Uncertainty}
 
 Metrological conformity assessment is a close antecedent. NIST and JCGM/ISO guidance formalize decision rules for accepting or rejecting objects under measurement uncertainty, including acceptance intervals and producer/consumer risk \cite{phillips2014,jcgm106}. VSTF should not claim novelty for the generic idea that uncertain measurements require acceptance rules. Its narrower contribution is to extend this logic to temporally segmented dynamic transitions, where the object under assessment is not a static item but an event with origin, commitment, retention, domain validity, rejected attempts, and a cost boundary.
+
+\subsection{Temporal Logic and Runtime Verification}
+
+Metric Temporal Logic, Signal Temporal Logic, and runtime verification are close formal antecedents for the temporal-predicate component of VSTF. Signal Temporal Logic was introduced to monitor temporal properties of continuous signals, and robust temporal-logic semantics quantify not only Boolean satisfaction but also distance from violation \cite{maler2004,fainekos2009}. Runtime-verification methods similarly build monitors for trace properties, including online or partial-trace monitoring in embedded and real-time systems \cite{bartocci2013rv}.
+
+VSTF should therefore not be read as claiming novelty for formulas of the form ``enter a target region and remain there for $\tau_\ast$''. A VSTF event can often be decomposed as
+\[
+  \phi_{\mathrm{temporal}}
+  \wedge Q_{\mathrm{measurement}}
+  \wedge V_{\mathrm{dom}}
+  \wedge Q_{\mathcal{B}}^{\mathrm{acct}}
+  \wedge C_{\mathrm{claim}},
+\]
+where $\phi_{\mathrm{temporal}}$ is a trajectory requirement that could be expressed in an STL/MTL-like language. The incremental VSTF layer is the governance around that temporal predicate: observation uncertainty, reference-standard validity, domain admissibility, denominator completeness, rejected-event accounting, and restrictions on what scientific claim may be made. If an existing temporal-logic or runtime-verification monitor plus domain standards already supplies the same acceptance and denominator governance, VSTF should be described as a translation rather than as an independent new mechanism.
 
 \section{Relation to Established Theory}
 
@@ -789,8 +808,13 @@ Master random seed & 20260917 & 20260917 \\
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.96\linewidth]{vstf_hmm_benchmark.pdf}
+\IfFileExists{vstf_hmm_benchmark.pdf}{%
+  \includegraphics[width=0.96\linewidth]{vstf_hmm_benchmark.pdf}%
+}{%
+  \fbox{\parbox{0.92\linewidth}{\centering Missing generated figure file: \texttt{vstf\_hmm\_benchmark.pdf}. Regenerate with \texttt{python3 vstf\_hmm\_benchmark.py}.}}%
+}
 \caption{Hidden-Markov benchmark showing nested attrition from raw activity to valid VST events, latent-ground-truth error rates, multi-seed ranking robustness, and a small sensitivity sweep. System A produces more raw activity per supplied energy, but most committed events fail validation or retention. System B produces fewer raw events but substantially higher valid VST yield per supplied energy.}
+\label{fig:hmm-benchmark}
 \end{figure}
 
 \begin{table}[h]
@@ -858,21 +882,26 @@ Sensitivity reversal probability, $\sigma$ factor 1.25 & 1.00 across $\tau_\ast\
 \centering
 \caption{Controlled A/B ablations. Each row changes only the listed parameter group in System B relative to System A, except the combined and equal-domain rows.}
 \label{tab:hmm-ablations}
-\begin{tabular}{lrrr}
+\small
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lrrrr}
 \toprule
-Ablation & Raw$\to$\VSTE{} reversal & Crossing$\to$\VSTE{} reversal & Mean $\VSTE_B/\VSTE_A$ \\
+Ablation & Raw$\to$\VSTE{} & Crossing$\to$\VSTE{} & Retained$\to$\VSTE{} & Mean $\VSTE_B/\VSTE_A$ \\
 \midrule
-Dynamics only & 1.00 & 1.00 & 2.39 \\
-Noise only & 0.00 & 1.00 & 1.75 \\
-Domain only & 0.70 & 0.70 & 1.22 \\
-Cost only & 0.00 & 0.00 & 1.10 \\
-Combined with equal domain probability & 0.65 & 1.00 & 2.54 \\
-Combined & 0.65 & 1.00 & 3.09 \\
+Dynamics only & 1.00 & 1.00 & 0.00 & 2.39 \\
+Noise only & 0.00 & 1.00 & 0.00 & 1.75 \\
+Domain only & 0.70 & 0.70 & 0.55 & 1.22 \\
+Cost only & 0.00 & 0.00 & 0.00 & 1.10 \\
+Domain+cost only & 0.00 & 0.00 & 0.00 & 1.34 \\
+Retention-challenge & 0.00 & 0.00 & 0.90 & 1.32 \\
+Combined with equal domain probability & 0.65 & 1.00 & 0.00 & 2.54 \\
+Combined & 0.65 & 1.00 & 0.00 & 3.09 \\
 \bottomrule
 \end{tabular}
+\end{adjustbox}
 \end{table}
 
-The raw-sample ranking and VSTF ranking disagree in 78\% of the independent batches under the locked operating point. More importantly, the event-level crossing and committed-event baselines also rank System A above System B in every batch, while \VSTE{} ranks System B above System A. The retained-event baseline already ranks System B above System A, which is expected because retention is one of the core VSTF filters; this makes clear that the benchmark does not claim VSTF defeats every simpler event-level metric. The sensitivity and ablation results are deliberately reported rather than hidden: ranking reversal is not universal under all noise levels or all parameter changes, and the VSTF claim is strongest in regimes where noise, retention failure, domain filtering, and cost accounting create a measurable separation between activity and retained domain-valid outcome. The accompanying random-parameter stress file samples additional A/B pairs over transition, noise, domain-validity, and energy-ledger ranges; it is a broader robustness check, not a substitute for a full domain-specific HSMM or empirical benchmark. The reported intervals are Monte Carlo intervals across synthetic batches, not confidence intervals for a physical population parameter.
+The raw-sample ranking and VSTF ranking disagree in 78\% of the independent batches under the locked operating point. More importantly, the event-level crossing and committed-event baselines also rank System A above System B in every batch, while \VSTE{} ranks System B above System A. The retained-event baseline already ranks System B above System A in the main locked operating point, which is expected because retention is one of the core VSTF filters; this makes clear that the benchmark does not claim VSTF defeats every simpler event-level metric. To test incremental value beyond retention alone, the retention-challenge ablation locks the comparison to a regime in which the retained-event baseline ranks System A above System B in 90\% of batches while \VSTE{} ranks System B above System A. This ablation isolates the residual contribution of domain-validity and cost governance after event retention has already been counted. The sensitivity and ablation results are deliberately reported rather than hidden: ranking reversal is not universal under all noise levels or all parameter changes, and the VSTF claim is strongest in regimes where noise, retention failure, domain filtering, and cost accounting create a measurable separation between activity and retained domain-valid outcome. The accompanying random-parameter stress file samples additional A/B pairs over transition, noise, domain-validity, and energy-ledger ranges; it is a broader robustness check, not a substitute for a full domain-specific HSMM or empirical benchmark. The reported intervals are Monte Carlo intervals across synthetic batches, not confidence intervals for a physical population parameter.
 
 \section{Reproducibility Materials}
 
@@ -884,8 +913,8 @@ The synthetic benchmark is intended to be fully reproducible. The required compa
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_sensitivity.csv}{\texttt{vstf\_hmm\_benchmark\_sensitivity.csv}}: sensitivity sweep over observation noise and retention window.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_ablations.csv}{\texttt{vstf\_hmm\_benchmark\_ablations.csv}}: controlled A/B ablation summary used in Table~\ref{tab:hmm-ablations}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_random_parameter_stress.csv}{\texttt{vstf\_hmm\_random\_parameter\_stress.csv}}: random-parameter A/B stress test over transition, noise, domain-validity, and energy-ledger ranges.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_event_sample.csv}{\texttt{vstf\_hmm\_event\_sample.csv}}: machine-readable event-level audit sample with segmentation times, posterior values, latent truth $Z_k$, operational decision $A_k$, and event outcome labels.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark.pdf}{\texttt{vstf\_hmm\_benchmark.pdf}}: generated benchmark figure used in Figure 1.
+  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_event_sample.csv}{\texttt{vstf\_hmm\_event\_sample.csv}}: machine-readable event-level audit sample with segmentation times, posterior values, reference/latent validity $Z_k$, operational decision $A_k$, and event outcome labels.
+  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark.pdf}{\texttt{vstf\_hmm\_benchmark.pdf}}: generated benchmark figure used in Figure~\ref{fig:hmm-benchmark}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/REPRODUCIBILITY.md}{\texttt{REPRODUCIBILITY.md}} and \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/requirements.txt}{\texttt{requirements.txt}}: environment notes, seed policy, reproduction command, minimal dependencies, and SHA-256 hashes of generated outputs.
 \end{itemize}
 When the manuscript is hosted in a public repository, these links should resolve to the repository copies of the files. The benchmark does not require domain data and is not evidence for a biological or clinical claim; it is a reproducible methodological demonstration that the VSTF acceptance layer can alter ranking and false-success interpretation.
@@ -932,9 +961,9 @@ The operational pipeline is:
 \end{array}
 \]
 Failure before $A_k=1$ produces a rejected or unresolved candidate event. Failure after $A_k=1$ but before accounting completeness preserves the state-valid event while forbidding cost-normalized claims. Pending retention windows enter censoring analysis rather than the failure count.
-When validity is observed under uncertainty, the operational decision $A_k$ and latent truth $Z_k$ are distinct; reporting should show both operational counts and any available latent-truth or adjudicated-truth validation.
+When validity is observed under uncertainty, the operational decision $A_k$ and reference/latent validity $Z_k$ are distinct; reporting should show both operational counts and any available latent or adjudicated reference-standard validation.
 
-\section{Three Levels of Evidence}
+\section{Four Levels of Evidence}
 
 VSTF requires separation of evidence levels.
 
@@ -953,7 +982,7 @@ Cost-accounted VST & State-valid VST plus complete window-level denominator acco
 \end{tabular}
 \end{table}
 
-\section{Domain Instantiations}
+\section{Illustrative Domain Mappings and Validation Templates}
 
 \subsection{Computational Hardware}
 
@@ -1355,7 +1384,9 @@ This question can be applied to hardware, physiological monitoring, cancer-state
 
 \textbf{Competing interests.} The author declares no competing interests.
 
-\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration. The simulation script, aggregate summary, Monte Carlo summary, sensitivity sweep, ablation summary, random-parameter stress test, event-level audit sample, reproducibility manifest, requirements file, and figure are provided as \texttt{vstf\_hmm\_benchmark.py}, \texttt{vstf\_hmm\_benchmark\_summary.csv}, \texttt{vstf\_hmm\_benchmark\_monte\_carlo.csv}, \texttt{vstf\_hmm\_benchmark\_sensitivity.csv}, \texttt{vstf\_hmm\_benchmark\_ablations.csv}, \texttt{vstf\_hmm\_random\_parameter\_stress.csv}, \texttt{vstf\_hmm\_event\_sample.csv}, \texttt{REPRODUCIBILITY.md}, \texttt{requirements.txt}, and \texttt{vstf\_hmm\_benchmark.pdf}. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
+\begin{sloppypar}
+\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration. The simulation script, aggregate summary, Monte Carlo summary, sensitivity sweep, ablation summary, random-parameter stress test, event-level audit sample, reproducibility manifest, requirements file, and figure are provided as \path{vstf_hmm_benchmark.py}, \path{vstf_hmm_benchmark_summary.csv}, \path{vstf_hmm_benchmark_monte_carlo.csv}, \path{vstf_hmm_benchmark_sensitivity.csv}, \path{vstf_hmm_benchmark_ablations.csv}, \path{vstf_hmm_random_parameter_stress.csv}, \path{vstf_hmm_event_sample.csv}, \path{REPRODUCIBILITY.md}, \path{requirements.txt}, and \path{vstf_hmm_benchmark.pdf}. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
+\end{sloppypar}
 
 \textbf{Author contribution.} M. Petrasek conceived the framework, integrated prior theoretical and applied components, and wrote the manuscript.
 
@@ -1428,6 +1459,24 @@ S.-Z. Yu.
 Hidden semi-Markov models.
 \emph{Artificial Intelligence}, 174(2):215--243, 2010.
 doi:10.1016/j.artint.2009.11.011.
+
+\bibitem{maler2004}
+O. Maler and D. Nickovic.
+Monitoring temporal properties of continuous signals.
+In \emph{Formal Techniques, Modelling and Analysis of Timed and Fault-Tolerant Systems}, pages 152--166. Springer, 2004.
+doi:10.1007/978-3-540-30206-3\_12.
+
+\bibitem{fainekos2009}
+G. E. Fainekos and G. J. Pappas.
+Robustness of temporal logic specifications for continuous-time signals.
+\emph{Theoretical Computer Science}, 410(42):4262--4291, 2009.
+doi:10.1016/j.tcs.2009.06.021.
+
+\bibitem{bartocci2013rv}
+E. Bartocci, B. Bonakdarpour, and Y. Falcone.
+Runtime verification of embedded real-time systems.
+\emph{Formal Methods in System Design}, 43:203--239, 2013.
+doi:10.1007/s10703-013-0199-z.
 
 \bibitem{scheffer2009}
 M. Scheffer, J. Bascompte, W. A. Brock, V. Brovkin, S. R. Carpenter, V. Dakos, H. Held,

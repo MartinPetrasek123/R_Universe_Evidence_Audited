@@ -404,6 +404,31 @@ def ablation_systems(kind: str) -> tuple[SystemSpec, SystemSpec]:
             name="System B: cost-only",
             short="B",
         )
+    if kind == "domain_cost_only":
+        return common, replace(
+            common,
+            domain_valid_prob=SYSTEM_B.domain_valid_prob,
+            energy_base=SYSTEM_B.energy_base,
+            energy_per_crossing=SYSTEM_B.energy_per_crossing,
+            energy_per_committed=SYSTEM_B.energy_per_committed,
+            energy_per_valid=SYSTEM_B.energy_per_valid,
+            name="System B: domain+cost-only",
+            short="B",
+        )
+    if kind == "retention_challenge":
+        return common, replace(
+            common,
+            p01=0.105,
+            p10=0.255,
+            sigma=SYSTEM_A.sigma,
+            domain_valid_prob=0.98,
+            energy_base=58.0,
+            energy_per_crossing=0.52,
+            energy_per_committed=0.72,
+            energy_per_valid=0.80,
+            name="System B: retention-challenge",
+            short="B",
+        )
     if kind == "equal_domain":
         return SYSTEM_A, replace(SYSTEM_B, domain_valid_prob=SYSTEM_A.domain_valid_prob, name="System B: equal-domain", short="B")
     raise ValueError(kind)
@@ -416,15 +441,17 @@ def run_pair(seed: int, spec_a: SystemSpec, spec_b: SystemSpec) -> dict[str, dic
 
 def ablations() -> list[dict[str, float | str]]:
     rows: list[dict[str, float | str]] = []
-    for kind in ["dynamics_only", "noise_only", "domain_only", "cost_only", "equal_domain", "combined"]:
+    for kind in ["dynamics_only", "noise_only", "domain_only", "cost_only", "domain_cost_only", "retention_challenge", "equal_domain", "combined"]:
         spec_a, spec_b = ablation_systems(kind)
         reversals = []
         crossing_reversals = []
+        retained_reversals = []
         ratios = []
         for i in range(N_ABLATION_BATCHES):
             batch = run_pair(MASTER_SEED + 90_000 + 1009 * i, spec_a, spec_b)
             reversals.append(batch["A"]["raw_per_energy"] > batch["B"]["raw_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
             crossing_reversals.append(batch["A"]["crossings_per_energy"] > batch["B"]["crossings_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            retained_reversals.append(batch["A"]["retained_per_energy"] > batch["B"]["retained_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
             ratios.append(batch["B"]["vste"] / max(batch["A"]["vste"], 1e-12))
         rows.append(
             {
@@ -432,6 +459,7 @@ def ablations() -> list[dict[str, float | str]]:
                 "n_batches": float(N_ABLATION_BATCHES),
                 "raw_to_vste_reversal_probability": sum(reversals) / len(reversals),
                 "crossing_to_vste_reversal_probability": sum(crossing_reversals) / len(crossing_reversals),
+                "retained_to_vste_reversal_probability": sum(retained_reversals) / len(retained_reversals),
                 "mean_vste_ratio_b_over_a": mean(ratios),
             }
         )
@@ -572,6 +600,7 @@ def write_ablation_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
                 "n_batches",
                 "raw_to_vste_reversal_probability",
                 "crossing_to_vste_reversal_probability",
+                "retained_to_vste_reversal_probability",
                 "mean_vste_ratio_b_over_a",
             ],
         )
@@ -810,6 +839,7 @@ def main() -> None:
         print(
             f"ablation {row['ablation']}: raw_to_vste={row['raw_to_vste_reversal_probability']:.3g}, "
             f"crossing_to_vste={row['crossing_to_vste_reversal_probability']:.3g}, "
+            f"retained_to_vste={row['retained_to_vste_reversal_probability']:.3g}, "
             f"ratio={row['mean_vste_ratio_b_over_a']:.3g}"
         )
     print(
