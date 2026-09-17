@@ -1,0 +1,12 @@
+metric,value
+n_batches,100.0
+n_traj_per_batch,10000.0
+ranking_reversal_probability,0.78
+mean_vste_ratio_b_over_a,3.102553685484142
+mean_raw_ratio_a_over_b,1.007293744855737
+vste_a_mean,0.0022194753700825374
+vste_a_ci_low,0.0022106622135938422
+vste_a_ci_high,0.0022282885265712325
+vste_b_mean,0.006883536592722948
+vste_b_ci_low,0.00686840734945888
+vste_b_ci_high,0.006898665835987016
