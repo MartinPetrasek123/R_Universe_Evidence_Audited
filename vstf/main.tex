@@ -419,6 +419,14 @@ Here $\mathcal{Y}_k$ is the event-specific data packet: the observations used fo
 \]
 with the covariance term retained or estimated when events are not independent. This distinguishes certain accepted events from borderline threshold crossings.
 
+\begin{quote}
+\textbf{Separation principle.} The latent truth of an event, the measurement record, the operational decision, and the scientific claim are distinct objects:
+\[
+  Z_k\ \neq\ \mathcal{Y}_k\ \neq\ A_k\ \neq\ \mathrm{claim}.
+\]
+The measurement record $\mathcal{Y}_k$ supports an operational adjudication $A_k$ under a locked protocol, and may support posterior statements about $Z_k$ under an explicit validation model. A scientific claim is then restricted by the declared evidence level, baseline comparison, uncertainty analysis, domain predicate, and denominator completeness.
+\end{quote}
+
 The validity predicates are a logical conjunction, not a collection of statistically independent tests. Localization, distinguishability, retention, and domain validity may be correlated, especially when multiple predicates are derived from the same classifier, sensor stream, or posterior. Uncertainty propagation must therefore retain predicate dependence rather than multiplying marginal pass probabilities unless independence has been justified.
 
 When $p_k=\Pr(Z_k=1\mid\mathcal{Y}_k,D_{\mathrm{train}})$ depends on estimated model parameters $\theta$--for example $p_0$, $K_\theta$, $P_M$, classifier calibration, or a covariance model--event uncertainty should be separated from parameter uncertainty:
