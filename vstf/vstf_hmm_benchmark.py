@@ -52,6 +52,9 @@ N_MANY_SYSTEMS = 30
 N_MANY_SEEDS = 5
 N_MANY_TRAJ = 1_500
 N_BOOTSTRAP_SYSTEMS = 500
+N_MISSPEC_BATCHES = 4
+N_MISSPEC_TRAJ = 3_000
+REFERENCE_ERROR_PROB = 0.05
 
 
 @dataclass(frozen=True)
@@ -212,23 +215,18 @@ def correlated_domain_draws(
     return rng.random() <= p_truth, rng.random() <= p_obs
 
 
-def summarize_events(
+def summarize_from_arrays(
     spec: SystemSpec,
     rng: np.random.Generator,
+    x: np.ndarray,
+    y: np.ndarray,
     tau_ret: int = TAU_RET,
     validation_lag: int = VALIDATION_LAG,
-    dynamics: str = "hmm",
     domain_mode: str = "independent",
-    sampling_factor: float = 1.0,
-    n_traj: int = N_TRAJ,
+    reference_error_prob: float = 0.0,
 ) -> dict[str, float]:
-    if sampling_factor != 1.0 and dynamics == "hmm":
-        x, y = simulate_hidden_scaled(spec, rng, sampling_factor, n_traj=n_traj)
-    elif dynamics == "hsmm":
-        x, y = simulate_hidden_hsmm(spec, rng, n_traj=n_traj)
-    else:
-        x, y = simulate_hidden(spec, rng, n_traj=n_traj)
     post = filter_posterior(spec, y)
+    n_traj = x.shape[0]
     n_t = x.shape[1]
     totals = {
         "raw_activity": 0.0,
@@ -284,6 +282,8 @@ def summarize_events(
             else:
                 domain_truth, domain_observed = domain_draws(spec, rng, latent_retained, posterior_retained, posterior_mean)
             ground_truth = latent_retained and domain_truth
+            if reference_error_prob > 0.0 and rng.random() < reference_error_prob:
+                ground_truth = not ground_truth
             accepted = posterior_retained and domain_observed
 
             if ground_truth:
@@ -307,6 +307,25 @@ def summarize_events(
         )
 
     return add_derived(totals)
+
+
+def summarize_events(
+    spec: SystemSpec,
+    rng: np.random.Generator,
+    tau_ret: int = TAU_RET,
+    validation_lag: int = VALIDATION_LAG,
+    dynamics: str = "hmm",
+    domain_mode: str = "independent",
+    sampling_factor: float = 1.0,
+    n_traj: int = N_TRAJ,
+) -> dict[str, float]:
+    if sampling_factor != 1.0 and dynamics == "hmm":
+        x, y = simulate_hidden_scaled(spec, rng, sampling_factor, n_traj=n_traj)
+    elif dynamics == "hsmm":
+        x, y = simulate_hidden_hsmm(spec, rng, n_traj=n_traj)
+    else:
+        x, y = simulate_hidden(spec, rng, n_traj=n_traj)
+    return summarize_from_arrays(spec, rng, x, y, tau_ret=tau_ret, validation_lag=validation_lag, domain_mode=domain_mode)
 
 
 def collect_event_sample(spec: SystemSpec, rng: np.random.Generator, max_rows: int) -> list[dict[str, float | int | str]]:
@@ -541,6 +560,108 @@ def run_pair_scenario(
         "A": summarize_events(spec_a, rng, dynamics=dynamics, domain_mode=domain_mode),
         "B": summarize_events(spec_b, rng, dynamics=dynamics, domain_mode=domain_mode),
     }
+
+
+def simulate_drifting_transition(spec: SystemSpec, rng: np.random.Generator, n_traj: int = N_MISSPEC_TRAJ) -> tuple[np.ndarray, np.ndarray]:
+    x = np.zeros((n_traj, T), dtype=int)
+    y = np.zeros((n_traj, T), dtype=float)
+    x[:, 0] = rng.random(n_traj) < 0.18
+    y[:, 0] = x[:, 0] + rng.normal(0.0, spec.sigma, n_traj)
+    drift = np.linspace(0.65, 1.35, T)
+    for t in range(1, T):
+        prev = x[:, t - 1]
+        p01_t = min(0.95, spec.p01 * drift[t])
+        p10_t = min(0.95, spec.p10 * (2.0 - drift[t]))
+        flips_up = (prev == 0) & (rng.random(n_traj) < p01_t)
+        flips_down = (prev == 1) & (rng.random(n_traj) < p10_t)
+        x[:, t] = prev
+        x[flips_up, t] = 1
+        x[flips_down, t] = 0
+        y[:, t] = x[:, t] + rng.normal(0.0, spec.sigma, n_traj)
+    return x, y
+
+
+def simulate_student_t_observation(spec: SystemSpec, rng: np.random.Generator, n_traj: int = N_MISSPEC_TRAJ) -> tuple[np.ndarray, np.ndarray]:
+    x, _ = simulate_hidden(spec, rng, n_traj=n_traj)
+    df = 3.0
+    scaled_noise = rng.standard_t(df=df, size=x.shape) * spec.sigma / math.sqrt(df / (df - 2.0))
+    y = x + scaled_noise
+    return x, y
+
+
+def misspecification_arrays(spec: SystemSpec, rng: np.random.Generator, scenario: str) -> tuple[np.ndarray, np.ndarray, float]:
+    if scenario == "matched_hmm_gaussian":
+        x, y = simulate_hidden(spec, rng, n_traj=N_MISSPEC_TRAJ)
+        return x, y, 0.0
+    if scenario == "hsmm_truth_hmm_filter":
+        x, y = simulate_hidden_hsmm(spec, rng, n_traj=N_MISSPEC_TRAJ)
+        return x, y, 0.0
+    if scenario == "student_t_observation":
+        x, y = simulate_student_t_observation(spec, rng, n_traj=N_MISSPEC_TRAJ)
+        return x, y, 0.0
+    if scenario == "drifting_transition":
+        x, y = simulate_drifting_transition(spec, rng, n_traj=N_MISSPEC_TRAJ)
+        return x, y, 0.0
+    if scenario == "imperfect_reference_5pct":
+        x, y = simulate_hidden(spec, rng, n_traj=N_MISSPEC_TRAJ)
+        return x, y, REFERENCE_ERROR_PROB
+    raise ValueError(scenario)
+
+
+def run_pair_misspecification(seed: int, scenario: str) -> dict[str, dict[str, float]]:
+    rng = np.random.default_rng(seed)
+    x_a, y_a, ref_err_a = misspecification_arrays(SYSTEM_A, rng, scenario)
+    x_b, y_b, ref_err_b = misspecification_arrays(SYSTEM_B, rng, scenario)
+    return {
+        "A": summarize_from_arrays(SYSTEM_A, rng, x_a, y_a, reference_error_prob=ref_err_a),
+        "B": summarize_from_arrays(SYSTEM_B, rng, x_b, y_b, reference_error_prob=ref_err_b),
+    }
+
+
+def model_misspecification_stress() -> list[dict[str, float | str]]:
+    rows: list[dict[str, float | str]] = []
+    scenarios = [
+        ("matched_hmm_gaussian", "Matched HMM/Gaussian reference"),
+        ("hsmm_truth_hmm_filter", "HSMM truth, HMM filter"),
+        ("student_t_observation", "Student-t observation noise"),
+        ("drifting_transition", "Time-drifting transition rates"),
+        ("imperfect_reference_5pct", "5 percent reference-label error"),
+    ]
+    for scenario, label in scenarios:
+        raw_reversals = []
+        crossing_reversals = []
+        retained_reversals = []
+        ratios = []
+        ppv_a = []
+        ppv_b = []
+        tpr_a = []
+        tpr_b = []
+        for i in range(N_MISSPEC_BATCHES):
+            batch = run_pair_misspecification(MASTER_SEED + 600_000 + 10_007 * i + len(rows), scenario)
+            raw_reversals.append(batch["A"]["raw_per_energy"] > batch["B"]["raw_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            crossing_reversals.append(batch["A"]["crossings_per_energy"] > batch["B"]["crossings_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            retained_reversals.append(batch["A"]["retained_per_energy"] > batch["B"]["retained_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            ratios.append(batch["B"]["vste"] / max(batch["A"]["vste"], 1e-12))
+            ppv_a.append(batch["A"]["precision_ppv"])
+            ppv_b.append(batch["B"]["precision_ppv"])
+            tpr_a.append(batch["A"]["sensitivity_tpr"])
+            tpr_b.append(batch["B"]["sensitivity_tpr"])
+        rows.append(
+            {
+                "scenario": label,
+                "n_batches": float(N_MISSPEC_BATCHES),
+                "n_traj_per_batch": float(N_MISSPEC_TRAJ),
+                "raw_to_vste_reversal_probability": sum(raw_reversals) / len(raw_reversals),
+                "crossing_to_vste_reversal_probability": sum(crossing_reversals) / len(crossing_reversals),
+                "retained_to_vste_reversal_probability": sum(retained_reversals) / len(retained_reversals),
+                "mean_vste_ratio_b_over_a": mean(ratios),
+                "mean_ppv_a": mean(ppv_a),
+                "mean_ppv_b": mean(ppv_b),
+                "mean_tpr_a": mean(tpr_a),
+                "mean_tpr_b": mean(tpr_b),
+            }
+        )
+    return rows
 
 
 def ablations() -> list[dict[str, float | str]]:
@@ -1035,6 +1156,28 @@ def write_scenario_stress_csv(path: Path, rows: list[dict[str, float | str]]) ->
         writer.writerows(rows)
 
 
+def write_model_misspecification_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "scenario",
+                "n_batches",
+                "n_traj_per_batch",
+                "raw_to_vste_reversal_probability",
+                "crossing_to_vste_reversal_probability",
+                "retained_to_vste_reversal_probability",
+                "mean_vste_ratio_b_over_a",
+                "mean_ppv_a",
+                "mean_ppv_b",
+                "mean_tpr_a",
+                "mean_tpr_b",
+            ],
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def write_many_system_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
     fields = [
         "system_id",
@@ -1419,6 +1562,7 @@ def main() -> None:
     abl = ablations()
     random_stress = random_parameter_stress()
     scenarios = scenario_stress()
+    misspecification_rows = model_misspecification_stress()
     sampling_rows = sampling_resolution_stress()
     many_rows, many_discordance = many_system_benchmark()
     write_summary_csv(out_dir / "vstf_hmm_benchmark_summary.csv", aggregate)
@@ -1428,6 +1572,7 @@ def main() -> None:
     write_ablation_csv(out_dir / "vstf_hmm_benchmark_ablations.csv", abl)
     write_random_parameter_stress_csv(out_dir / "vstf_hmm_random_parameter_stress.csv", random_stress)
     write_scenario_stress_csv(out_dir / "vstf_hmm_scenario_stress.csv", scenarios)
+    write_model_misspecification_csv(out_dir / "vstf_model_misspecification_stress.csv", misspecification_rows)
     write_many_system_csv(out_dir / "vstf_many_system_benchmark.csv", many_rows)
     write_many_system_discordance_csv(out_dir / "vstf_many_system_discordance.csv", many_discordance)
     output_files = [
@@ -1438,6 +1583,7 @@ def main() -> None:
         out_dir / "vstf_hmm_benchmark_ablations.csv",
         out_dir / "vstf_hmm_random_parameter_stress.csv",
         out_dir / "vstf_hmm_scenario_stress.csv",
+        out_dir / "vstf_model_misspecification_stress.csv",
         out_dir / "vstf_many_system_benchmark.csv",
         out_dir / "vstf_many_system_discordance.csv",
         out_dir / "vstf_hmm_event_sample.csv",
@@ -1445,10 +1591,10 @@ def main() -> None:
         out_dir / "vstf_hmm_benchmark.pdf",
         out_dir / "vstf_many_system_rank_displacement.pdf",
     ]
-    write_event_sample_csv(output_files[9])
-    write_event_cascade_pdf(output_files[10])
-    write_pdf(output_files[11], aggregate, stats, sens)
-    write_many_system_rank_pdf(output_files[12], many_rows, many_discordance)
+    write_event_sample_csv(output_files[10])
+    write_event_cascade_pdf(output_files[11])
+    write_pdf(output_files[12], aggregate, stats, sens)
+    write_many_system_rank_pdf(output_files[13], many_rows, many_discordance)
     write_reproducibility_manifest(out_dir / "REPRODUCIBILITY.md", output_files)
 
     print("Monte Carlo benchmark")
