@@ -7,7 +7,7 @@ This repository contains the manuscript and reproducibility materials for:
 ## Files
 
 - `main.tex` - LaTeX manuscript.
-- `vstf_hmm_benchmark.py` - deterministic hidden-Markov simulation benchmark with multi-seed robustness, event-level baselines, matched/reference-validity error rates, operation-based cost accounting, sensitivity sweep, sampling-resolution stress, controlled ablations, random-parameter stress, correlated-domain stress, HSMM stress, and figure generation.
+- `vstf_hmm_benchmark.py` - deterministic hidden-Markov simulation benchmark with multi-seed robustness, event-level baselines, matched/reference-validity error rates, operation-based cost accounting, sensitivity sweep, sampling-resolution stress, controlled ablations, random-parameter stress, correlated-domain stress, HSMM stress, many-system rank-discordance stress, and figure generation.
 - `vstf_hmm_benchmark_summary.csv` - aggregate benchmark results.
 - `vstf_hmm_benchmark_monte_carlo.csv` - multi-seed robustness summary.
 - `vstf_hmm_benchmark_sensitivity.csv` - sensitivity sweep over observation noise and retention window.
@@ -15,9 +15,12 @@ This repository contains the manuscript and reproducibility materials for:
 - `vstf_hmm_benchmark_ablations.csv` - controlled A/B ablation summary.
 - `vstf_hmm_random_parameter_stress.csv` - random-parameter A/B stress test over transition, noise, domain-validity, and energy-ledger ranges.
 - `vstf_hmm_scenario_stress.csv` - correlated-domain and HSMM scenario stress tests.
+- `vstf_many_system_benchmark.csv` - 30-system synthetic benchmark summary with retained-efficiency and VSTE ranks.
+- `vstf_many_system_discordance.csv` - pairwise rank-discordance summary with system-bootstrap intervals.
 - `vstf_hmm_event_sample.csv` - machine-readable event-level audit sample showing segmentation, latent truth, and operational decisions.
 - `vstf_event_cascade.pdf` - generated event-cascade and claim-governance workflow diagram.
 - `vstf_hmm_benchmark.pdf` - generated benchmark figure referenced by the manuscript.
+- `vstf_many_system_rank_displacement.pdf` - generated many-system retained-rank versus VSTE-rank diagnostic.
 - `REPRODUCIBILITY.md` - Python/library versions, seed policy, reproduction command, and SHA-256 output hashes.
 - `requirements.txt` - minimal Python package requirements.
 
@@ -29,6 +32,6 @@ Run:
 python3 vstf_hmm_benchmark.py
 ```
 
-The script uses a fixed master seed and regenerates the CSV summaries, event-level audit sample, reproducibility manifest, workflow figure, and benchmark figure.
+The script uses a fixed master seed and regenerates the CSV summaries, event-level audit sample, reproducibility manifest, workflow figure, benchmark figure, and many-system rank diagnostic.
 
 The benchmark is a synthetic methodological demonstration. It is not a biological, clinical, or hardware validation study.

@@ -156,6 +156,8 @@ Transition Path Theory & Reactive trajectories, committors, fluxes, and transiti
 First-passage and exit-time analysis & Hitting, exit, and dwell events under specified regions. & A protocol for deciding which detected events are scientifically countable as outcomes. \\
 Reliability/yield metrics & Pass/fail counts and accepted outputs. & Cross-domain coupling of yield with latent-state localization, distinguishability, retention, and cost boundaries. \\
 Clinical prediction standards & Calibration, discrimination, utility, external validation, and risk-of-bias assessment. & A state-transition vocabulary that prevents instability features from being called clinical events without validation. \\
+Recurrent-event and counting-process methods & Event occurrence processes, rates, at-risk time, censoring, and repeated-event inference. & Definition of the admissible event universe to which those estimators are applied. \\
+Endpoint definition and adjudication frameworks & Domain-specific outcome definitions, endpoint hierarchy, adjudication committees, and clinical versus surrogate endpoint governance. & Cross-domain generalization of event admissibility from clinical trials to dynamical trajectories and engineered systems. \\
 Conformity assessment & Acceptance/rejection rules under measurement uncertainty, acceptance intervals, and producer/consumer risk. & Extension from static object conformity to temporally segmented dynamic transitions with retention, state semantics, rejected-event accounting, and cost-normalized reporting. \\
 Temporal logic and runtime verification & Formal temporal predicates over traces or signals, including online monitoring and robustness of temporal specifications. & Measurement uncertainty, reference validity, domain admissibility, cost-boundary governance, rejected-event accounting, and claim restrictions around a temporal predicate. \\
 Hidden semi-Markov and segmental models & Explicit state durations, latent segments, and dwell-time structure \cite{yu2010hsmm}. & A cross-domain adjudication layer that locks detection, retention, domain validity, and denominator governance before an event enters an outcome numerator. \\
@@ -173,6 +175,8 @@ The manuscript is therefore intended as a methodological framework with three pr
 \end{enumerate}
 
 More precisely, VSTF proposes a temporal extension and cross-domain synthesis of conformity-style decision rules for dynamically segmented transition events. Its claimed novelty lies in the locked composition of segmentation, state localization, measurement-system distinguishability, event-level retention, domain admissibility, and cost-boundary restrictions, not in any of these components separately. A static object may be accepted or rejected under measurement uncertainty; a VSTF event is accepted only after temporal segmentation, state localization, distinguishability, event-level retention, domain admissibility, and denominator accounting have all been declared. VSTF does not claim novelty for temporal segmentation, dwell-time modeling, hidden-state inference, or acceptance testing separately. Its proposed contribution is that these components are jointly locked before an event is admitted into the numerator of an outcome or cost-normalized metric.
+
+The prior-art claim is deliberately scoped. Search terms used to position the framework included combinations of ``transition path theory'', ``first passage'', ``hidden semi-Markov'', ``runtime verification'', ``metric temporal logic'', ``conformity assessment'', ``measurement uncertainty decision rule'', ``recurrent event'', ``counting process'', ``endpoint adjudication'', ``clinical endpoint'', ``surrogate endpoint'', and ``energy efficiency benchmark''. The search was used to identify nearby methodological families rather than to prove absence. To our knowledge, VSTF is best described as a cross-domain synthesis and protocol grammar for event-level adjudication, not as a replacement for any one of these literatures.
 
 \section{Notation}
 
@@ -198,14 +202,15 @@ $\alpha$ & Distinguishability error tolerance. \\
 $\delta$ & Persistence or return-failure tolerance. \\
 $\tau_\ast$ & Minimum declared persistence or retention window. \\
 $V_{\mathrm{dom}}$ & Pre-specified domain-validity predicate. \\
-$A_k$ & Hard accepted-transition indicator for candidate event $k$. \\
-$p_k$ & Posterior or estimated probability that candidate event $k$ is valid. \\
+$S_k$ & Three-state adjudication status in $\{\mathrm{accepted},\mathrm{rejected},\mathrm{pending}\}$. \\
+$A_k$ & Mature hard accepted-transition indicator, $A_k=\1\{S_k=\mathrm{accepted}\}$. \\
+$p_k^{\mathrm{ref}}$ & Posterior or estimated probability of candidate-level matched-reference validity, $\Pr(Z^{\mathrm{match}}_k=1\mid\mathcal{Y}_k,D_{\mathrm{train}})$. \\
 $R_k(\tau_\ast)$ & Event-level retention indicator for candidate event $k$. \\
-$\rho_j(\tau_\ast)$ & Population retention reliability for target region $C_j$. \\
+$\rho_j(\tau_\ast;\mathcal{P})$ & Population retention reliability for target region $C_j$ under protocol $\mathcal{P}$. \\
 $Q_k^{\mathrm{acct}}$ & Accounting-quality flag for event $k$. \\
 $Q_{\mathcal{B}}^{\mathrm{acct}}[a,b]$ & Window-level accounting-completeness flag for the full denominator in $[a,b]$. \\
 $E_{\mathrm{sup}}^{\mathcal{B}}[a,b]$ & Full-boundary supplied energy or cost ledger over the declared window. \\
-$N_{\VST}$ & Count of accepted valid stabilized transitions. \\
+$N_{\VST}$ & Count of accepted valid stabilized transitions; unless otherwise stated, $N_{\VST}\equiv N_{\VST}^{\mathrm{op}}$. Reference-valid counts carry an explicit $\mathrm{ref}$ superscript or subscript. \\
 $\widehat{\VSTR}$ & Finite-window accepted-transition rate. \\
 $\widehat{\VSTE}$ & Finite-window energy-normalized accepted-transition yield. \\
 $\VSTJ$ & Perturbation-normalized accepted-transition yield. \\
@@ -271,6 +276,8 @@ For a transition from $C_i$ to $C_j$, a typical segmentation rule is:
 This prevents boundary chatter or high sampling frequency from inflating event counts.
 
 Segmentation rules must also declare whether they are online causal rules or offline retrospective rules. For an online detection claim, $t_{\mathrm{start}}$ and $t_{\mathrm{commit}}$ must be stopping times with respect to the observation filtration $\mathcal{F}^Y_t=\sigma(Y_s:s\leq t)$. A rule such as ``last exit from $C_i$ before later commitment to $C_j$'' may be valid for offline event adjudication, but it must not be used to claim real-time detection latency unless an equivalent causal stopping-time rule is specified.
+
+All online VST claims must use filtered information available at the adjudication time. Smoothed posteriors or retrospective labels using future observations may be reported only as offline retrospective adjudication, not as real-time localization, retention, or latency evidence.
 
 \begin{definition}[Candidate transition]
 A candidate transition over an event segment $e_k$ is an observed or inferred movement
@@ -416,21 +423,40 @@ based on admissible temporal overlap, state overlap, commitment-time tolerance, 
   c_{kr}=w_1|t^{(k)}_{\mathrm{commit}}-t^{(r)\ast}_{\mathrm{commit}}|
   +w_2\{1-\mathrm{IoU}(I_k,I_r^\ast)\},
 \]
-subject to a maximum admissible cost and one-to-one assignment. Unmatched accepted candidate events contribute to false acceptance; unmatched reference-valid events contribute to false rejection.
+subject to a maximum admissible cost, a deterministic tie-breaking rule, and one-to-one assignment. The tuple $(c_{\mathrm{match}},c_{\max},\mathrm{tie\ rule})$ is part of the locked protocol $\mathcal{P}$. Unmatched accepted candidate events contribute to false acceptance; unmatched reference-valid events contribute to false rejection.
 \end{definition}
 
 \begin{definition}[Operational decision and matched reference validity]
-For detected candidate event $\hat e_k$, define the operational VSTF decision
+For detected candidate event $\hat e_k$, define the mature localization/segmentation gate
 \[
-  A_k =
+  Q^{\mathrm{loc}}_k
+  =
+  \1\{t_{\mathrm{commit},k}<\infty,\ \pi_{t_{\mathrm{commit},k}+\ell}(C_j)\geq\gamma_{\mathrm{val}}\},
+\]
+with the corresponding calibrated-score version used in classifier-based protocols. Let each mature or immature candidate event receive a three-state adjudication status
+\[
+S_k\in\{\mathrm{accepted},\mathrm{rejected},\mathrm{pending}\}.
+\]
+The status is assigned by the locked rule
+\[
+S_k =
+\begin{cases}
+\mathrm{accepted}, & \text{all required mature gates pass},\\
+\mathrm{rejected}, & \text{at least one mature required gate definitively fails},\\
+\mathrm{pending}, & \text{no mature required gate has failed, but at least one required gate is not yet mature}.
+\end{cases}
+\]
+Equivalently, for mature events the operational VSTF acceptance indicator is
+\[
+  A_k=\1\{S_k=\mathrm{accepted}\} =
   Q_{\mathrm{dist},ij}(\mathcal{P},M,\{C_i\})
-  L_k
+  Q^{\mathrm{loc}}_k
   R_k(\tau_\ast)
   V_{\mathrm{dom},k}.
 \]
-Here $Q_{\mathrm{dist},ij}(\mathcal{P},M,\{C_i\})\in\{0,1\}$ is a protocol-level or transition-specific measurement-system qualification flag for the intended transition $C_i\to C_j$, $L_k$ is event-level localization and segmentation success, $R_k(\tau_\ast)$ is event-level retention, and $V_{\mathrm{dom},k}$ is event-level domain admissibility. This separates a reusable confusion-matrix or distinguishability validation from predicates that are evaluated on each event. $A_k=g(\mathcal{Y}_k;\mathcal{P})$ is the decision made by the locked protocol $\mathcal{P}$ from the observed event packet $\mathcal{Y}_k$. Only detected candidate events with $A_k=1$ enter the operational VST count
+Here $Q_{\mathrm{dist},ij}(\mathcal{P},M,\{C_i\})\in\{0,1\}$ is a protocol-level or transition-specific measurement-system qualification flag for the intended transition $C_i\to C_j$, $Q^{\mathrm{loc}}_k$ is event-level localization and segmentation success, $R_k(\tau_\ast)$ is event-level retention, and $V_{\mathrm{dom},k}$ is event-level domain admissibility. This separates a reusable confusion-matrix or distinguishability validation from predicates that are evaluated on each event. Pending events are neither accepted nor counted as failures until their required gates mature. Only detected candidate events with $S_k=\mathrm{accepted}$ enter the operational VST count
 \[
-  N_{\VST}^{\mathrm{op}}=\sum_k A_k.
+  N_{\VST}^{\mathrm{op}}=\sum_k A_k=\sum_k\1\{S_k=\mathrm{accepted}\}.
 \]
 
 When a detected candidate event is matched to a latent or independently adjudicated reference event, define separately
@@ -462,9 +488,9 @@ Incomplete accounting invalidates \VSTE{} or cost-yield claims, not necessarily 
 \begin{definition}[Probabilistic matched-reference validity]
 When state-validity predicates cannot be observed without error, the hard operational decision $A_k$ should be accompanied by a posterior probability of latent or reference-standard validity,
 \[
-  p_k=\Pr(Z^{\mathrm{match}}_k=1\mid \mathcal{Y}_k,D_{\mathrm{train}}),
+  p_k^{\mathrm{ref}}=\Pr(Z^{\mathrm{match}}_k=1\mid \mathcal{Y}_k,D_{\mathrm{train}}),
   \qquad
-  \E[N_{\mathrm{ref,cand}}\mid Y,D_{\mathrm{train}}]=\sum_{\hat e_k\in\widehat{\mathcal{E}}_{\mathcal{P}}} p_k.
+  \E[N_{\mathrm{ref,cand}}\mid Y,D_{\mathrm{train}}]=\sum_{\hat e_k\in\widehat{\mathcal{E}}_{\mathcal{P}}} p_k^{\mathrm{ref}}.
 \]
 Here $\mathcal{Y}_k$ is the event-specific data packet: the observations used for commitment, validation, retention, distinguishability, domain validity, matching, and censoring status. This quantity estimates reference validity among detected candidates. It is not, without an explicit event-detection model, an estimator of the total number of reference-valid latent transitions
 \[
@@ -474,7 +500,7 @@ If $A_k$ is a deterministic function of $\mathcal{Y}_k$ under a locked protocol,
 \[
   \mathrm{Var}\!\left(\sum_k Z^{\mathrm{match}}_k\mid \mathcal{Y},D_{\mathrm{train}}\right)
   =
-  \sum_k p_k(1-p_k)
+  \sum_k p_k^{\mathrm{ref}}(1-p_k^{\mathrm{ref}})
   +2\sum_{k<\ell}\mathrm{Cov}(Z^{\mathrm{match}}_k,Z^{\mathrm{match}}_\ell\mid \mathcal{Y},D_{\mathrm{train}}),
 \]
 with the covariance term retained or estimated when events are not independent. This distinguishes certain accepted events from borderline threshold crossings.
@@ -489,7 +515,7 @@ The measurement record $\mathcal{Y}_k$ supports an operational adjudication $A_k
 
 The validity predicates are a logical conjunction, not a collection of statistically independent tests. Localization, distinguishability, retention, and domain validity may be correlated, especially when multiple predicates are derived from the same classifier, sensor stream, or posterior. Uncertainty propagation must therefore retain predicate dependence rather than multiplying marginal pass probabilities unless independence has been justified.
 
-When $p_k=\Pr(Z^{\mathrm{match}}_k=1\mid\mathcal{Y}_k,D_{\mathrm{train}})$ depends on estimated model parameters $\theta$--for example $p_0$, $K_\theta$, $P_M$, classifier calibration, matching tolerance, or a covariance model--event uncertainty should be separated from parameter uncertainty:
+When $p_k^{\mathrm{ref}}=\Pr(Z^{\mathrm{match}}_k=1\mid\mathcal{Y}_k,D_{\mathrm{train}})$ depends on estimated model parameters $\theta$--for example $p_0$, $K_\theta$, $P_M$, classifier calibration, matching tolerance, or a covariance model--event uncertainty should be separated from parameter uncertainty:
 \[
   \mathrm{Var}(N_{\mathrm{ref,cand}}\mid D)
   =
@@ -497,7 +523,7 @@ When $p_k=\Pr(Z^{\mathrm{match}}_k=1\mid\mathcal{Y}_k,D_{\mathrm{train}})$ depen
   +
   \mathrm{Var}_\theta\!\left(\E[N_{\mathrm{ref,cand}}\mid D,\theta]\mid D\right).
 \]
-The first term is event uncertainty; the second is model or parameter uncertainty. Posterior sampling, nested bootstrap, clustered bootstrap, or another pre-specified procedure should be used when model-based probabilities are reported. The probability model used for $p_k$ should be calibrated out of sample or validated outside the confirmatory set; otherwise $\sum_k p_k$ is only a model-implied count under the fitted assumptions.
+The first term is event uncertainty; the second is model or parameter uncertainty. Posterior sampling, nested bootstrap, clustered bootstrap, or another pre-specified procedure should be used when model-based probabilities are reported. The probability model used for $p_k^{\mathrm{ref}}$ should be calibrated out of sample or validated outside the confirmatory set; otherwise $\sum_k p_k^{\mathrm{ref}}$ is only a model-implied count under the fitted assumptions.
 \end{definition}
 
 \section{Core Observables}
@@ -624,9 +650,9 @@ Poisson count models may be used when a Poisson or conditionally Poisson event-p
 
 For probabilistic reference-validity reporting, report
 \[
-  \widehat{N}_{\VST}^{\,p}=\sum_k p_k
+  \widehat{N}_{\mathrm{ref,cand}}^{\,p}=\sum_k p_k^{\mathrm{ref}}
 \]
-alongside the hard operational count $N_{\VST}^{\mathrm{op}}=\sum_k A_k$. A large discrepancy between $\sum_k A_k$ and $\sum_k p_k$ indicates operational--probabilistic discordance that requires diagnosis through calibration, threshold-sensitivity, reference-standard, clustering, and model-uncertainty analyses. It should downgrade the claim unless the discrepancy is explained by the locked estimand.
+alongside the hard operational count $N_{\VST}^{\mathrm{op}}=\sum_k A_k$. A large discrepancy between $\sum_k A_k$ and $\sum_k p_k^{\mathrm{ref}}$ indicates operational--probabilistic discordance that requires diagnosis through calibration, threshold-sensitivity, reference-standard, clustering, and model-uncertainty analyses. It should downgrade the claim unless the discrepancy is explained by the locked estimand.
 
 \subsection{Threshold Sensitivity}
 
@@ -719,11 +745,11 @@ where each candidate attempt $a$ has a separate outcome label $S_a\in\{\mathrm{a
 
 Let $\mathcal{A}=\{k:A_k=1\}$ be the accepted event set in $[a,b]$. A sample-level bound on \VSTE{} follows only when the implementation provides an independently justified eventwise resource minimum
 \[
-  E_{\mathrm{req},k}\geq L_k>0
+  E_{\mathrm{req},k}^{\mathcal{B}}\geq E_{\min,k}^{\mathcal{B}}>0
 \]
-for every accepted event. The sum $\sum_{k\in\mathcal{A}}L_k$ is valid only when the lower-bound contributions are samplewise, additive, and allocated to nonoverlapping event-specific resource segments. Shared setup, idle, controller, or readout costs must be assigned to the window ledger rather than counted repeatedly inside every $L_k$. If all additional ledger terms are nonnegative, then
+for every accepted event. The sum $\sum_{k\in\mathcal{A}}E_{\min,k}^{\mathcal{B}}$ is valid only when the lower-bound contributions are samplewise, additive, and allocated to nonoverlapping event-specific resource segments. Shared setup, idle, controller, or readout costs must be assigned to the window ledger rather than counted repeatedly inside every event. If all additional ledger terms are nonnegative, then
 \[
-  E_{\mathrm{sup}}^{\mathcal{B}}[a,b]\geq \sum_{k\in\mathcal{A}}L_k.
+  E_{\mathrm{sup}}^{\mathcal{B}}[a,b]\geq \sum_{k\in\mathcal{A}}E_{\min,k}^{\mathcal{B}}.
 \]
 Thus
 \[
@@ -731,16 +757,16 @@ Thus
   =
   \frac{N_{\VST}[a,b]}{E_{\mathrm{sup}}^{\mathcal{B}}[a,b]}
   \leq
-  \frac{N_{\VST}[a,b]}{\sum_{k\in\mathcal{A}}L_k}
+  \frac{N_{\VST}[a,b]}{\sum_{k\in\mathcal{A}}E_{\min,k}^{\mathcal{B}}}
   =
-  \frac{1}{\bar{L}_{\mathcal{A}}},
+  \frac{1}{\bar{E}_{\min,\mathcal{A}}^{\mathcal{B}}},
 \]
-where $\bar{L}_{\mathcal{A}}=N_{\VST}^{-1}\sum_{k\in\mathcal{A}}L_k$. Only in a specific physical implementation where a separate derivation justifies substituting $L_k=\Delta F_k>0$ as an eventwise resource bound does this become a free-energy bound. If a uniform samplewise bound $L_k\geq L_{\min}>0$ is justified for all accepted events, then $\widehat{\VSTE}_{[a,b]}\leq 1/L_{\min}$. No useful positive bound of this type follows from events with $L_k\leq0$ or from ensemble-average thermodynamic relations alone.
+where $\bar{E}_{\min,\mathcal{A}}^{\mathcal{B}}=N_{\VST}^{-1}\sum_{k\in\mathcal{A}}E_{\min,k}^{\mathcal{B}}$. Only in a specific physical implementation where a separate derivation justifies substituting $E_{\min,k}^{\mathcal{B}}=\Delta F_k>0$ as an eventwise resource bound does this become a free-energy bound. If a uniform samplewise bound $E_{\min,k}^{\mathcal{B}}\geq E_{\min}^{\mathcal{B}}>0$ is justified for all accepted events, then $\widehat{\VSTE}_{[a,b]}\leq 1/E_{\min}^{\mathcal{B}}$. No useful positive bound of this type follows from events with nonpositive eventwise lower bounds or from ensemble-average thermodynamic relations alone.
 
 Because VSTF often involves measurement, readout, feedback, and post-selection on accepted events, any use of work/free-energy equalities must declare whether the controller is inside the boundary and whether conditioning on acceptance changes the relevant work distribution. Nonequilibrium work relations such as Jarzynski's equality and feedback-control generalizations constrain ensemble statistics of work and show that measurement and information terms can alter the relevant work relations \cite{jarzynski1997,sagawa2010}. They should not be interpreted as deterministic lower bounds on every accepted stochastic trajectory without an additional derivation. These thermodynamic relations are external physical specializations that may be added to a VSTF protocol; they are not supplied by VSTF itself and are not the general foundation of the framework.
 
 \begin{quote}
-\textbf{Thermodynamic specialization.} VSTF itself imposes no universal relation between accepted-event counts and work, heat, entropy production, or free-energy change. For a particular physical implementation, an independently derived ensemble thermodynamic relation may be imposed on the event-generating subsystem. Likewise, a sample-level upper bound on \VSTE{} exists only if every accepted event admits an independently justified positive resource lower bound $L_k$, additive over non-overlapping resource segments. In that case $E_{\mathrm{sup}}^{\mathcal{B}}[a,b]\geq\sum_{k\in\mathcal{A}}L_k$ and $\widehat{\VSTE}_{[a,b]}\leq1/\bar{L}_{\mathcal{A}}$. Substitution of $L_k$ by a free-energy quantity requires a separate physical derivation; it is not implied by VSTF.
+\textbf{Thermodynamic specialization.} VSTF itself imposes no universal relation between accepted-event counts and work, heat, entropy production, or free-energy change. For a particular physical implementation, an independently derived ensemble thermodynamic relation may be imposed on the event-generating subsystem. Likewise, a sample-level upper bound on \VSTE{} exists only if every accepted event admits an independently justified positive resource lower bound $E_{\min,k}^{\mathcal{B}}$, additive over non-overlapping resource segments. In that case $E_{\mathrm{sup}}^{\mathcal{B}}[a,b]\geq\sum_{k\in\mathcal{A}}E_{\min,k}^{\mathcal{B}}$ and $\widehat{\VSTE}_{[a,b]}\leq1/\bar{E}_{\min,\mathcal{A}}^{\mathcal{B}}$. Substitution of $E_{\min,k}^{\mathcal{B}}$ by a free-energy quantity requires a separate physical derivation; it is not implied by VSTF. When such a substitution is proposed, the manuscript or protocol must specify whether $\Delta F_k$ denotes an equilibrium Helmholtz/Gibbs free-energy difference between declared endpoints or a nonequilibrium free-energy functional.
 \end{quote}
 
 \subsection{Stochastic Thermodynamics}
@@ -777,11 +803,11 @@ Consider a two-basin stochastic process with origin basin $C_0$, target basin $C
 \]
 Raw activity, crossing events, committed events, retained events, and state-valid VST events are distinct objects. In the benchmark below,
 \[
-  N_{\mathrm{sample+}}
+  \mathcal{E}_{\mathrm{sample+}}
   =
   \{(r,t):Y_{r,t}\geq \theta_{\mathrm{raw}}\}
 \]
-counts threshold-positive samples or primitive activations. This is an occupancy-like activity measure, not an event set. The event universe is instead
+is the threshold-positive sample set, and $N_{\mathrm{sample+}}=|\mathcal{E}_{\mathrm{sample+}}|$ counts threshold-positive samples or primitive activations. This is an occupancy-like activity measure, not a transition-event set. The event universe is instead
 \[
   \mathcal{U}=\{e_1,\ldots,e_n\},
 \]
@@ -828,14 +854,14 @@ The result follows directly from finite set inclusion and cardinality monotonici
 The sample count $N_{\mathrm{sample+}}$ may be reported as a separate raw-activity baseline, but it is not the same type of object as a transition event. A simulation does not prove the inclusion ordering; it estimates the size of attrition, false acceptance, false rejection, and ranking change under noise, retention failure, and cost accounting.
 
 \begin{lemma}[Sample-level resource bound]
-If every accepted event $k\in\mathcal{A}$ admits an independently justified positive sample-level resource lower bound $L_k>0$, and resource contributions are additive over non-overlapping segments inside $\mathcal{B}$, then
+If every accepted event $k\in\mathcal{A}$ admits an independently justified positive sample-level resource lower bound $E_{\min,k}^{\mathcal{B}}>0$, and resource contributions are additive over non-overlapping segments inside $\mathcal{B}$, then
 \[
-  E_{\mathrm{sup}}^{\mathcal{B}}\geq\sum_{k\in\mathcal{A}}L_k,
+  E_{\mathrm{sup}}^{\mathcal{B}}\geq\sum_{k\in\mathcal{A}}E_{\min,k}^{\mathcal{B}},
   \qquad
   \widehat{\VSTE}\leq
-  \frac{N_{\VST}}{\sum_{k\in\mathcal{A}}L_k}
+  \frac{N_{\VST}}{\sum_{k\in\mathcal{A}}E_{\min,k}^{\mathcal{B}}}
   =
-  \frac{1}{\bar L_{\mathcal{A}}}.
+  \frac{1}{\bar E_{\min,\mathcal{A}}^{\mathcal{B}}}.
 \]
 \end{lemma}
 
@@ -907,7 +933,7 @@ Master random seed & 20260917 & 20260917 \\
 \begin{figure}[h]
 \centering
 \VSTFgraphic{vstf_hmm_benchmark.pdf}{0.96}
-\caption{Hidden-Markov benchmark showing nested attrition from raw activity to valid VST events, latent-ground-truth error rates, multi-seed ranking robustness, and a small sensitivity sweep. System A produces more raw activity per supplied energy, but most committed events fail validation or retention. System B produces fewer raw events but substantially higher valid VST yield per supplied energy.}
+\caption{Hidden-Markov benchmark showing nested attrition from raw activity to valid VST events, matched-reference error rates, multi-seed ranking robustness, and a small sensitivity sweep. System A produces more raw activity samples, crossing events, and committed events in aggregate, but not more raw activity per full-boundary supplied energy. System B produces fewer early-stage events yet substantially more retained and valid VST events and higher \VSTE{}.}
 \label{fig:hmm-benchmark}
 \end{figure}
 
@@ -1038,7 +1064,37 @@ $\Delta t/\Delta t_0$ & Steps & Crossing$\to$\VSTE{} & Mean $\VSTE_B/\VSTE_A$ & 
 \end{adjustbox}
 \end{table}
 
-The sampling-resolution stress test shows that accepted-event counts are grid-sensitive, especially at very fine or coarse observation grids. This is not hidden: VSTF claims based on event counts must either show admissible stability over a declared sampling neighborhood or explicitly report the conclusion as resolution-dependent.
+The sampling-resolution stress test shows ranking robustness more strongly than count invariance. Accepted-event counts are grid-sensitive, especially at very fine or coarse observation grids. This is not hidden: VSTF claims based on event counts must either show admissible stability over a declared sampling neighborhood or explicitly report the conclusion as resolution-dependent. The factor-one row in Table~\ref{tab:hmm-sampling} is generated inside the sampling-resolution stress stream with two batches per grid cell, not by reusing the 30-batch main Monte Carlo stream; this is why its mean \VSTE{} ratio is close to, but not identical with, Table~\ref{tab:hmm-robustness}.
+
+\begin{table}[h]
+\centering
+\caption{Many-system rank-discordance stress test. Thirty synthetic systems were generated from pre-specified stratified parameter ranges and evaluated over five independent seeds with 1,500 trajectories per seed. Discordance is the fraction of comparable system pairs for which the baseline ranking disagrees with \VSTE{} ranking; intervals bootstrap systems, not pairwise comparisons.}
+\label{tab:many-system-discordance}
+\small
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lrrr}
+\toprule
+Baseline ranking metric & Discordance vs \VSTE{} & Bootstrap low & Bootstrap high \\
+\midrule
+Raw activity per energy & 0.138 & 0.062 & 0.220 \\
+Crossing events per energy & 0.552 & 0.423 & 0.695 \\
+Committed events per energy & 0.382 & 0.264 & 0.500 \\
+Retained events per energy & 0.057 & 0.022 & 0.107 \\
+Retention yield & 0.166 & 0.096 & 0.251 \\
+Validity yield & 0.554 & 0.428 & 0.676 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\VSTFgraphic{vstf_many_system_rank_displacement.pdf}{0.86}
+\caption{Many-system rank-displacement diagnostic. Each point is one synthetic system. The x-axis ranks systems by retained-event efficiency and the y-axis ranks the same systems by \VSTE{}. Points near the diagonal indicate that retention already explains most VSTE ranking; displaced points indicate additional cost/domain/accounting effects.}
+\label{fig:many-system-rank}
+\end{figure}
+
+The many-system benchmark directly tests the nearest-baseline concern raised by the review. It confirms that crossing and committed-event baselines can be strongly discordant with \VSTE{} across a population of systems. It also shows that retained-event efficiency is a much closer baseline in this synthetic design, with only 0.057 pairwise discordance against \VSTE{}. Therefore the benchmark supports the modest claim that VSTF can substantially change rankings relative to raw, crossing, and committed activity, while the incremental value beyond a retention-only baseline is parameter-regime dependent and should be tested explicitly in each domain.
 
 \section{Reproducibility Materials}
 
@@ -1052,12 +1108,15 @@ The synthetic benchmark is intended to be fully reproducible. The required compa
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_ablations.csv}{\texttt{vstf\_hmm\_benchmark\_ablations.csv}}: controlled A/B ablation summary used in Table~\ref{tab:hmm-ablations}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_random_parameter_stress.csv}{\texttt{vstf\_hmm\_random\_parameter\_stress.csv}}: random-parameter A/B stress test over transition, noise, domain-validity, and energy-ledger ranges.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_scenario_stress.csv}{\texttt{vstf\_hmm\_scenario\_stress.csv}}: correlated-domain and HSMM scenario stress tests used in Table~\ref{tab:hmm-scenarios}.
+  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_many_system_benchmark.csv}{\texttt{vstf\_many\_system\_benchmark.csv}}: many-system synthetic summary used in Figure~\ref{fig:many-system-rank}.
+  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_many_system_discordance.csv}{\texttt{vstf\_many\_system\_discordance.csv}}: pairwise rank-discordance table used in Table~\ref{tab:many-system-discordance}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_event_sample.csv}{\texttt{vstf\_hmm\_event\_sample.csv}}: machine-readable event-level audit sample with segmentation times, posterior values, candidate-level matched-reference validity indicator $Z^{\mathrm{match}}_k$, operational decision $A_k$, and event outcome labels.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_event_cascade.pdf}{\texttt{vstf\_event\_cascade.pdf}}: generated workflow diagram used in Figure~\ref{fig:event-cascade}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark.pdf}{\texttt{vstf\_hmm\_benchmark.pdf}}: generated benchmark figure used in Figure~\ref{fig:hmm-benchmark}.
+  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_many_system_rank_displacement.pdf}{\texttt{vstf\_many\_system\_rank\_displacement.pdf}}: generated many-system rank diagnostic used in Figure~\ref{fig:many-system-rank}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/REPRODUCIBILITY.md}{\texttt{REPRODUCIBILITY.md}} and \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/requirements.txt}{\texttt{requirements.txt}}: environment notes, seed policy, reproduction command, minimal dependencies, and SHA-256 hashes of generated outputs.
 \end{itemize}
-When the manuscript is hosted in a public repository, these links should resolve to the repository copies of the files. The benchmark does not require domain data and is not evidence for a biological or clinical claim; it is a reproducible methodological demonstration that the VSTF acceptance layer can alter ranking and false-success interpretation.
+The current public repository path is \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{\texttt{github.com/MartinPetrasek123/R\_Universe\_Evidence\_Audited/tree/main/vstf}}; a submission archive should cite an immutable release DOI or exact commit hash. The benchmark does not require domain data and is not evidence for a biological or clinical claim; it is a reproducible methodological demonstration that the VSTF acceptance layer can alter ranking and false-success interpretation.
 
 \section{Operational Workflow}
 
@@ -1176,7 +1235,7 @@ For patient-state use, the physiological stability framework becomes a VSTF prob
 \[
   \mathrm{dynamic\ change} \longrightarrow \mathrm{validated\ patient\ transition}.
 \]
-For decision-state use, the VST event is the accepted alarm or decision transition, not the patient's biological transition itself. Until patient-level calibration, raw-vital baselines, alarm burden, decision curves, and external evaluation are completed, PSI-like outputs should be treated as component-level instability features rather than clinical VST events. A prediction-model output is not itself a patient-state transition. A clinical VST claim requires a declared ontology--patient state or decision-system state--and must separately establish measurement validity, predictive performance, calibration, decision utility, and, where claimed, causal treatment benefit. A minimal clinical validation panel should include calibration-in-the-large, calibration slope or curve, discrimination, Brier score, net benefit, alarm burden, and an explicit baseline such as NEWS2 or a raw-vital model \cite{news2,trwscore,physionet,harutyunyan2019}. Splits must be by patient, not prediction instance, and temporal generalization should be tested by training on earlier cohorts and evaluating on later cohorts when the data permit. Reporting should follow TRIPOD+AI for prediction-model manuscripts; methodological quality, risk of bias, and applicability should be assessed with PROBAST+AI \cite{tripod,collins2024tripodai,moons2025probastai}. TRIPOD+AI is a reporting standard, not proof of model validity; PROBAST+AI is an appraisal framework, not a clinical-utility test. No reporting guideline or risk-of-bias tool substitutes for patient-relevant utility evaluation.
+For decision-state use, the VST event is the accepted alarm or decision transition, not the patient's biological transition itself. Until patient-level calibration, raw-vital baselines, alarm burden, decision curves, and external evaluation are completed, PSI-like outputs should be treated as component-level instability features rather than clinical VST events. A prediction-model output is not itself a patient-state transition. Predictive calibration and discrimination are necessary but do not establish patient benefit. A patient-state VST claim requires an independently meaningful clinical endpoint and, where benefit is claimed, an appropriate causal or interventional design. A clinical VST claim requires a declared ontology--patient state or decision-system state--and must separately establish measurement validity, predictive performance, calibration, decision utility, and, where claimed, causal treatment benefit. A minimal clinical validation panel should include calibration-in-the-large, calibration slope or curve, discrimination, Brier score, net benefit, alarm burden, and an explicit baseline such as NEWS2 or a raw-vital model \cite{news2,trwscore,physionet,harutyunyan2019}. Splits must be by patient, not prediction instance, and temporal generalization should be tested by training on earlier cohorts and evaluating on later cohorts when the data permit. Reporting should follow TRIPOD+AI for prediction-model manuscripts; methodological quality, risk of bias, and applicability should be assessed with PROBAST+AI \cite{tripod,collins2024tripodai,moons2025probastai}. TRIPOD+AI is a reporting standard, not proof of model validity; PROBAST+AI is an appraisal framework, not a clinical-utility test. No reporting guideline or risk-of-bias tool substitutes for patient-relevant utility evaluation.
 
 \noindent\textbf{Minimum confirmatory ICU protocol.}
 \begin{enumerate}
@@ -1191,7 +1250,7 @@ The clinical VST claim is falsified if dynamic coupling features do not improve 
 
 \subsection{Pathological Tumor-State Reset}
 
-For tumor systems, where wound-repair analogies and modern hallmarks motivate state-based descriptions of malignancy \cite{dvorak1986,hanahan2011}, define a module vector
+For tumor systems, where wound-repair analogies and modern hallmarks motivate state-based descriptions of malignancy \cite{dvorak1986,hanahan2011,hanahan2022}, define a module vector
 \[
   x(t)=
   [S_{\mathrm{ECM}},S_{\mathrm{hypoxia}},S_{\mathrm{proteostasis}},S_{\mathrm{alarm}},
@@ -1247,7 +1306,7 @@ A reset transition is valid only if the post-rechallenge state remains displaced
 \]
 with viability, target engagement, clone-selection controls, and locked module definitions. The scalar contrast $Y(t)=D_{\mathrm{path}}(t)-D_{\mathrm{ref}}(t)$ may be reported as a secondary summary, but it is not sufficient by itself because it can improve through movement in only one direction.
 
-Acute cytotoxicity is not a valid reset by itself, and ``closer to a normal-like reference'' is evidence of molecular state shift, not by itself evidence of biological restoration. A substantive tumor-state-reset claim must additionally require a pre-specified independent functional endpoint in viable surviving populations, with clone selection, treatment-induced cytotoxicity, batch effects, and proliferation-rate changes explicitly controlled. Examples include clonogenic recovery, invasion, tumor-initiation potential, treatment sensitivity, differentiation phenotype, or another locked assay appropriate to the model. The primary confirmatory analysis should estimate a treatment-by-time effect with biological-replicate or clone-level random effects, rather than relying only on the sign of a single post-treatment difference. This is consistent with modern work on therapy-induced cancer-cell state transitions and persister lineages \cite{oren2021}.
+Acute cytotoxicity is not a valid reset by itself, and ``closer to a normal-like reference'' is evidence of molecular state shift, not by itself evidence of biological restoration. A substantive tumor-state-reset claim must additionally require a pre-specified independent functional endpoint in viable surviving populations, with clone selection, treatment-induced cytotoxicity, batch effects, and proliferation-rate changes explicitly controlled. If lineage-aware tracking is unavailable, the safer claim is a population-state shift rather than reset of the same surviving lineage. Examples include clonogenic recovery, invasion, tumor-initiation potential, treatment sensitivity, differentiation phenotype, or another locked assay appropriate to the model. The primary confirmatory analysis should estimate a treatment-by-time effect with biological-replicate or clone-level random effects, rather than relying only on the sign of a single post-treatment difference. This is consistent with modern work on therapy-induced cancer-cell state transitions and persister lineages \cite{oren2021}.
 For tumor-marker or biomarker-style reporting, REMARK remains the appropriate historical reporting antecedent \cite{remark}.
 
 \noindent\textbf{Minimum confirmatory cancer protocol.}
@@ -1268,7 +1327,7 @@ Let
 \[
   x(t)=[U(t),E(t),M(t),Y(t),S_f(t),A_u(t),B_p(t)]
 \]
-represent voluntary intent, stimulation, EMG, movement, sensory feedback, autonomic state, and pain/spasticity/fatigue. The latent intent variable $U(t)$ is not directly observed; it must be connected to an independent measurement channel $U^{\mathrm{meas}}(t)$ through a declared measurement model or adjudication rule before it can support a VST claim.
+represent voluntary intent, stimulation, EMG, movement, sensory feedback, autonomic state, and pain/spasticity/fatigue. The latent intent variable $U(t)$ is not directly observed; it must be connected to an independent measurement channel $U^{\mathrm{meas}}(t)$ through a declared measurement model or adjudication rule before it can support a VST claim. That measurement channel must have pre-specified latency, false-positive, and artifact-rejection characteristics; otherwise intent can become an unvalidated post hoc label for movement.
 
 A motor event is provisionally valid only if movement depends on intent under stimulation:
 \[
@@ -1525,7 +1584,7 @@ This question can be applied to hardware, physiological monitoring, cancer-state
 \textbf{Competing interests.} The author declares no competing interests.
 
 \begin{sloppypar}
-\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration. The simulation script, aggregate summary, Monte Carlo summary, sensitivity sweep, sampling-resolution stress test, ablation summary, random-parameter stress test, scenario stress test, event-level audit sample, reproducibility manifest, requirements file, workflow figure, and benchmark figure are provided as \path{vstf_hmm_benchmark.py}, \path{vstf_hmm_benchmark_summary.csv}, \path{vstf_hmm_benchmark_monte_carlo.csv}, \path{vstf_hmm_benchmark_sensitivity.csv}, \path{vstf_hmm_sampling_resolution.csv}, \path{vstf_hmm_benchmark_ablations.csv}, \path{vstf_hmm_random_parameter_stress.csv}, \path{vstf_hmm_scenario_stress.csv}, \path{vstf_hmm_event_sample.csv}, \path{REPRODUCIBILITY.md}, \path{requirements.txt}, \path{vstf_event_cascade.pdf}, and \path{vstf_hmm_benchmark.pdf}. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
+\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration. The simulation script, aggregate summary, Monte Carlo summary, sensitivity sweep, sampling-resolution stress test, ablation summary, random-parameter stress test, scenario stress test, many-system benchmark, many-system discordance summary, event-level audit sample, reproducibility manifest, requirements file, workflow figure, benchmark figure, and many-system rank figure are provided as \path{vstf_hmm_benchmark.py}, \path{vstf_hmm_benchmark_summary.csv}, \path{vstf_hmm_benchmark_monte_carlo.csv}, \path{vstf_hmm_benchmark_sensitivity.csv}, \path{vstf_hmm_sampling_resolution.csv}, \path{vstf_hmm_benchmark_ablations.csv}, \path{vstf_hmm_random_parameter_stress.csv}, \path{vstf_hmm_scenario_stress.csv}, \path{vstf_many_system_benchmark.csv}, \path{vstf_many_system_discordance.csv}, \path{vstf_hmm_event_sample.csv}, \path{REPRODUCIBILITY.md}, \path{requirements.txt}, \path{vstf_event_cascade.pdf}, \path{vstf_hmm_benchmark.pdf}, and \path{vstf_many_system_rank_displacement.pdf}. The public repository path is \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{\texttt{github.com/MartinPetrasek123/R\_Universe\_Evidence\_Audited/tree/main/vstf}}; final submission should cite an immutable release DOI or exact commit hash. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
 \end{sloppypar}
 
 \textbf{Author contribution.} M. Petrasek conceived the framework, integrated prior theoretical and applied components, and wrote the manuscript.
@@ -1648,6 +1707,12 @@ D. Hanahan and R. A. Weinberg.
 Hallmarks of cancer: the next generation.
 \emph{Cell}, 144(5):646--674, 2011.
 doi:10.1016/j.cell.2011.02.013.
+
+\bibitem{hanahan2022}
+D. Hanahan.
+Hallmarks of cancer: new dimensions.
+\emph{Cancer Discovery}, 12(1):31--46, 2022.
+doi:10.1158/2159-8290.CD-21-1059.
 
 \bibitem{oren2021}
 Y. Oren, M. Tsabar, M. S. Cuoco, L. Amir-Zilberstein, H. F. Cabanos, J.-C. Hutter,

@@ -48,6 +48,10 @@ N_RANDOM_PAIR_BATCHES = 2
 N_SCENARIO_BATCHES = 3
 N_SAMPLING_BATCHES = 2
 SAMPLING_FACTORS = (0.25, 0.5, 1.0, 2.0, 4.0)
+N_MANY_SYSTEMS = 30
+N_MANY_SEEDS = 5
+N_MANY_TRAJ = 1_500
+N_BOOTSTRAP_SYSTEMS = 500
 
 
 @dataclass(frozen=True)
@@ -93,11 +97,11 @@ SYSTEM_B = SystemSpec(
 SYSTEMS = (SYSTEM_A, SYSTEM_B)
 
 
-def simulate_hidden(spec: SystemSpec, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
-    x = np.zeros((N_TRAJ, T), dtype=np.int8)
+def simulate_hidden(spec: SystemSpec, rng: np.random.Generator, n_traj: int = N_TRAJ) -> tuple[np.ndarray, np.ndarray]:
+    x = np.zeros((n_traj, T), dtype=np.int8)
     for t in range(1, T):
         prev = x[:, t - 1]
-        u = rng.random(N_TRAJ)
+        u = rng.random(n_traj)
         x[:, t] = np.where(prev == 0, (u < spec.p01).astype(np.int8), (u >= spec.p10).astype(np.int8))
     y = rng.normal(loc=x.astype(float), scale=spec.sigma)
     return x, y
@@ -107,24 +111,24 @@ def rescale_transition_probability(prob: float, factor: float) -> float:
     return float(1.0 - (1.0 - prob) ** factor)
 
 
-def simulate_hidden_scaled(spec: SystemSpec, rng: np.random.Generator, sampling_factor: float) -> tuple[np.ndarray, np.ndarray]:
+def simulate_hidden_scaled(spec: SystemSpec, rng: np.random.Generator, sampling_factor: float, n_traj: int = N_TRAJ) -> tuple[np.ndarray, np.ndarray]:
     n_steps = max(8, int(round(T / sampling_factor)))
     p01 = rescale_transition_probability(spec.p01, sampling_factor)
     p10 = rescale_transition_probability(spec.p10, sampling_factor)
-    x = np.zeros((N_TRAJ, n_steps), dtype=np.int8)
+    x = np.zeros((n_traj, n_steps), dtype=np.int8)
     for t in range(1, n_steps):
         prev = x[:, t - 1]
-        u = rng.random(N_TRAJ)
+        u = rng.random(n_traj)
         x[:, t] = np.where(prev == 0, (u < p01).astype(np.int8), (u >= p10).astype(np.int8))
     y = rng.normal(loc=x.astype(float), scale=spec.sigma)
     return x, y
 
 
-def simulate_hidden_hsmm(spec: SystemSpec, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
-    x = np.zeros((N_TRAJ, T), dtype=np.int8)
+def simulate_hidden_hsmm(spec: SystemSpec, rng: np.random.Generator, n_traj: int = N_TRAJ) -> tuple[np.ndarray, np.ndarray]:
+    x = np.zeros((n_traj, T), dtype=np.int8)
     mean_on = max(2.0, 1.0 / max(spec.p10, 1e-6))
     mean_off = max(2.0, 1.0 / max(spec.p01, 1e-6))
-    for i in range(N_TRAJ):
+    for i in range(n_traj):
         state = 1 if rng.random() < 0.06 else 0
         t = 0
         while t < T:
@@ -216,13 +220,14 @@ def summarize_events(
     dynamics: str = "hmm",
     domain_mode: str = "independent",
     sampling_factor: float = 1.0,
+    n_traj: int = N_TRAJ,
 ) -> dict[str, float]:
     if sampling_factor != 1.0 and dynamics == "hmm":
-        x, y = simulate_hidden_scaled(spec, rng, sampling_factor)
+        x, y = simulate_hidden_scaled(spec, rng, sampling_factor, n_traj=n_traj)
     elif dynamics == "hsmm":
-        x, y = simulate_hidden_hsmm(spec, rng)
+        x, y = simulate_hidden_hsmm(spec, rng, n_traj=n_traj)
     else:
-        x, y = simulate_hidden(spec, rng)
+        x, y = simulate_hidden(spec, rng, n_traj=n_traj)
     post = filter_posterior(spec, y)
     n_t = x.shape[1]
     totals = {
@@ -240,7 +245,7 @@ def summarize_events(
         "energy": 0.0,
     }
 
-    for i in range(N_TRAJ):
+    for i in range(n_traj):
         yi = y[i]
         xi = x[i]
         pi = post[i]
@@ -693,6 +698,160 @@ def random_parameter_stress() -> list[dict[str, float | int]]:
     return rows
 
 
+def stratified_values(rng: np.random.Generator, n: int, low: float, high: float) -> np.ndarray:
+    values = (np.arange(n, dtype=float) + rng.random(n)) / n
+    rng.shuffle(values)
+    return low + values * (high - low)
+
+
+def many_system_specs() -> list[SystemSpec]:
+    rng = np.random.default_rng(MASTER_SEED + 456_789)
+    p01 = stratified_values(rng, N_MANY_SYSTEMS, 0.02, 0.13)
+    p10 = stratified_values(rng, N_MANY_SYSTEMS, 0.04, 0.23)
+    sigma = stratified_values(rng, N_MANY_SYSTEMS, 0.25, 0.45)
+    domain = stratified_values(rng, N_MANY_SYSTEMS, 0.70, 0.90)
+    crossing_cost = stratified_values(rng, N_MANY_SYSTEMS, 0.85, 1.25)
+    committed_cost = stratified_values(rng, N_MANY_SYSTEMS, 1.25, 2.45)
+    validation_cost = stratified_values(rng, N_MANY_SYSTEMS, 1.80, 3.30)
+    base_energy = stratified_values(rng, N_MANY_SYSTEMS, 84.0, 100.0)
+    specs = []
+    for i in range(N_MANY_SYSTEMS):
+        specs.append(
+            SystemSpec(
+                name=f"Many-system {i + 1:02d}",
+                short=f"S{i + 1:02d}",
+                p01=float(p01[i]),
+                p10=float(p10[i]),
+                sigma=float(sigma[i]),
+                domain_valid_prob=float(domain[i]),
+                energy_base=float(base_energy[i]),
+                energy_per_crossing=float(crossing_cost[i]),
+                energy_per_committed=float(committed_cost[i]),
+                energy_per_validation=float(validation_cost[i]),
+            )
+        )
+    return specs
+
+
+def average_rows(rows: list[dict[str, float]]) -> dict[str, float]:
+    raw_keys = [
+        "raw_activity",
+        "crossings",
+        "committed",
+        "retained",
+        "valid_vst",
+        "false_success",
+        "false_acceptance",
+        "false_rejection",
+        "latent_valid",
+        "pending",
+        "resolved",
+        "energy",
+    ]
+    out = {key: mean([row[key] for row in rows]) for key in raw_keys}
+    return add_derived(out)
+
+
+def rank_desc(values: list[float]) -> list[float]:
+    order = sorted(range(len(values)), key=lambda i: values[i], reverse=True)
+    ranks = [0.0] * len(values)
+    pos = 0
+    while pos < len(order):
+        end = pos + 1
+        while end < len(order) and values[order[end]] == values[order[pos]]:
+            end += 1
+        avg_rank = (pos + 1 + end) / 2.0
+        for idx in order[pos:end]:
+            ranks[idx] = avg_rank
+        pos = end
+    return ranks
+
+
+def pairwise_discordance(rows: list[dict[str, float | str]], baseline_key: str) -> float:
+    discordant = 0
+    comparable = 0
+    for i in range(len(rows)):
+        for j in range(i + 1, len(rows)):
+            baseline_delta = float(rows[i][baseline_key]) - float(rows[j][baseline_key])
+            vste_delta = float(rows[i]["vste"]) - float(rows[j]["vste"])
+            if baseline_delta == 0 or vste_delta == 0:
+                continue
+            comparable += 1
+            discordant += int(math.copysign(1.0, baseline_delta) != math.copysign(1.0, vste_delta))
+    return discordant / max(comparable, 1)
+
+
+def bootstrap_discordance(rows: list[dict[str, float | str]], baseline_key: str, rng: np.random.Generator) -> tuple[float, float, float]:
+    observed = pairwise_discordance(rows, baseline_key)
+    boots = []
+    n = len(rows)
+    for _ in range(N_BOOTSTRAP_SYSTEMS):
+        sample = [rows[int(idx)] for idx in rng.integers(0, n, size=n)]
+        boots.append(pairwise_discordance(sample, baseline_key))
+    boots.sort()
+    lo = boots[int(0.025 * (len(boots) - 1))]
+    hi = boots[int(0.975 * (len(boots) - 1))]
+    return observed, lo, hi
+
+
+def many_system_benchmark() -> tuple[list[dict[str, float | str]], list[dict[str, float | str]]]:
+    specs = many_system_specs()
+    rows: list[dict[str, float | str]] = []
+    for system_id, spec in enumerate(specs, start=1):
+        seed_rows = []
+        for seed_id in range(N_MANY_SEEDS):
+            rng = np.random.default_rng(MASTER_SEED + 500_000 + system_id * 10_000 + seed_id * 1009)
+            seed_rows.append(summarize_events(spec, rng, n_traj=N_MANY_TRAJ))
+        avg = average_rows(seed_rows)
+        row: dict[str, float | str] = {
+            "system_id": system_id,
+            "system": spec.short,
+            "p01": spec.p01,
+            "p10": spec.p10,
+            "sigma": spec.sigma,
+            "domain_valid_prob": spec.domain_valid_prob,
+            "energy_base": spec.energy_base,
+            "energy_per_crossing": spec.energy_per_crossing,
+            "energy_per_committed": spec.energy_per_committed,
+            "energy_per_validation": spec.energy_per_validation,
+            "n_seeds": N_MANY_SEEDS,
+            "n_traj_per_seed": N_MANY_TRAJ,
+        }
+        row.update(avg)
+        rows.append(row)
+
+    retained_ranks = rank_desc([float(row["retained_per_energy"]) for row in rows])
+    vste_ranks = rank_desc([float(row["vste"]) for row in rows])
+    for row, r_ret, r_vste in zip(rows, retained_ranks, vste_ranks):
+        row["rank_retained_per_energy"] = r_ret
+        row["rank_vste"] = r_vste
+        row["rank_shift_retained_to_vste"] = r_vste - r_ret
+
+    rng = np.random.default_rng(MASTER_SEED + 654_321)
+    discordance_rows = []
+    for label, key in [
+        ("raw_per_energy", "raw_per_energy"),
+        ("crossings_per_energy", "crossings_per_energy"),
+        ("committed_per_energy", "committed_per_energy"),
+        ("retained_per_energy", "retained_per_energy"),
+        ("retention_yield", "retention_yield"),
+        ("validity_yield", "validity_yield"),
+    ]:
+        observed, lo, hi = bootstrap_discordance(rows, key, rng)
+        discordance_rows.append(
+            {
+                "baseline": label,
+                "metric_key": key,
+                "n_systems": N_MANY_SYSTEMS,
+                "n_bootstrap_system_resamples": N_BOOTSTRAP_SYSTEMS,
+                "pairwise_discordance_vs_vste": observed,
+                "bootstrap_ci_low": lo,
+                "bootstrap_ci_high": hi,
+            }
+        )
+    return rows, discordance_rows
+
+
 def scenario_stress() -> list[dict[str, float | str]]:
     rows: list[dict[str, float | str]] = []
     scenarios = [
@@ -876,6 +1035,76 @@ def write_scenario_stress_csv(path: Path, rows: list[dict[str, float | str]]) ->
         writer.writerows(rows)
 
 
+def write_many_system_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
+    fields = [
+        "system_id",
+        "system",
+        "p01",
+        "p10",
+        "sigma",
+        "domain_valid_prob",
+        "energy_base",
+        "energy_per_crossing",
+        "energy_per_committed",
+        "energy_per_validation",
+        "n_seeds",
+        "n_traj_per_seed",
+        "raw_activity",
+        "crossings",
+        "committed",
+        "retained",
+        "valid_vst",
+        "false_success",
+        "false_acceptance",
+        "false_rejection",
+        "latent_valid",
+        "pending",
+        "resolved",
+        "energy",
+        "raw_per_energy",
+        "crossings_per_energy",
+        "committed_per_energy",
+        "retained_per_energy",
+        "vste",
+        "candidate_yield",
+        "commit_yield",
+        "retention_yield",
+        "validity_yield",
+        "downstream_rejection_fraction",
+        "downstream_rejection_resolved_fraction",
+        "true_positive",
+        "precision_ppv",
+        "sensitivity_tpr",
+        "false_discovery_fraction",
+        "far",
+        "frr",
+        "pending_fraction",
+        "rank_retained_per_energy",
+        "rank_vste",
+        "rank_shift_retained_to_vste",
+    ]
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def write_many_system_discordance_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
+    fields = [
+        "baseline",
+        "metric_key",
+        "n_systems",
+        "n_bootstrap_system_resamples",
+        "pairwise_discordance_vs_vste",
+        "bootstrap_ci_low",
+        "bootstrap_ci_high",
+    ]
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def write_event_sample_csv(path: Path) -> None:
     rows: list[dict[str, float | int | str]] = []
     rng = np.random.default_rng(MASTER_SEED + 777)
@@ -928,6 +1157,8 @@ def write_reproducibility_manifest(path: Path, output_files: list[Path]) -> None
         f"Sensitivity batches per cell: {N_SENS_BATCHES}",
         f"Ablation batches per cell: {N_ABLATION_BATCHES}",
         f"Sampling-resolution batches per cell: {N_SAMPLING_BATCHES}",
+        f"Many-system benchmark: {N_MANY_SYSTEMS} systems x {N_MANY_SEEDS} seeds x {N_MANY_TRAJ} trajectories per seed",
+        f"Many-system bootstrap resamples: {N_BOOTSTRAP_SYSTEMS}",
         f"Event-sample rows: {N_EVENT_SAMPLE_ROWS}",
         "",
         "Reproduction command:",
@@ -1115,6 +1346,72 @@ def write_pdf(path: Path, aggregate: dict[str, dict[str, float]], stats: dict[st
     c.save()
 
 
+def write_many_system_rank_pdf(path: Path, rows: list[dict[str, float | str]], discordance_rows: list[dict[str, float | str]]) -> None:
+    c = canvas.Canvas(str(path), pagesize=letter)
+    width, height = letter
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(42, height - 48, "Many-System VSTF Rank Displacement")
+    c.setFont("Helvetica", 8)
+    c.drawString(42, height - 64, "Synthetic systems ranked by retained-event efficiency versus VSTE.")
+
+    plot_x = 80
+    plot_y = 150
+    plot_w = 380
+    plot_h = 380
+    n = max(1, len(rows))
+    c.setStrokeColor(colors.HexColor("#111827"))
+    c.rect(plot_x, plot_y, plot_w, plot_h, fill=0, stroke=1)
+    c.setStrokeColor(colors.HexColor("#9ca3af"))
+    c.setDash(3, 3)
+    c.line(plot_x, plot_y + plot_h, plot_x + plot_w, plot_y)
+    c.setDash()
+    c.setFont("Helvetica", 7)
+    for tick in [1, 10, 20, 30]:
+        if tick > n:
+            continue
+        x = plot_x + (tick - 1) / max(n - 1, 1) * plot_w
+        y = plot_y + plot_h - (tick - 1) / max(n - 1, 1) * plot_h
+        c.setStrokeColor(colors.HexColor("#e5e7eb"))
+        c.line(x, plot_y, x, plot_y + plot_h)
+        c.line(plot_x, y, plot_x + plot_w, y)
+        c.setFillColor(colors.black)
+        c.drawCentredString(x, plot_y - 14, str(tick))
+        c.drawRightString(plot_x - 8, y - 3, str(tick))
+
+    c.setFillColor(colors.HexColor("#2563eb"))
+    for row in rows:
+        rx = float(row["rank_retained_per_energy"])
+        ry = float(row["rank_vste"])
+        x = plot_x + (rx - 1) / max(n - 1, 1) * plot_w
+        y = plot_y + plot_h - (ry - 1) / max(n - 1, 1) * plot_h
+        c.circle(x, y, 3.2, fill=1, stroke=0)
+
+    c.setFont("Helvetica-Bold", 9)
+    c.setFillColor(colors.black)
+    c.drawCentredString(plot_x + plot_w / 2, plot_y - 36, "Rank by retained-event efficiency")
+    c.saveState()
+    c.translate(plot_x - 45, plot_y + plot_h / 2)
+    c.rotate(90)
+    c.drawCentredString(0, 0, "Rank by VSTE")
+    c.restoreState()
+
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(485, height - 132, "Pairwise discordance vs VSTE")
+    c.setFont("Helvetica", 7.2)
+    for i, row in enumerate(discordance_rows):
+        y = height - 152 - i * 18
+        c.drawString(
+            485,
+            y,
+            f"{row['baseline']}: {float(row['pairwise_discordance_vs_vste']):.2f} "
+            f"[{float(row['bootstrap_ci_low']):.2f}, {float(row['bootstrap_ci_high']):.2f}]",
+        )
+    c.setFont("Helvetica", 7)
+    c.drawString(42, 28, f"{N_MANY_SYSTEMS} systems x {N_MANY_SEEDS} seeds x {N_MANY_TRAJ} trajectories; bootstrap resamples systems.")
+    c.showPage()
+    c.save()
+
+
 def main() -> None:
     out_dir = Path("/Users/mpetr/Desktop")
     aggregate, stats = monte_carlo()
@@ -1123,6 +1420,7 @@ def main() -> None:
     random_stress = random_parameter_stress()
     scenarios = scenario_stress()
     sampling_rows = sampling_resolution_stress()
+    many_rows, many_discordance = many_system_benchmark()
     write_summary_csv(out_dir / "vstf_hmm_benchmark_summary.csv", aggregate)
     write_metric_csv(out_dir / "vstf_hmm_benchmark_monte_carlo.csv", stats)
     write_sensitivity_csv(out_dir / "vstf_hmm_benchmark_sensitivity.csv", sens)
@@ -1130,6 +1428,8 @@ def main() -> None:
     write_ablation_csv(out_dir / "vstf_hmm_benchmark_ablations.csv", abl)
     write_random_parameter_stress_csv(out_dir / "vstf_hmm_random_parameter_stress.csv", random_stress)
     write_scenario_stress_csv(out_dir / "vstf_hmm_scenario_stress.csv", scenarios)
+    write_many_system_csv(out_dir / "vstf_many_system_benchmark.csv", many_rows)
+    write_many_system_discordance_csv(out_dir / "vstf_many_system_discordance.csv", many_discordance)
     output_files = [
         out_dir / "vstf_hmm_benchmark_summary.csv",
         out_dir / "vstf_hmm_benchmark_monte_carlo.csv",
@@ -1138,13 +1438,17 @@ def main() -> None:
         out_dir / "vstf_hmm_benchmark_ablations.csv",
         out_dir / "vstf_hmm_random_parameter_stress.csv",
         out_dir / "vstf_hmm_scenario_stress.csv",
+        out_dir / "vstf_many_system_benchmark.csv",
+        out_dir / "vstf_many_system_discordance.csv",
         out_dir / "vstf_hmm_event_sample.csv",
         out_dir / "vstf_event_cascade.pdf",
         out_dir / "vstf_hmm_benchmark.pdf",
+        out_dir / "vstf_many_system_rank_displacement.pdf",
     ]
-    write_event_sample_csv(output_files[7])
-    write_event_cascade_pdf(output_files[8])
-    write_pdf(output_files[9], aggregate, stats, sens)
+    write_event_sample_csv(output_files[9])
+    write_event_cascade_pdf(output_files[10])
+    write_pdf(output_files[11], aggregate, stats, sens)
+    write_many_system_rank_pdf(output_files[12], many_rows, many_discordance)
     write_reproducibility_manifest(out_dir / "REPRODUCIBILITY.md", output_files)
 
     print("Monte Carlo benchmark")
@@ -1195,6 +1499,11 @@ def main() -> None:
             f"crossing_to_vste={row['crossing_to_vste_reversal_probability']:.3g}, "
             f"retained_to_vste={row['retained_to_vste_reversal_probability']:.3g}, "
             f"ratio={row['mean_vste_ratio_b_over_a']:.3g}"
+        )
+    for row in many_discordance:
+        print(
+            f"many-system {row['baseline']}: discordance={row['pairwise_discordance_vs_vste']:.3g} "
+            f"[{row['bootstrap_ci_low']:.3g}, {row['bootstrap_ci_high']:.3g}]"
         )
     for row in sampling_rows:
         print(
