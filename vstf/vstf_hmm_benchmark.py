@@ -29,7 +29,7 @@ from reportlab.pdfgen import canvas
 
 MASTER_SEED = 20260917
 N_TRAJ = 10_000
-N_BATCHES = 100
+N_BATCHES = 30
 T = 72
 THETA_CROSS = 0.72
 POST_COMMIT = 0.65
@@ -40,11 +40,12 @@ POST_RET = 0.55
 HYST_LOW = 0.35
 SENS_SIGMA_FACTORS = (0.75, 1.0, 1.25)
 SENS_TAU_RET = (4, 6, 10)
-N_SENS_BATCHES = 5
-N_ABLATION_BATCHES = 20
+N_SENS_BATCHES = 3
+N_ABLATION_BATCHES = 8
 N_EVENT_SAMPLE_ROWS = 40
-N_RANDOM_SYSTEM_PAIRS = 30
-N_RANDOM_PAIR_BATCHES = 5
+N_RANDOM_SYSTEM_PAIRS = 8
+N_RANDOM_PAIR_BATCHES = 2
+N_SCENARIO_BATCHES = 3
 
 
 @dataclass(frozen=True)
@@ -100,6 +101,23 @@ def simulate_hidden(spec: SystemSpec, rng: np.random.Generator) -> tuple[np.ndar
     return x, y
 
 
+def simulate_hidden_hsmm(spec: SystemSpec, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
+    x = np.zeros((N_TRAJ, T), dtype=np.int8)
+    mean_on = max(2.0, 1.0 / max(spec.p10, 1e-6))
+    mean_off = max(2.0, 1.0 / max(spec.p01, 1e-6))
+    for i in range(N_TRAJ):
+        state = 1 if rng.random() < 0.06 else 0
+        t = 0
+        while t < T:
+            mean_dwell = mean_on if state else mean_off
+            dwell = int(max(1, rng.gamma(shape=2.4, scale=mean_dwell / 2.4)))
+            x[i, t : min(T, t + dwell)] = state
+            t += dwell
+            state = 1 - state
+    y = rng.normal(loc=x.astype(float), scale=spec.sigma)
+    return x, y
+
+
 def filter_posterior(spec: SystemSpec, y: np.ndarray) -> np.ndarray:
     """Stable two-state forward filter with Gaussian emissions."""
     p = np.full(y.shape[0], 0.06, dtype=float)
@@ -140,8 +158,48 @@ def add_derived(row: dict[str, float]) -> dict[str, float]:
     return row
 
 
-def summarize_events(spec: SystemSpec, rng: np.random.Generator, tau_ret: int = TAU_RET) -> dict[str, float]:
-    x, y = simulate_hidden(spec, rng)
+def domain_draws(
+    spec: SystemSpec,
+    rng: np.random.Generator,
+    latent_retained: bool,
+    posterior_retained: bool,
+    posterior_mean: float,
+) -> tuple[bool, bool]:
+    if posterior_retained:
+        p_obs = spec.domain_valid_prob
+    else:
+        p_obs = 0.35 * spec.domain_valid_prob
+    domain_truth = rng.random() <= spec.domain_valid_prob
+    domain_observed = rng.random() <= p_obs
+    return domain_truth, domain_observed
+
+
+def correlated_domain_draws(
+    spec: SystemSpec,
+    rng: np.random.Generator,
+    latent_retained: bool,
+    posterior_retained: bool,
+    posterior_mean: float,
+) -> tuple[bool, bool]:
+    latent_term = 1.25 if latent_retained else -1.25
+    observed_term = 2.0 * (posterior_mean - 0.55)
+    base = math.log(spec.domain_valid_prob / (1.0 - spec.domain_valid_prob))
+    p_truth = 1.0 / (1.0 + math.exp(-(base + latent_term)))
+    p_obs = 1.0 / (1.0 + math.exp(-(base + observed_term + (0.65 if posterior_retained else -0.65))))
+    return rng.random() <= p_truth, rng.random() <= p_obs
+
+
+def summarize_events(
+    spec: SystemSpec,
+    rng: np.random.Generator,
+    tau_ret: int = TAU_RET,
+    dynamics: str = "hmm",
+    domain_mode: str = "independent",
+) -> dict[str, float]:
+    if dynamics == "hsmm":
+        x, y = simulate_hidden_hsmm(spec, rng)
+    else:
+        x, y = simulate_hidden(spec, rng)
     post = filter_posterior(spec, y)
     totals = {
         "raw_activity": 0.0,
@@ -190,8 +248,11 @@ def summarize_events(spec: SystemSpec, rng: np.random.Generator, tau_ret: int = 
             totals["resolved"] += 1
             posterior_retained = pi[v] >= POST_VALIDATE and float(np.min(pi[v : end + 1])) >= POST_RET
             latent_retained = xi[v] == 1 and bool(np.all(xi[v : end + 1] == 1))
-            domain_truth = rng.random() <= spec.domain_valid_prob
-            domain_observed = rng.random() <= spec.domain_valid_prob
+            posterior_mean = float(np.mean(pi[v : end + 1]))
+            if domain_mode == "correlated":
+                domain_truth, domain_observed = correlated_domain_draws(spec, rng, latent_retained, posterior_retained, posterior_mean)
+            else:
+                domain_truth, domain_observed = domain_draws(spec, rng, latent_retained, posterior_retained, posterior_mean)
             ground_truth = latent_retained and domain_truth
             accepted = posterior_retained and domain_observed
 
@@ -439,6 +500,20 @@ def run_pair(seed: int, spec_a: SystemSpec, spec_b: SystemSpec) -> dict[str, dic
     return {"A": summarize_events(spec_a, rng), "B": summarize_events(spec_b, rng)}
 
 
+def run_pair_scenario(
+    seed: int,
+    spec_a: SystemSpec,
+    spec_b: SystemSpec,
+    dynamics: str,
+    domain_mode: str,
+) -> dict[str, dict[str, float]]:
+    rng = np.random.default_rng(seed)
+    return {
+        "A": summarize_events(spec_a, rng, dynamics=dynamics, domain_mode=domain_mode),
+        "B": summarize_events(spec_b, rng, dynamics=dynamics, domain_mode=domain_mode),
+    }
+
+
 def ablations() -> list[dict[str, float | str]]:
     rows: list[dict[str, float | str]] = []
     for kind in ["dynamics_only", "noise_only", "domain_only", "cost_only", "domain_cost_only", "retention_challenge", "equal_domain", "combined"]:
@@ -529,6 +604,44 @@ def random_parameter_stress() -> list[dict[str, float | int]]:
                 "b_p10": spec_b.p10,
                 "b_sigma": spec_b.sigma,
                 "b_domain_valid_prob": spec_b.domain_valid_prob,
+            }
+        )
+    return rows
+
+
+def scenario_stress() -> list[dict[str, float | str]]:
+    rows: list[dict[str, float | str]] = []
+    scenarios = [
+        ("hmm_independent_domain", "hmm", "independent"),
+        ("hmm_correlated_domain", "hmm", "correlated"),
+        ("hsmm_independent_domain", "hsmm", "independent"),
+        ("hsmm_correlated_domain", "hsmm", "correlated"),
+    ]
+    for name, dynamics, domain_mode in scenarios:
+        raw_reversals = []
+        crossing_reversals = []
+        retained_reversals = []
+        ratios = []
+        ppv_a = []
+        ppv_b = []
+        for i in range(N_SCENARIO_BATCHES):
+            batch = run_pair_scenario(MASTER_SEED + 300_000 + i * 1009, SYSTEM_A, SYSTEM_B, dynamics, domain_mode)
+            raw_reversals.append(batch["A"]["raw_per_energy"] > batch["B"]["raw_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            crossing_reversals.append(batch["A"]["crossings_per_energy"] > batch["B"]["crossings_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            retained_reversals.append(batch["A"]["retained_per_energy"] > batch["B"]["retained_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            ratios.append(batch["B"]["vste"] / max(batch["A"]["vste"], 1e-12))
+            ppv_a.append(batch["A"]["precision_ppv"])
+            ppv_b.append(batch["B"]["precision_ppv"])
+        rows.append(
+            {
+                "scenario": name,
+                "n_batches": float(N_SCENARIO_BATCHES),
+                "raw_to_vste_reversal_probability": sum(raw_reversals) / len(raw_reversals),
+                "crossing_to_vste_reversal_probability": sum(crossing_reversals) / len(crossing_reversals),
+                "retained_to_vste_reversal_probability": sum(retained_reversals) / len(retained_reversals),
+                "mean_vste_ratio_b_over_a": mean(ratios),
+                "mean_ppv_a": mean(ppv_a),
+                "mean_ppv_b": mean(ppv_b),
             }
         )
     return rows
@@ -633,6 +746,25 @@ def write_random_parameter_stress_csv(path: Path, rows: list[dict[str, float | i
         writer.writerows(rows)
 
 
+def write_scenario_stress_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "scenario",
+                "n_batches",
+                "raw_to_vste_reversal_probability",
+                "crossing_to_vste_reversal_probability",
+                "retained_to_vste_reversal_probability",
+                "mean_vste_ratio_b_over_a",
+                "mean_ppv_a",
+                "mean_ppv_b",
+            ],
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def write_event_sample_csv(path: Path) -> None:
     rows: list[dict[str, float | int | str]] = []
     rng = np.random.default_rng(MASTER_SEED + 777)
@@ -698,6 +830,96 @@ def write_reproducibility_manifest(path: Path, output_files: list[Path]) -> None
     for file_path in output_files:
         lines.append(f"- `{file_path.name}`: `{sha256(file_path)}`")
     path.write_text("\n".join(lines) + "\n")
+
+
+def write_event_cascade_pdf(path: Path) -> None:
+    c = canvas.Canvas(str(path), pagesize=letter)
+    width, height = letter
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(42, height - 48, "VSTF Event-Cascade and Claim-Governance Layer")
+    c.setFont("Helvetica", 8)
+    c.drawString(42, height - 64, "A detected transition becomes a countable outcome only after locked, auditable gates are passed.")
+
+    steps = [
+        ("Dynamic signal", "Y_t observed from latent X_t"),
+        ("Candidate event", "segmentation, hysteresis, index time"),
+        ("Q_dist", "measurement system distinguishable"),
+        ("L_k", "event localized to target state"),
+        ("R_k(tau*)", "retained across maturity window"),
+        ("V_dom,k", "domain-admissible endpoint"),
+        ("A_k=1", "operational VST numerator"),
+        ("Claim gate", "rate, cost, or intervention claim"),
+    ]
+    x0 = 46
+    y0 = height - 132
+    box_w = 120
+    box_h = 44
+    gap_x = 22
+    gap_y = 88
+    colors_fill = [
+        "#dbeafe",
+        "#ccfbf1",
+        "#fef3c7",
+        "#fef3c7",
+        "#fef3c7",
+        "#fef3c7",
+        "#dcfce7",
+        "#ede9fe",
+    ]
+    positions = []
+    for idx, (title, body) in enumerate(steps):
+        row = idx // 4
+        col = idx % 4
+        x = x0 + col * (box_w + gap_x)
+        y = y0 - row * gap_y
+        positions.append((x, y))
+        c.setFillColor(colors.HexColor(colors_fill[idx]))
+        c.roundRect(x, y, box_w, box_h, 6, fill=1, stroke=0)
+        c.setStrokeColor(colors.HexColor("#111827"))
+        c.roundRect(x, y, box_w, box_h, 6, fill=0, stroke=1)
+        c.setFillColor(colors.black)
+        c.setFont("Helvetica-Bold", 8.5)
+        c.drawCentredString(x + box_w / 2, y + 27, title)
+        c.setFont("Helvetica", 6.6)
+        c.drawCentredString(x + box_w / 2, y + 13, body)
+    c.setStrokeColor(colors.HexColor("#374151"))
+    for idx in range(len(steps) - 1):
+        x, y = positions[idx]
+        nx, ny = positions[idx + 1]
+        if idx == 3:
+            c.line(x + box_w / 2, y - 7, nx + box_w / 2, ny + box_h + 7)
+        else:
+            c.line(x + box_w + 3, y + box_h / 2, nx - 3, ny + box_h / 2)
+
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(52, 328, "Rejected or unresolved observations remain auditable")
+    c.setFont("Helvetica", 7.4)
+    rejected = [
+        "No Q_dist: proxy signal only; do not count as accepted transition.",
+        "No localization: candidate event remains unresolved or rejected.",
+        "No retention: acute response, not stabilized outcome.",
+        "No V_dom: generic state movement, not domain-valid success.",
+        "No complete denominator: may be state-valid but cannot support VSTE/cost-yield claims.",
+    ]
+    for i, line in enumerate(rejected):
+        c.drawString(66, 308 - i * 14, f"- {line}")
+
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(52, 214, "Locked numerator and denominator")
+    c.setFont("Helvetica", 8)
+    c.drawString(66, 194, "N_VST^op = sum_k A_k, where A_k = Q_dist * L_k * R_k(tau*) * V_dom,k")
+    c.drawString(66, 178, "Reference validity Z_k and probabilistic p_k are reported separately from A_k.")
+    c.drawString(66, 162, "Cost-normalized claims additionally require Q_B^acct and a declared boundary B.")
+
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(52, 122, "Reviewer-facing interpretation")
+    c.setFont("Helvetica", 8)
+    c.drawString(66, 102, "VSTF is not a new transition detector. It is a pre-specified adjudication and claim-governance layer")
+    c.drawString(66, 88, "placed after or alongside transition detection, before a detected event enters an outcome numerator.")
+    c.setFont("Helvetica", 7)
+    c.drawString(42, 28, "Generated by vstf_hmm_benchmark.py; synthetic methodology diagram, not empirical validation.")
+    c.showPage()
+    c.save()
 
 
 def draw_bar(c: canvas.Canvas, x: float, y: float, width: float, height: float, frac: float, color) -> None:
@@ -787,22 +1009,27 @@ def main() -> None:
     sens = sensitivity()
     abl = ablations()
     random_stress = random_parameter_stress()
+    scenarios = scenario_stress()
     write_summary_csv(out_dir / "vstf_hmm_benchmark_summary.csv", aggregate)
     write_metric_csv(out_dir / "vstf_hmm_benchmark_monte_carlo.csv", stats)
     write_sensitivity_csv(out_dir / "vstf_hmm_benchmark_sensitivity.csv", sens)
     write_ablation_csv(out_dir / "vstf_hmm_benchmark_ablations.csv", abl)
     write_random_parameter_stress_csv(out_dir / "vstf_hmm_random_parameter_stress.csv", random_stress)
+    write_scenario_stress_csv(out_dir / "vstf_hmm_scenario_stress.csv", scenarios)
     output_files = [
         out_dir / "vstf_hmm_benchmark_summary.csv",
         out_dir / "vstf_hmm_benchmark_monte_carlo.csv",
         out_dir / "vstf_hmm_benchmark_sensitivity.csv",
         out_dir / "vstf_hmm_benchmark_ablations.csv",
         out_dir / "vstf_hmm_random_parameter_stress.csv",
+        out_dir / "vstf_hmm_scenario_stress.csv",
         out_dir / "vstf_hmm_event_sample.csv",
+        out_dir / "vstf_event_cascade.pdf",
         out_dir / "vstf_hmm_benchmark.pdf",
     ]
-    write_event_sample_csv(output_files[5])
-    write_pdf(output_files[6], aggregate, stats, sens)
+    write_event_sample_csv(output_files[6])
+    write_event_cascade_pdf(output_files[7])
+    write_pdf(output_files[8], aggregate, stats, sens)
     write_reproducibility_manifest(out_dir / "REPRODUCIBILITY.md", output_files)
 
     print("Monte Carlo benchmark")
@@ -847,6 +1074,13 @@ def main() -> None:
         f"{len(random_stress)} pairs x {N_RANDOM_PAIR_BATCHES} batches, "
         f"mean raw/VSTE discordance={mean(float(r['raw_vste_discordance']) for r in random_stress):.3g}"
     )
+    for row in scenarios:
+        print(
+            f"scenario {row['scenario']}: raw_to_vste={row['raw_to_vste_reversal_probability']:.3g}, "
+            f"crossing_to_vste={row['crossing_to_vste_reversal_probability']:.3g}, "
+            f"retained_to_vste={row['retained_to_vste_reversal_probability']:.3g}, "
+            f"ratio={row['mean_vste_ratio_b_over_a']:.3g}"
+        )
 
 
 if __name__ == "__main__":

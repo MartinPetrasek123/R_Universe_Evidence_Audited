@@ -1,9 +1,9 @@
 ablation,n_batches,raw_to_vste_reversal_probability,crossing_to_vste_reversal_probability,retained_to_vste_reversal_probability,mean_vste_ratio_b_over_a
-dynamics_only,20.0,1.0,1.0,0.0,2.3875112560468943
-noise_only,20.0,0.0,1.0,0.0,1.748055998829979
-domain_only,20.0,0.7,0.7,0.55,1.2168817702009342
-cost_only,20.0,0.0,0.0,0.0,1.096935183868302
-domain_cost_only,20.0,0.0,0.0,0.0,1.3382295924776355
-retention_challenge,20.0,0.0,0.0,0.9,1.3154396983272998
-equal_domain,20.0,0.65,1.0,0.0,2.5414159941848964
-combined,20.0,0.65,1.0,0.0,3.090790270423044
+dynamics_only,8.0,1.0,1.0,0.0,2.359307898044796
+noise_only,8.0,0.0,1.0,0.0,1.7474976156704123
+domain_only,8.0,0.5,0.625,0.5,1.2205553592603404
+cost_only,8.0,0.0,0.0,0.0,1.0991260024376635
+domain_cost_only,8.0,0.0,0.0,0.0,1.3423679221650453
+retention_challenge,8.0,0.0,0.0,1.0,1.3154563560253547
+equal_domain,8.0,0.75,1.0,0.0,2.532467560877759
+combined,8.0,0.75,1.0,0.0,3.080291052530969

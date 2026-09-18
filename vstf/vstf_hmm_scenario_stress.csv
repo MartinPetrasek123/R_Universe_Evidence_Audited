@@ -1,0 +1,5 @@
+scenario,n_batches,raw_to_vste_reversal_probability,crossing_to_vste_reversal_probability,retained_to_vste_reversal_probability,mean_vste_ratio_b_over_a,mean_ppv_a,mean_ppv_b
+hmm_independent_domain,3.0,0.6666666666666666,1.0,0.0,3.107280541415134,0.6147868698466155,0.871326036331148
+hmm_correlated_domain,3.0,0.6666666666666666,1.0,0.0,2.6835826567545586,0.7729528355756581,0.9536010843391789
+hsmm_independent_domain,3.0,1.0,1.0,0.0,5.827782304567482,0.5767002595002831,0.8760814507057794
+hsmm_correlated_domain,3.0,1.0,1.0,0.0,5.080760252198136,0.7172242433421819,0.9567974618593843
