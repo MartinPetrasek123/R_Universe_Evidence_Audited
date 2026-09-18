@@ -232,6 +232,8 @@ An operational state region is a measurable subset
 with a declared interpretation, measurement procedure, tolerance, and resolution rule. Regions may be fixed from prior knowledge or estimated from a training/reference cohort, but they must be frozen before confirmatory evaluation.
 \end{definition}
 
+The operational state family may be either a disjoint partition or an overlapping cover. If overlaps are permitted, the protocol must pre-specify tie-breaking, indeterminate-state handling, and transition-assignment rules. In particular, a trajectory segment in $C_i\cap C_j$ must not be retrospectively assigned to whichever state makes the confirmatory result stronger.
+
 Examples include a latched digital output, a metastable attractor basin, a classified benchmark output, a high-\OSD{} tumor state, a low-\OSD{} reference state, or a motor-output state coupled to voluntary intent.
 
 \begin{definition}[Candidate event segmentation]
@@ -342,7 +344,7 @@ A candidate transition $C_i \to C_j$ is a state-valid stabilized transition if i
   \[
     E_{jk}=\Pr[d_M(Y)=k\mid X\in C_j].
   \]
-  Distinguishability can be treated as a protocol-level validation flag $Q_{\mathrm{dist}}(M,\{C_i\})=1$ for the measurement system, while localization remains event-specific.
+  Distinguishability can be treated as a protocol-level validation flag $Q_{\mathrm{dist}}(M,\{C_i\})=1$ for the measurement system, or as a transition-specific validation flag $Q_{\mathrm{dist},ij}=1$ for the particular candidate transition $C_i\to C_j$; localization remains event-specific.
   Pairwise Bayes error may be used only after specifying priors and loss function, e.g. $e_{\mathrm{Bayes}}(P_j,P_k;\pi_j,\pi_k,L)$.
   Confirmatory distinguishability should be qualified with finite-sample uncertainty. For example, a point estimate $\hat e_i\leq\alpha_i$ is insufficient by itself; the locked rule should require an upper confidence or credible bound $U_{1-\eta}(e_i)\leq\alpha_i$, or an equivalent pre-specified decision-risk criterion.
   \item \textbf{Persistence:} the state remains in the target region over a declared operational window. Define the first-exit time
@@ -380,30 +382,55 @@ The domain predicate prevents generic state movement from being misinterpreted a
 \]
 where $W_k$ is the data packet reserved for domain adjudication, $h$ is a declared mapping, $\psi$ is frozen outside the confirmatory set, and $\mathcal{A}_{\mathrm{dom}}$ is a pre-registered acceptance region. If $W_k$ reuses observations that also drive localization or retention, that dependence must be declared and propagated rather than treated as independent evidence.
 
-\begin{definition}[Operational decision and latent/reference event validity]
-For candidate event $e_k$, define the operational VSTF decision
+\begin{definition}[Detected and reference event sets]
+For a locked protocol $\mathcal{P}$, let
+\[
+  \widehat{\mathcal{E}}_{\mathcal{P}}(Y)=\{\hat e_1,\ldots,\hat e_{N_{\mathrm{cand}}}\}
+\]
+denote the detected candidate-event set generated from the observed trajectory. When a latent simulator or independently justified reference standard is available, let
+\[
+  \mathcal{E}^{\ast}_{\mathrm{ref}}=\{e^{\ast}_1,\ldots,e^{\ast}_{N_{\mathrm{ref}}}\}
+\]
+denote the reference-event set. Operational and reference events are not assumed to share an index. Their correspondence must be established by a pre-specified one-to-one matching rule
+\[
+  m:\widehat{\mathcal{E}}_{\mathcal{P}}\leftrightarrow\mathcal{E}^{\ast}_{\mathrm{ref}},
+\]
+based on admissible temporal overlap, state overlap, commitment-time tolerance, or a declared composite cost. For example, one may minimize a locked cost
+\[
+  c_{kr}=w_1|t^{(k)}_{\mathrm{commit}}-t^{(r)\ast}_{\mathrm{commit}}|
+  +w_2\{1-\mathrm{IoU}(I_k,I_r^\ast)\},
+\]
+subject to a maximum admissible cost and one-to-one assignment. Unmatched accepted candidate events contribute to false acceptance; unmatched reference-valid events contribute to false rejection.
+\end{definition}
+
+\begin{definition}[Operational decision and matched reference validity]
+For detected candidate event $\hat e_k$, define the operational VSTF decision
 \[
   A_k =
-  Q_{\mathrm{dist}}(\mathcal{P},M,\{C_i\})
+  Q_{\mathrm{dist},ij}(\mathcal{P},M,\{C_i\})
   L_k
   R_k(\tau_\ast)
   V_{\mathrm{dom},k}.
 \]
-Here $Q_{\mathrm{dist}}(\mathcal{P},M,\{C_i\})\in\{0,1\}$ is a protocol-level measurement-system qualification flag, $L_k$ is event-level localization and segmentation success, $R_k(\tau_\ast)$ is event-level retention, and $V_{\mathrm{dom},k}$ is event-level domain admissibility. This separates a reusable confusion-matrix or distinguishability validation from predicates that are evaluated on each event. $A_k=g(\mathcal{Y}_k;\mathcal{P})$ is the decision made by the locked protocol $\mathcal{P}$ from the observed event packet $\mathcal{Y}_k$. Only events with $A_k=1$ enter the operational VST count
+Here $Q_{\mathrm{dist},ij}(\mathcal{P},M,\{C_i\})\in\{0,1\}$ is a protocol-level or transition-specific measurement-system qualification flag for the intended transition $C_i\to C_j$, $L_k$ is event-level localization and segmentation success, $R_k(\tau_\ast)$ is event-level retention, and $V_{\mathrm{dom},k}$ is event-level domain admissibility. This separates a reusable confusion-matrix or distinguishability validation from predicates that are evaluated on each event. $A_k=g(\mathcal{Y}_k;\mathcal{P})$ is the decision made by the locked protocol $\mathcal{P}$ from the observed event packet $\mathcal{Y}_k$. Only detected candidate events with $A_k=1$ enter the operational VST count
 \[
   N_{\VST}^{\mathrm{op}}=\sum_k A_k.
 \]
 
-When a latent or independently adjudicated reference-standard validity exists, define separately
+When a detected candidate event is matched to a latent or independently adjudicated reference event, define separately
 \[
-  Z_k\in\{0,1\},
+  Z^{\mathrm{match}}_k\in\{0,1\},
 \]
-where $Z_k=1$ means that event $k$ is valid under the target state, retention, and domain-validity semantics according to that reference standard, independently of whether the measurement rule accepted it. In hardware benchmarks this may be a latent simulator or reference state; in clinical or biological settings it is often a fallible but independently justified reference standard. In noiseless task benchmarks $A_k$ and $Z_k$ may coincide, but under measurement uncertainty they are distinct. False acceptance and false rejection are defined as
+where $Z^{\mathrm{match}}_k=1$ means that the matched reference event is valid under the target state, retention, and domain-validity semantics according to that reference standard, independently of whether the measurement rule accepted the detected candidate. In hardware benchmarks this may be a latent simulator or reference state; in clinical or biological settings it is often a fallible but independently justified reference standard. In noiseless task benchmarks $A_k$ and matched reference validity may coincide, but under measurement uncertainty they are distinct. Error rates must be defined after matching:
 \[
-  FP=\#\{k:A_k=1,\ Z_k=0\},
+  TP=\#\{\mathrm{matched\ pairs}\ (k,r):A_k=1,\ Z_r^\ast=1\},
+\]
+\[
+  FP=\#\{\mathrm{accepted\ detected\ candidates\ without\ a\ valid\ matched\ reference\ event}\},
   \qquad
-  FN=\#\{k:A_k=0,\ Z_k=1\}.
+  FN=\#\{\mathrm{reference\mbox{-}valid\ events\ without\ an\ accepted\ matched\ detection}\}.
 \]
+Without an explicit reference-event universe and matching rule, reported FP and FN are candidate-universe error rates only; they must not be interpreted as sensitivity to all latent transitions.
 \end{definition}
 
 Accounting completeness is represented separately:
@@ -416,41 +443,45 @@ An event may be a valid state transition while being unusable for event-level co
 \]
 Incomplete accounting invalidates \VSTE{} or cost-yield claims, not necessarily the existence of the state transition.
 
-\begin{definition}[Probabilistic latent/reference validity]
+\begin{definition}[Probabilistic matched-reference validity]
 When state-validity predicates cannot be observed without error, the hard operational decision $A_k$ should be accompanied by a posterior probability of latent or reference-standard validity,
 \[
-  p_k=\Pr(Z_k=1\mid \mathcal{Y}_k,D_{\mathrm{train}}),
+  p_k=\Pr(Z^{\mathrm{match}}_k=1\mid \mathcal{Y}_k,D_{\mathrm{train}}),
   \qquad
-  \E[N_{\VST}^{\mathrm{ref}}\mid Y,D_{\mathrm{train}}]=\sum_k p_k.
+  \E[N_{\mathrm{ref,cand}}\mid Y,D_{\mathrm{train}}]=\sum_{\hat e_k\in\widehat{\mathcal{E}}_{\mathcal{P}}} p_k.
 \]
-Here $\mathcal{Y}_k$ is the event-specific data packet: the observations used for commitment, validation, retention, distinguishability, domain validity, and censoring status. If $A_k$ is a deterministic function of $\mathcal{Y}_k$ under a locked protocol, then $\Pr(A_k=1\mid\mathcal{Y}_k)=A_k$ is trivial; the nontrivial uncertainty concerns $Z_k$, not the existence of the operational decision. The variance of the probabilistic reference-valid count should be reported as
+Here $\mathcal{Y}_k$ is the event-specific data packet: the observations used for commitment, validation, retention, distinguishability, domain validity, matching, and censoring status. This quantity estimates reference validity among detected candidates. It is not, without an explicit event-detection model, an estimator of the total number of reference-valid latent transitions
 \[
-  \mathrm{Var}\!\left(\sum_k Z_k\mid \mathcal{Y},D_{\mathrm{train}}\right)
+  N_{\mathrm{ref,total}}=\#\{e_r^\ast\in\mathcal{E}^{\ast}_{\mathrm{ref}}:Z_r^\ast=1\}.
+\]
+If $A_k$ is a deterministic function of $\mathcal{Y}_k$ under a locked protocol, then $\Pr(A_k=1\mid\mathcal{Y}_k)=A_k$ is trivial; the nontrivial uncertainty concerns matched reference validity, not the existence of the operational decision. The variance of the probabilistic matched-reference-valid count should be reported as
+\[
+  \mathrm{Var}\!\left(\sum_k Z^{\mathrm{match}}_k\mid \mathcal{Y},D_{\mathrm{train}}\right)
   =
   \sum_k p_k(1-p_k)
-  +2\sum_{k<\ell}\mathrm{Cov}(Z_k,Z_\ell\mid \mathcal{Y},D_{\mathrm{train}}),
+  +2\sum_{k<\ell}\mathrm{Cov}(Z^{\mathrm{match}}_k,Z^{\mathrm{match}}_\ell\mid \mathcal{Y},D_{\mathrm{train}}),
 \]
 with the covariance term retained or estimated when events are not independent. This distinguishes certain accepted events from borderline threshold crossings.
 
 \begin{quote}
 \textbf{Separation principle.} The latent or reference-standard validity of an event, the measurement record, the operational decision, and the scientific claim are distinct objects:
 \[
-  Z_k\ \neq\ \mathcal{Y}_k\ \neq\ A_k\ \neq\ \mathrm{claim}.
+  e_r^\ast,\ Z_r^\ast\ \neq\ \mathcal{Y}_k\ \neq\ A_k\ \neq\ \mathrm{claim}.
 \]
-The measurement record $\mathcal{Y}_k$ supports an operational adjudication $A_k$ under a locked protocol, and may support posterior statements about $Z_k$ under an explicit validation model. A scientific claim is then restricted by the declared evidence level, baseline comparison, uncertainty analysis, domain predicate, and denominator completeness.
+The measurement record $\mathcal{Y}_k$ supports an operational adjudication $A_k$ under a locked protocol, and may support posterior statements about matched reference validity under an explicit validation and matching model. A scientific claim is then restricted by the declared evidence level, baseline comparison, uncertainty analysis, domain predicate, and denominator completeness.
 \end{quote}
 
 The validity predicates are a logical conjunction, not a collection of statistically independent tests. Localization, distinguishability, retention, and domain validity may be correlated, especially when multiple predicates are derived from the same classifier, sensor stream, or posterior. Uncertainty propagation must therefore retain predicate dependence rather than multiplying marginal pass probabilities unless independence has been justified.
 
-When $p_k=\Pr(Z_k=1\mid\mathcal{Y}_k,D_{\mathrm{train}})$ depends on estimated model parameters $\theta$--for example $p_0$, $K_\theta$, $P_M$, classifier calibration, or a covariance model--event uncertainty should be separated from parameter uncertainty:
+When $p_k=\Pr(Z^{\mathrm{match}}_k=1\mid\mathcal{Y}_k,D_{\mathrm{train}})$ depends on estimated model parameters $\theta$--for example $p_0$, $K_\theta$, $P_M$, classifier calibration, matching tolerance, or a covariance model--event uncertainty should be separated from parameter uncertainty:
 \[
-  \mathrm{Var}(N_{\VST}^{\mathrm{ref}}\mid D)
+  \mathrm{Var}(N_{\mathrm{ref,cand}}\mid D)
   =
-  \E_\theta\!\left[\mathrm{Var}(N_{\VST}^{\mathrm{ref}}\mid D,\theta)\mid D\right]
+  \E_\theta\!\left[\mathrm{Var}(N_{\mathrm{ref,cand}}\mid D,\theta)\mid D\right]
   +
-  \mathrm{Var}_\theta\!\left(\E[N_{\VST}^{\mathrm{ref}}\mid D,\theta]\mid D\right).
+  \mathrm{Var}_\theta\!\left(\E[N_{\mathrm{ref,cand}}\mid D,\theta]\mid D\right).
 \]
-The first term is event uncertainty; the second is model or parameter uncertainty. Posterior sampling, nested bootstrap, clustered bootstrap, or another pre-specified procedure should be used when model-based probabilities are reported.
+The first term is event uncertainty; the second is model or parameter uncertainty. Posterior sampling, nested bootstrap, clustered bootstrap, or another pre-specified procedure should be used when model-based probabilities are reported. The probability model used for $p_k$ should be calibrated out of sample or validated outside the confirmatory set; otherwise $\sum_k p_k$ is only a model-implied count under the fitted assumptions.
 \end{definition}
 
 \section{Core Observables}
@@ -480,8 +511,16 @@ If stationarity, ergodicity, and event-definition stability are justified, one m
 \[
   \VSTR = \lim_{\Delta t\to\infty}\frac{N_{\VST}(\Delta t)}{\Delta t}.
 \]
-This requires more than stationarity of the raw latent dynamics: the induced accepted-event point process must be stationary or ergodic with finite intensity, or the corresponding renewal process must have finite mean inter-event time. In nonstationary biological or clinical systems, finite-window intensity estimates are preferred.
+This requires more than stationarity of the raw latent dynamics: the induced accepted-event point process must be stationary or ergodic with finite intensity, or the corresponding renewal process must have finite mean inter-event time. In nonstationary biological or clinical systems, finite-window accepted-event frequency is the primary VSTF quantity. An asymptotic rate should be reported only when the accepted-event process admits a stable long-run intensity under the locked event definition.
 \end{definition}
+
+\subsection{Sampling-Resolution Robustness}
+
+Hysteresis, refractory intervals, and dwell rules reduce boundary chatter, but they do not by themselves prove sampling invariance. A confirmatory VSTF analysis should include a sampling-resolution stress test whenever the observation grid can alter event identity. A minimal grid is
+\[
+  \Delta t\in\{\Delta t_0/4,\Delta t_0/2,\Delta t_0,2\Delta t_0,4\Delta t_0\}.
+\]
+For each grid, the analysis should report $N_{\mathrm{crossing}}$, $N_{\VST}^{\mathrm{op}}$, \VSTR{}, \VSTE{}, PPV, sensitivity, and the relative change in accepted-event count compared with $\Delta t_0$. The confirmatory protocol should declare the maximum admissible change before outcome inspection, or else label grid-sensitive findings as resolution-dependent.
 
 \begin{definition}[Candidate yield and at-risk intensity]
 When event opportunities differ across systems because of refractory intervals, dwell requirements, or sampling cadence, \VSTR{} should be accompanied by
@@ -628,7 +667,7 @@ where $\phi_{\mathrm{temporal}}$ is a trajectory requirement that could be expre
 
 \section{Relation to Established Theory}
 
-\subsection{Landauer Bound and Conditional Thermodynamic Specialization}
+\subsection{Conditional Thermodynamic Specialization and Resource Bounds}
 
 Landauer's principle establishes a lower bound for logically irreversible erasure \cite{landauer1961,bennett2003,berut2012}. VSTF does not replace this bound, and it does not assign a Landauer cost to arbitrary attractor stabilization, biological state change, clinical prediction, or motor recovery. Landauer-type reasoning is relevant only when a VST event contains a well-defined logically irreversible information operation, such as a many-to-one logical map or erasure.
 
@@ -758,7 +797,35 @@ then the ordering
   \geq
   N_{\VST}.
 \]
-This follows by set inclusion. The sample count $N_{\mathrm{sample+}}$ may be reported as a separate raw-activity baseline, but it is not the same type of object as a transition event. A simulation does not prove the inclusion ordering; it estimates the size of attrition, false acceptance, false rejection, and ranking change under noise, retention failure, and cost accounting.
+
+\begin{lemma}[Nested event-count monotonicity]
+If $\mathcal{E}_{\VST}\subseteq\mathcal{E}_{\mathrm{retained}}\subseteq\mathcal{E}_{\mathrm{committed}}\subseteq\mathcal{E}_{\mathrm{crossing}}$ are nested event sets generated by the same locked candidate-event universe, then
+\[
+  N_{\VST}\leq N_{\mathrm{retained}}\leq N_{\mathrm{committed}}\leq N_{\mathrm{crossing}}.
+\]
+\end{lemma}
+
+\begin{proof}
+The result follows directly from finite set inclusion and cardinality monotonicity.
+\end{proof}
+
+The sample count $N_{\mathrm{sample+}}$ may be reported as a separate raw-activity baseline, but it is not the same type of object as a transition event. A simulation does not prove the inclusion ordering; it estimates the size of attrition, false acceptance, false rejection, and ranking change under noise, retention failure, and cost accounting.
+
+\begin{lemma}[Sample-level resource bound]
+If every accepted event $k\in\mathcal{A}$ admits an independently justified positive sample-level resource lower bound $L_k>0$, and resource contributions are additive over non-overlapping segments inside $\mathcal{B}$, then
+\[
+  E_{\mathrm{sup}}^{\mathcal{B}}\geq\sum_{k\in\mathcal{A}}L_k,
+  \qquad
+  \widehat{\VSTE}\leq
+  \frac{N_{\VST}}{\sum_{k\in\mathcal{A}}L_k}
+  =
+  \frac{1}{\bar L_{\mathcal{A}}}.
+\]
+\end{lemma}
+
+\begin{proof}
+The first inequality is the assumed additive lower bound. Dividing the accepted-event count by the larger full-boundary denominator yields the \VSTE{} upper bound.
+\end{proof}
 
 A minimal simulation benchmark should therefore report:
 \begin{enumerate}
@@ -790,7 +857,7 @@ To demonstrate incremental utility, a two-system hidden-Markov benchmark was imp
 \toprule
 Parameter & System A & System B \\
 \midrule
-$N_{\mathrm{batches}}$ & 100 & 100 \\
+$N_{\mathrm{batches}}$ & 30 & 30 \\
 Trajectories per batch & 10,000 & 10,000 \\
 Trajectory length $T$ & 72 & 72 \\
 $P(X_{t+1}=1\mid X_t=0)$ & 0.125 & 0.024 \\
@@ -808,7 +875,7 @@ Domain pass probability & 0.72 & 0.88 \\
 Base energy per trajectory & 92.0 & 88.0 \\
 Energy per crossing & 1.15 & 0.95 \\
 Energy per committed event & 2.30 & 1.45 \\
-Energy per valid VST & 3.20 & 2.10 \\
+Energy per resolved validation/readout attempt & 3.20 & 2.10 \\
 Master random seed & 20260917 & 20260917 \\
 \bottomrule
 \end{tabular}
@@ -847,12 +914,12 @@ True positives $(A_k=1,Z_k=1)$ & 46,641 & 166,962 \\
 False acceptances & 29,036 & 24,501 \\
 False rejections & 78,311 & 31,080 \\
 Pending/right-censored events & 174,982 & 42,050 \\
-Full-boundary energy & 34,127,354 & 27,815,588 \\
-Raw activity per energy & 0.18140 & 0.17972 \\
-Crossing events per energy & 0.06852 & 0.01677 \\
-Committed events per energy & 0.04581 & 0.01415 \\
-Retained events per energy & 0.00308 & 0.00782 \\
-Valid VST per energy & 0.00222 & 0.00688 \\
+Full-boundary energy & 38,328,212 & 28,151,714 \\
+Raw activity per energy & 0.16152 & 0.17757 \\
+Crossing events per energy & 0.06101 & 0.01656 \\
+Committed events per energy & 0.04079 & 0.01398 \\
+Retained events per energy & 0.00275 & 0.00773 \\
+Valid VST per energy & 0.00197 & 0.00680 \\
 Candidate yield $N_{\VST}/N_{\mathrm{crossing}}$ & 0.032 & 0.410 \\
 Retention yield & 0.067 & 0.552 \\
 Downstream-rejection fraction, committed denominator & 0.840 & 0.407 \\
@@ -874,14 +941,14 @@ Quantity & Value \\
 \midrule
 Independent batches & 30 \\
 Trajectories per batch per system & 10,000 \\
-$\Pr(R_A>R_B\ \mathrm{and}\ \VSTE_B>\VSTE_A)$ & 0.77 \\
+$\Pr(R_A>R_B\ \mathrm{and}\ \VSTE_B>\VSTE_A)$ & 0.00 \\
 $\Pr(R_{\mathrm{cross},A}>R_{\mathrm{cross},B}\ \mathrm{and}\ \VSTE_B>\VSTE_A)$ & 1.00 \\
 $\Pr(R_{\mathrm{commit},A}>R_{\mathrm{commit},B}\ \mathrm{and}\ \VSTE_B>\VSTE_A)$ & 1.00 \\
 $\Pr(R_{\mathrm{retained},A}>R_{\mathrm{retained},B}\ \mathrm{and}\ \VSTE_B>\VSTE_A)$ & 0.00 \\
-Mean $\VSTE_B/\VSTE_A$ & 3.10 \\
-Mean raw-efficiency ratio $R_A/R_B$ & 1.009 \\
-System A mean \VSTE{} Monte Carlo 95\% interval & [0.00220, 0.00223] \\
-System B mean \VSTE{} Monte Carlo 95\% interval & [0.00686, 0.00691] \\
+Mean $\VSTE_B/\VSTE_A$ & 3.45 \\
+Mean raw-efficiency ratio $R_A/R_B$ & 0.910 \\
+System A mean \VSTE{} Monte Carlo 95\% interval & [0.00196, 0.00199] \\
+System B mean \VSTE{} Monte Carlo 95\% interval & [0.00677, 0.00683] \\
 Sensitivity reversal probability, $\sigma$ factor 0.75 & 0.00 across $\tau_\ast\in\{4,6,10\}$ \\
 Sensitivity reversal probability, $\sigma$ factor 1.00 & 0.67--1.00 across $\tau_\ast\in\{4,6,10\}$ \\
 Sensitivity reversal probability, $\sigma$ factor 1.25 & 1.00 across $\tau_\ast\in\{4,6,10\}$ \\
@@ -899,20 +966,20 @@ Sensitivity reversal probability, $\sigma$ factor 1.25 & 1.00 across $\tau_\ast\
 \toprule
 Ablation & Raw$\to$\VSTE{} & Crossing$\to$\VSTE{} & Retained$\to$\VSTE{} & Mean $\VSTE_B/\VSTE_A$ \\
 \midrule
-Dynamics only & 1.00 & 1.00 & 0.00 & 2.36 \\
-Noise only & 0.00 & 1.00 & 0.00 & 1.75 \\
-Domain only & 0.50 & 0.63 & 0.50 & 1.22 \\
-Cost only & 0.00 & 0.00 & 0.00 & 1.10 \\
-Domain+cost only & 0.00 & 0.00 & 0.00 & 1.34 \\
-Retention-challenge & 0.00 & 0.00 & 1.00 & 1.32 \\
-Combined with equal domain probability & 0.75 & 1.00 & 0.00 & 2.53 \\
-Combined & 0.75 & 1.00 & 0.00 & 3.08 \\
+Dynamics only & 0.75 & 1.00 & 0.00 & 2.58 \\
+Noise only & 0.00 & 1.00 & 0.00 & 1.73 \\
+Domain only & 0.38 & 0.63 & 0.50 & 1.22 \\
+Cost only & 0.00 & 0.00 & 0.00 & 1.13 \\
+Domain+cost only & 0.00 & 0.00 & 0.00 & 1.39 \\
+Retention-challenge & 0.00 & 0.00 & 0.13 & 1.41 \\
+Combined with equal domain probability & 0.00 & 1.00 & 0.00 & 2.80 \\
+Combined & 0.00 & 1.00 & 0.00 & 3.42 \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
 \end{table}
 
-The raw-sample ranking and VSTF ranking disagree in 77\% of the independent batches under the locked operating point. More importantly, the event-level crossing and committed-event baselines also rank System A above System B in every batch, while \VSTE{} ranks System B above System A. The retained-event baseline already ranks System B above System A in the main locked operating point, which is expected because retention is one of the core VSTF filters; this makes clear that the benchmark does not claim VSTF defeats every simpler event-level metric. To test incremental value beyond retention alone, the retention-challenge ablation locks the comparison to a regime in which the retained-event baseline ranks System A above System B in all eight ablation batches while \VSTE{} ranks System B above System A. This ablation isolates the residual contribution of domain-validity and cost governance after event retention has already been counted. The sensitivity and ablation results are deliberately reported rather than hidden: ranking reversal is not universal under all noise levels or all parameter changes, and the VSTF claim is strongest in regimes where noise, retention failure, domain filtering, and cost accounting create a measurable separation between activity and retained domain-valid outcome. The accompanying random-parameter stress file samples eight additional A/B pairs over transition, noise, domain-validity, and energy-ledger ranges; it is a broader robustness check, not a substitute for a full domain-specific empirical benchmark. The reported intervals are Monte Carlo intervals across synthetic batches, not confidence intervals for a physical population parameter.
+Under the corrected operation-based energy ledger, System A has more raw activity samples in aggregate, but it no longer has higher raw activity per unit full-boundary energy. This is intentional: the denominator charges validation/readout attempts as operations actually performed rather than as a retrospective function of the final VST label. The strongest remaining ranking contrast is therefore not raw-per-energy but event-level attrition: crossing and committed-event baselines rank System A above System B in every batch, while \VSTE{} ranks System B above System A. The retained-event baseline already ranks System B above System A in the main locked operating point, which is expected because retention is one of the core VSTF filters; this makes clear that the benchmark does not claim VSTF defeats every simpler event-level metric. The sensitivity and ablation results are deliberately reported rather than hidden: ranking reversal is not universal under all noise levels or all parameter changes, and the VSTF claim is strongest in regimes where noise, retention failure, domain filtering, and cost accounting create a measurable separation between activity and retained domain-valid outcome. The accompanying random-parameter stress file samples eight additional A/B pairs over transition, noise, domain-validity, and energy-ledger ranges; it is a broader robustness check, not a substitute for a full domain-specific empirical benchmark. The reported intervals are Monte Carlo intervals across synthetic batches, not confidence intervals for a physical population parameter.
 
 \begin{table}[h]
 \centering
@@ -924,16 +991,38 @@ The raw-sample ranking and VSTF ranking disagree in 77\% of the independent batc
 \toprule
 Scenario & Raw$\to$\VSTE{} & Crossing$\to$\VSTE{} & Retained$\to$\VSTE{} & Mean $\VSTE_B/\VSTE_A$ & PPV B \\
 \midrule
-HMM, independent domain & 0.67 & 1.00 & 0.00 & 3.11 & 0.871 \\
-HMM, correlated domain & 0.67 & 1.00 & 0.00 & 2.68 & 0.954 \\
-HSMM, independent domain & 1.00 & 1.00 & 0.00 & 5.83 & 0.876 \\
-HSMM, correlated domain & 1.00 & 1.00 & 0.00 & 5.08 & 0.957 \\
+HMM, independent domain & 0.00 & 1.00 & 0.00 & 3.45 & 0.871 \\
+HMM, correlated domain & 0.00 & 1.00 & 0.00 & 2.98 & 0.954 \\
+HSMM, independent domain & 0.00 & 1.00 & 0.00 & 6.53 & 0.876 \\
+HSMM, correlated domain & 0.00 & 1.00 & 0.00 & 5.69 & 0.957 \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
 \end{table}
 
 These scenario tests address two structural limitations of the main didactic benchmark. First, the domain predicate need not be independent of the observed event packet; correlated-domain variants preserve the ranking reversal after dependence is introduced. Second, retention is not tied to geometric HMM dwell times; HSMM variants with explicit sampled durations preserve the qualitative result. The scenario table is deliberately small and diagnostic rather than confirmatory. Its purpose is to show that the demonstration is not solely an artifact of an independent Bernoulli domain gate or a geometric HMM duration assumption.
+
+\begin{table}[h]
+\centering
+\caption{Sampling-resolution stress test. The factor is relative to the base grid $\Delta t_0$; smaller factors are finer sampling. Relative accepted counts are normalized to the $\Delta t_0$ row.}
+\label{tab:hmm-sampling}
+\small
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lrrrrrr}
+\toprule
+$\Delta t/\Delta t_0$ & Steps & Crossing$\to$\VSTE{} & Mean $\VSTE_B/\VSTE_A$ & Rel. $N_{\VST,A}$ & Rel. $N_{\VST,B}$ & PPV B \\
+\midrule
+0.25 & 288 & 1.00 & 10.53 & 0.54 & 1.26 & 0.881 \\
+0.50 & 144 & 1.00 & 5.11 & 0.82 & 1.11 & 0.874 \\
+1.00 & 72 & 1.00 & 3.36 & 1.00 & 1.00 & 0.871 \\
+2.00 & 36 & 1.00 & 2.69 & 1.06 & 0.92 & 0.865 \\
+4.00 & 18 & 1.00 & 3.80 & 0.51 & 0.66 & 0.854 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+The sampling-resolution stress test shows that accepted-event counts are grid-sensitive, especially at very fine or coarse observation grids. This is not hidden: VSTF claims based on event counts must either show admissible stability over a declared sampling neighborhood or explicitly report the conclusion as resolution-dependent.
 
 \section{Reproducibility Materials}
 
@@ -943,10 +1032,11 @@ The synthetic benchmark is intended to be fully reproducible. The required compa
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_summary.csv}{\texttt{vstf\_hmm\_benchmark\_summary.csv}}: aggregate benchmark output used in Table~\ref{tab:hmm-summary}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_monte_carlo.csv}{\texttt{vstf\_hmm\_benchmark\_monte\_carlo.csv}}: multi-seed robustness summary used in Table~\ref{tab:hmm-robustness}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_sensitivity.csv}{\texttt{vstf\_hmm\_benchmark\_sensitivity.csv}}: sensitivity sweep over observation noise and retention window.
+  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_sampling_resolution.csv}{\texttt{vstf\_hmm\_sampling\_resolution.csv}}: sampling-grid stress test used in Table~\ref{tab:hmm-sampling}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_ablations.csv}{\texttt{vstf\_hmm\_benchmark\_ablations.csv}}: controlled A/B ablation summary used in Table~\ref{tab:hmm-ablations}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_random_parameter_stress.csv}{\texttt{vstf\_hmm\_random\_parameter\_stress.csv}}: random-parameter A/B stress test over transition, noise, domain-validity, and energy-ledger ranges.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_scenario_stress.csv}{\texttt{vstf\_hmm\_scenario\_stress.csv}}: correlated-domain and HSMM scenario stress tests used in Table~\ref{tab:hmm-scenarios}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_event_sample.csv}{\texttt{vstf\_hmm\_event\_sample.csv}}: machine-readable event-level audit sample with segmentation times, posterior values, reference/latent validity $Z_k$, operational decision $A_k$, and event outcome labels.
+  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_event_sample.csv}{\texttt{vstf\_hmm\_event\_sample.csv}}: machine-readable event-level audit sample with segmentation times, posterior values, candidate-level matched-reference validity indicator $Z^{\mathrm{match}}_k$, operational decision $A_k$, and event outcome labels.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_event_cascade.pdf}{\texttt{vstf\_event\_cascade.pdf}}: generated workflow diagram used in Figure~\ref{fig:event-cascade}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark.pdf}{\texttt{vstf\_hmm\_benchmark.pdf}}: generated benchmark figure used in Figure~\ref{fig:hmm-benchmark}.
   \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/REPRODUCIBILITY.md}{\texttt{REPRODUCIBILITY.md}} and \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/requirements.txt}{\texttt{requirements.txt}}: environment notes, seed policy, reproduction command, minimal dependencies, and SHA-256 hashes of generated outputs.
@@ -995,7 +1085,7 @@ The operational pipeline is:
 \end{array}
 \]
 Failure before $A_k=1$ produces a rejected or unresolved candidate event. Failure after $A_k=1$ but before accounting completeness preserves the state-valid event while forbidding cost-normalized claims. Pending retention windows enter censoring analysis rather than the failure count.
-When validity is observed under uncertainty, the operational decision $A_k$ and reference/latent validity $Z_k$ are distinct; reporting should show both operational counts and any available latent or adjudicated reference-standard validation.
+When validity is observed under uncertainty, the operational decision $A_k$ and matched-reference validity $Z^{\mathrm{match}}_k$ are distinct; reporting should show both operational counts and any available adjudicated reference-standard validation, plus the matching rule that connects detected candidates to reference events.
 
 \section{Four Levels of Evidence}
 
@@ -1419,7 +1509,7 @@ This question can be applied to hardware, physiological monitoring, cancer-state
 \textbf{Competing interests.} The author declares no competing interests.
 
 \begin{sloppypar}
-\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration. The simulation script, aggregate summary, Monte Carlo summary, sensitivity sweep, ablation summary, random-parameter stress test, scenario stress test, event-level audit sample, reproducibility manifest, requirements file, workflow figure, and benchmark figure are provided as \path{vstf_hmm_benchmark.py}, \path{vstf_hmm_benchmark_summary.csv}, \path{vstf_hmm_benchmark_monte_carlo.csv}, \path{vstf_hmm_benchmark_sensitivity.csv}, \path{vstf_hmm_benchmark_ablations.csv}, \path{vstf_hmm_random_parameter_stress.csv}, \path{vstf_hmm_scenario_stress.csv}, \path{vstf_hmm_event_sample.csv}, \path{REPRODUCIBILITY.md}, \path{requirements.txt}, \path{vstf_event_cascade.pdf}, and \path{vstf_hmm_benchmark.pdf}. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
+\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration. The simulation script, aggregate summary, Monte Carlo summary, sensitivity sweep, sampling-resolution stress test, ablation summary, random-parameter stress test, scenario stress test, event-level audit sample, reproducibility manifest, requirements file, workflow figure, and benchmark figure are provided as \path{vstf_hmm_benchmark.py}, \path{vstf_hmm_benchmark_summary.csv}, \path{vstf_hmm_benchmark_monte_carlo.csv}, \path{vstf_hmm_benchmark_sensitivity.csv}, \path{vstf_hmm_sampling_resolution.csv}, \path{vstf_hmm_benchmark_ablations.csv}, \path{vstf_hmm_random_parameter_stress.csv}, \path{vstf_hmm_scenario_stress.csv}, \path{vstf_hmm_event_sample.csv}, \path{REPRODUCIBILITY.md}, \path{requirements.txt}, \path{vstf_event_cascade.pdf}, and \path{vstf_hmm_benchmark.pdf}. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
 \end{sloppypar}
 
 \textbf{Author contribution.} M. Petrasek conceived the framework, integrated prior theoretical and applied components, and wrote the manuscript.
@@ -1430,11 +1520,13 @@ This question can be applied to hardware, physiological monitoring, cancer-state
 R. Landauer.
 Irreversibility and heat generation in the computing process.
 \emph{IBM Journal of Research and Development}, 5(3):183--191, 1961.
+doi:10.1147/rd.53.0183.
 
 \bibitem{bennett2003}
 C. H. Bennett.
 Notes on Landauer's principle, reversible computation, and Maxwell's demon.
 \emph{Studies in History and Philosophy of Modern Physics}, 34(3):501--510, 2003.
+doi:10.1016/S1355-2198(03)00039-X.
 
 \bibitem{berut2012}
 A. Berut, A. Arakelyan, A. Petrosyan, S. Ciliberto, R. Dillenschneider, and E. Lutz.
@@ -1476,11 +1568,13 @@ doi:10.1103/PhysRevLett.104.090602.
 H. A. Kramers.
 Brownian motion in a field of force and the diffusion model of chemical reactions.
 \emph{Physica}, 7(4):284--304, 1940.
+doi:10.1016/S0031-8914(40)90098-2.
 
 \bibitem{e2006}
 W. E and E. Vanden-Eijnden.
 Towards a theory of transition paths.
 \emph{Journal of Statistical Physics}, 123:503--523, 2006.
+doi:10.1007/s10955-005-9003-9.
 
 \bibitem{metzner2009}
 P. Metzner, C. Schutte, and E. Vanden-Eijnden.
@@ -1525,6 +1619,7 @@ J. E. Kammenga, B. Kemp, I. A. van de Leemput, S. Levin, C. M. Martin, R. J. F. 
 E. H. van Nes, L. M. Romero, and M. G. M. Olde Rikkert.
 Quantifying resilience of humans and other animals.
 \emph{Proceedings of the National Academy of Sciences}, 115(47):11883--11890, 2018.
+doi:10.1073/pnas.1810630115.
 
 \bibitem{dvorak1986}
 H. F. Dvorak.
@@ -1536,6 +1631,7 @@ doi:10.1056/NEJM198612253152606.
 D. Hanahan and R. A. Weinberg.
 Hallmarks of cancer: the next generation.
 \emph{Cell}, 144(5):646--674, 2011.
+doi:10.1016/j.cell.2011.02.013.
 
 \bibitem{oren2021}
 Y. Oren, M. Tsabar, M. S. Cuoco, L. Amir-Zilberstein, H. F. Cabanos, J.-C. Hutter,
@@ -1579,12 +1675,14 @@ Updated report of a working party. London: Royal College of Physicians, 2017.
 T. Desautels, J. Calvert, J. Hoffman, M. Jay, Y. Kerem, L. Shieh, D. Shimabukuro, U. Chettipally, M. D. Feldman, C. Barton, D. J. Wales, and R. Das.
 Prediction of sepsis in the intensive care unit with minimal electronic health record data: a machine learning approach.
 \emph{JMIR Medical Informatics}, 4(3):e28, 2016.
+doi:10.2196/medinform.5909.
 
 \bibitem{physionet}
 A. L. Goldberger, L. A. N. Amaral, L. Glass, J. M. Hausdorff, P. C. Ivanov, R. G. Mark,
 J. E. Mietus, G. B. Moody, C.-K. Peng, and H. E. Stanley.
 PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals.
 \emph{Circulation}, 101(23):e215--e220, 2000.
+doi:10.1161/01.CIR.101.23.e215.
 
 \bibitem{harutyunyan2019}
 H. Harutyunyan, H. Khachatrian, D. C. Kale, G. Ver Steeg, and A. Galstyan.

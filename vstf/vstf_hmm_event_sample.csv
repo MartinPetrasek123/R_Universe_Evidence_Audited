@@ -1,4 +1,4 @@
-system,trajectory_id,event_id,t_cross,t_validate,t_end,y_cross,posterior_commit,posterior_validate,min_posterior_retention,latent_retained,posterior_retained,domain_truth,domain_observed,latent_truth_z,operational_decision_a,outcome
+system,trajectory_id,event_id,t_cross,t_validate,t_end,y_cross,posterior_commit,posterior_validate,min_posterior_retention,latent_retained,posterior_retained,domain_truth,domain_observed,reference_valid_z,operational_decision_a,outcome
 A,0,1,10,12,18,1.1468059705821576,0.804153414810725,0.06932086895837102,0.006127226662564688,0,0,1,0,0,0,true_negative_or_downstream_rejection
 A,0,2,21,23,29,1.1761360261102725,0.8448141488636406,0.9467228132638863,0.2618573598725503,0,0,0,0,0,0,true_negative_or_downstream_rejection
 A,0,3,27,29,35,0.899502216671116,0.8045469446215602,0.8647928953865919,0.0004153163629722134,0,0,1,0,0,0,true_negative_or_downstream_rejection

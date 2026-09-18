@@ -46,6 +46,8 @@ N_EVENT_SAMPLE_ROWS = 40
 N_RANDOM_SYSTEM_PAIRS = 8
 N_RANDOM_PAIR_BATCHES = 2
 N_SCENARIO_BATCHES = 3
+N_SAMPLING_BATCHES = 2
+SAMPLING_FACTORS = (0.25, 0.5, 1.0, 2.0, 4.0)
 
 
 @dataclass(frozen=True)
@@ -59,7 +61,7 @@ class SystemSpec:
     energy_base: float
     energy_per_crossing: float
     energy_per_committed: float
-    energy_per_valid: float
+    energy_per_validation: float
 
 
 SYSTEM_A = SystemSpec(
@@ -72,7 +74,7 @@ SYSTEM_A = SystemSpec(
     energy_base=92.0,
     energy_per_crossing=1.15,
     energy_per_committed=2.30,
-    energy_per_valid=3.20,
+    energy_per_validation=3.20,
 )
 
 SYSTEM_B = SystemSpec(
@@ -85,7 +87,7 @@ SYSTEM_B = SystemSpec(
     energy_base=88.0,
     energy_per_crossing=0.95,
     energy_per_committed=1.45,
-    energy_per_valid=2.10,
+    energy_per_validation=2.10,
 )
 
 SYSTEMS = (SYSTEM_A, SYSTEM_B)
@@ -97,6 +99,23 @@ def simulate_hidden(spec: SystemSpec, rng: np.random.Generator) -> tuple[np.ndar
         prev = x[:, t - 1]
         u = rng.random(N_TRAJ)
         x[:, t] = np.where(prev == 0, (u < spec.p01).astype(np.int8), (u >= spec.p10).astype(np.int8))
+    y = rng.normal(loc=x.astype(float), scale=spec.sigma)
+    return x, y
+
+
+def rescale_transition_probability(prob: float, factor: float) -> float:
+    return float(1.0 - (1.0 - prob) ** factor)
+
+
+def simulate_hidden_scaled(spec: SystemSpec, rng: np.random.Generator, sampling_factor: float) -> tuple[np.ndarray, np.ndarray]:
+    n_steps = max(8, int(round(T / sampling_factor)))
+    p01 = rescale_transition_probability(spec.p01, sampling_factor)
+    p10 = rescale_transition_probability(spec.p10, sampling_factor)
+    x = np.zeros((N_TRAJ, n_steps), dtype=np.int8)
+    for t in range(1, n_steps):
+        prev = x[:, t - 1]
+        u = rng.random(N_TRAJ)
+        x[:, t] = np.where(prev == 0, (u < p01).astype(np.int8), (u >= p10).astype(np.int8))
     y = rng.normal(loc=x.astype(float), scale=spec.sigma)
     return x, y
 
@@ -193,14 +212,19 @@ def summarize_events(
     spec: SystemSpec,
     rng: np.random.Generator,
     tau_ret: int = TAU_RET,
+    validation_lag: int = VALIDATION_LAG,
     dynamics: str = "hmm",
     domain_mode: str = "independent",
+    sampling_factor: float = 1.0,
 ) -> dict[str, float]:
-    if dynamics == "hsmm":
+    if sampling_factor != 1.0 and dynamics == "hmm":
+        x, y = simulate_hidden_scaled(spec, rng, sampling_factor)
+    elif dynamics == "hsmm":
         x, y = simulate_hidden_hsmm(spec, rng)
     else:
         x, y = simulate_hidden(spec, rng)
     post = filter_posterior(spec, y)
+    n_t = x.shape[1]
     totals = {
         "raw_activity": 0.0,
         "crossings": 0.0,
@@ -233,19 +257,20 @@ def summarize_events(
         totals["crossings"] += len(crossings)
 
         committed = 0
-        valid = 0
+        resolved_attempts = 0
         for t in crossings:
             if pi[t] < POST_COMMIT:
                 continue
             committed += 1
             totals["committed"] += 1
-            v = t + VALIDATION_LAG
+            v = t + validation_lag
             end = v + tau_ret
-            if end >= T:
+            if end >= n_t:
                 totals["pending"] += 1
                 continue
 
             totals["resolved"] += 1
+            resolved_attempts += 1
             posterior_retained = pi[v] >= POST_VALIDATE and float(np.min(pi[v : end + 1])) >= POST_RET
             latent_retained = xi[v] == 1 and bool(np.all(xi[v : end + 1] == 1))
             posterior_mean = float(np.mean(pi[v : end + 1]))
@@ -261,7 +286,6 @@ def summarize_events(
             if posterior_retained:
                 totals["retained"] += 1
             if accepted:
-                valid += 1
                 totals["valid_vst"] += 1
             else:
                 totals["false_success"] += 1
@@ -274,7 +298,7 @@ def summarize_events(
             spec.energy_base
             + spec.energy_per_crossing * len(crossings)
             + spec.energy_per_committed * committed
-            + spec.energy_per_valid * valid
+            + spec.energy_per_validation * resolved_attempts
         )
 
     return add_derived(totals)
@@ -322,7 +346,7 @@ def collect_event_sample(spec: SystemSpec, rng: np.random.Generator, max_rows: i
                         "posterior_retained": "",
                         "domain_truth": "",
                         "domain_observed": "",
-                        "latent_truth_z": "",
+                        "reference_valid_z": "",
                         "operational_decision_a": "",
                         "outcome": "pending",
                     }
@@ -359,7 +383,7 @@ def collect_event_sample(spec: SystemSpec, rng: np.random.Generator, max_rows: i
                     "posterior_retained": int(posterior_retained),
                     "domain_truth": int(domain_truth),
                     "domain_observed": int(domain_observed),
-                    "latent_truth_z": int(latent_truth),
+                    "reference_valid_z": int(latent_truth),
                     "operational_decision_a": int(accepted),
                     "outcome": outcome,
                 }
@@ -461,7 +485,7 @@ def ablation_systems(kind: str) -> tuple[SystemSpec, SystemSpec]:
             energy_base=SYSTEM_B.energy_base,
             energy_per_crossing=SYSTEM_B.energy_per_crossing,
             energy_per_committed=SYSTEM_B.energy_per_committed,
-            energy_per_valid=SYSTEM_B.energy_per_valid,
+            energy_per_validation=SYSTEM_B.energy_per_validation,
             name="System B: cost-only",
             short="B",
         )
@@ -472,7 +496,7 @@ def ablation_systems(kind: str) -> tuple[SystemSpec, SystemSpec]:
             energy_base=SYSTEM_B.energy_base,
             energy_per_crossing=SYSTEM_B.energy_per_crossing,
             energy_per_committed=SYSTEM_B.energy_per_committed,
-            energy_per_valid=SYSTEM_B.energy_per_valid,
+            energy_per_validation=SYSTEM_B.energy_per_validation,
             name="System B: domain+cost-only",
             short="B",
         )
@@ -486,7 +510,7 @@ def ablation_systems(kind: str) -> tuple[SystemSpec, SystemSpec]:
             energy_base=58.0,
             energy_per_crossing=0.52,
             energy_per_committed=0.72,
-            energy_per_valid=0.80,
+            energy_per_validation=0.80,
             name="System B: retention-challenge",
             short="B",
         )
@@ -553,6 +577,66 @@ def sensitivity() -> list[dict[str, float]]:
     return rows
 
 
+def sampling_resolution_stress() -> list[dict[str, float | str]]:
+    rows: list[dict[str, float | str]] = []
+    baseline: dict[str, float] | None = None
+    for factor in SAMPLING_FACTORS:
+        tau_steps = max(1, int(round(TAU_RET / factor)))
+        lag_steps = max(1, int(round(VALIDATION_LAG / factor)))
+        raw_reversals = []
+        crossing_reversals = []
+        retained_reversals = []
+        ratios = []
+        n_vst_a = []
+        n_vst_b = []
+        ppv_a = []
+        ppv_b = []
+        tpr_a = []
+        tpr_b = []
+        for i in range(N_SAMPLING_BATCHES):
+            rng = np.random.default_rng(MASTER_SEED + 400_000 + int(factor * 1000) + i * 1009)
+            batch = {
+                "A": summarize_events(SYSTEM_A, rng, tau_ret=tau_steps, validation_lag=lag_steps, sampling_factor=factor),
+                "B": summarize_events(SYSTEM_B, rng, tau_ret=tau_steps, validation_lag=lag_steps, sampling_factor=factor),
+            }
+            raw_reversals.append(batch["A"]["raw_per_energy"] > batch["B"]["raw_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            crossing_reversals.append(batch["A"]["crossings_per_energy"] > batch["B"]["crossings_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            retained_reversals.append(batch["A"]["retained_per_energy"] > batch["B"]["retained_per_energy"] and batch["B"]["vste"] > batch["A"]["vste"])
+            ratios.append(batch["B"]["vste"] / max(batch["A"]["vste"], 1e-12))
+            n_vst_a.append(batch["A"]["valid_vst"])
+            n_vst_b.append(batch["B"]["valid_vst"])
+            ppv_a.append(batch["A"]["precision_ppv"])
+            ppv_b.append(batch["B"]["precision_ppv"])
+            tpr_a.append(batch["A"]["sensitivity_tpr"])
+            tpr_b.append(batch["B"]["sensitivity_tpr"])
+        row = {
+            "sampling_factor_relative_to_dt0": factor,
+            "time_steps": float(max(8, int(round(T / factor)))),
+            "tau_ret_steps": float(tau_steps),
+            "validation_lag_steps": float(lag_steps),
+            "raw_to_vste_reversal_probability": sum(raw_reversals) / len(raw_reversals),
+            "crossing_to_vste_reversal_probability": sum(crossing_reversals) / len(crossing_reversals),
+            "retained_to_vste_reversal_probability": sum(retained_reversals) / len(retained_reversals),
+            "mean_vste_ratio_b_over_a": mean(ratios),
+            "mean_valid_vst_a": mean(n_vst_a),
+            "mean_valid_vst_b": mean(n_vst_b),
+            "relative_valid_vst_a_vs_dt0": 1.0,
+            "relative_valid_vst_b_vs_dt0": 1.0,
+            "mean_ppv_a": mean(ppv_a),
+            "mean_ppv_b": mean(ppv_b),
+            "mean_tpr_a": mean(tpr_a),
+            "mean_tpr_b": mean(tpr_b),
+        }
+        if factor == 1.0:
+            baseline = row
+        rows.append(row)
+    if baseline is not None:
+        for row in rows:
+            row["relative_valid_vst_a_vs_dt0"] = float(row["mean_valid_vst_a"]) / max(float(baseline["mean_valid_vst_a"]), 1e-12)
+            row["relative_valid_vst_b_vs_dt0"] = float(row["mean_valid_vst_b"]) / max(float(baseline["mean_valid_vst_b"]), 1e-12)
+    return rows
+
+
 def draw_random_spec(name: str, short: str, rng: np.random.Generator) -> SystemSpec:
     return SystemSpec(
         name=name,
@@ -564,7 +648,7 @@ def draw_random_spec(name: str, short: str, rng: np.random.Generator) -> SystemS
         energy_base=float(rng.uniform(80.0, 105.0)),
         energy_per_crossing=float(rng.uniform(0.75, 1.40)),
         energy_per_committed=float(rng.uniform(1.10, 2.60)),
-        energy_per_valid=float(rng.uniform(1.60, 3.40)),
+        energy_per_validation=float(rng.uniform(1.60, 3.40)),
     )
 
 
@@ -704,6 +788,33 @@ def write_sensitivity_csv(path: Path, rows: list[dict[str, float]]) -> None:
         writer.writerows(rows)
 
 
+def write_sampling_resolution_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "sampling_factor_relative_to_dt0",
+                "time_steps",
+                "tau_ret_steps",
+                "validation_lag_steps",
+                "raw_to_vste_reversal_probability",
+                "crossing_to_vste_reversal_probability",
+                "retained_to_vste_reversal_probability",
+                "mean_vste_ratio_b_over_a",
+                "mean_valid_vst_a",
+                "mean_valid_vst_b",
+                "relative_valid_vst_a_vs_dt0",
+                "relative_valid_vst_b_vs_dt0",
+                "mean_ppv_a",
+                "mean_ppv_b",
+                "mean_tpr_a",
+                "mean_tpr_b",
+            ],
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def write_ablation_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
     with path.open("w", newline="") as f:
         writer = csv.DictWriter(
@@ -785,7 +896,7 @@ def write_event_sample_csv(path: Path) -> None:
         "posterior_retained",
         "domain_truth",
         "domain_observed",
-        "latent_truth_z",
+        "reference_valid_z",
         "operational_decision_a",
         "outcome",
     ]
@@ -816,6 +927,7 @@ def write_reproducibility_manifest(path: Path, output_files: list[Path]) -> None
         f"Monte Carlo batches: {N_BATCHES}",
         f"Sensitivity batches per cell: {N_SENS_BATCHES}",
         f"Ablation batches per cell: {N_ABLATION_BATCHES}",
+        f"Sampling-resolution batches per cell: {N_SAMPLING_BATCHES}",
         f"Event-sample rows: {N_EVENT_SAMPLE_ROWS}",
         "",
         "Reproduction command:",
@@ -838,17 +950,17 @@ def write_event_cascade_pdf(path: Path) -> None:
     c.setFont("Helvetica-Bold", 15)
     c.drawString(42, height - 48, "VSTF Event-Cascade and Claim-Governance Layer")
     c.setFont("Helvetica", 8)
-    c.drawString(42, height - 64, "A detected transition becomes a countable outcome only after locked, auditable gates are passed.")
+    c.drawString(42, height - 64, "Operational candidates and reference events are matched before error rates are claimed.")
 
     steps = [
-        ("Dynamic signal", "Y_t observed from latent X_t"),
-        ("Candidate event", "segmentation, hysteresis, index time"),
-        ("Q_dist", "measurement system distinguishable"),
-        ("L_k", "event localized to target state"),
-        ("R_k(tau*)", "retained across maturity window"),
-        ("V_dom,k", "domain-admissible endpoint"),
-        ("A_k=1", "operational VST numerator"),
-        ("Claim gate", "rate, cost, or intervention claim"),
+        ("Latent trajectory", "X_t and reference standard"),
+        ("Reference events", "E_ref = {e*_r}"),
+        ("Observed trajectory", "Y_t from measurement process"),
+        ("Candidate events", "E_P = {ehat_k}"),
+        ("Event matching", "locked one-to-one rule m"),
+        ("Adjudication", "Q_dist,ij * L_k * R_k * V_dom,k"),
+        ("Error accounting", "TP / FP / FN after matching"),
+        ("Claim gate", "N_VST^op and complete denominator"),
     ]
     x0 = 46
     y0 = height - 132
@@ -905,10 +1017,10 @@ def write_event_cascade_pdf(path: Path) -> None:
         c.drawString(66, 308 - i * 14, f"- {line}")
 
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(52, 214, "Locked numerator and denominator")
+    c.drawString(52, 214, "Locked numerator, matching, and denominator")
     c.setFont("Helvetica", 8)
-    c.drawString(66, 194, "N_VST^op = sum_k A_k, where A_k = Q_dist * L_k * R_k(tau*) * V_dom,k")
-    c.drawString(66, 178, "Reference validity Z_k and probabilistic p_k are reported separately from A_k.")
+    c.drawString(66, 194, "A_k is evaluated on detected candidates; reference validity belongs to matched reference events.")
+    c.drawString(66, 178, "Unmatched accepted candidates are false acceptances; unmatched valid references are false rejections.")
     c.drawString(66, 162, "Cost-normalized claims additionally require Q_B^acct and a declared boundary B.")
 
     c.setFont("Helvetica-Bold", 10)
@@ -1010,9 +1122,11 @@ def main() -> None:
     abl = ablations()
     random_stress = random_parameter_stress()
     scenarios = scenario_stress()
+    sampling_rows = sampling_resolution_stress()
     write_summary_csv(out_dir / "vstf_hmm_benchmark_summary.csv", aggregate)
     write_metric_csv(out_dir / "vstf_hmm_benchmark_monte_carlo.csv", stats)
     write_sensitivity_csv(out_dir / "vstf_hmm_benchmark_sensitivity.csv", sens)
+    write_sampling_resolution_csv(out_dir / "vstf_hmm_sampling_resolution.csv", sampling_rows)
     write_ablation_csv(out_dir / "vstf_hmm_benchmark_ablations.csv", abl)
     write_random_parameter_stress_csv(out_dir / "vstf_hmm_random_parameter_stress.csv", random_stress)
     write_scenario_stress_csv(out_dir / "vstf_hmm_scenario_stress.csv", scenarios)
@@ -1020,6 +1134,7 @@ def main() -> None:
         out_dir / "vstf_hmm_benchmark_summary.csv",
         out_dir / "vstf_hmm_benchmark_monte_carlo.csv",
         out_dir / "vstf_hmm_benchmark_sensitivity.csv",
+        out_dir / "vstf_hmm_sampling_resolution.csv",
         out_dir / "vstf_hmm_benchmark_ablations.csv",
         out_dir / "vstf_hmm_random_parameter_stress.csv",
         out_dir / "vstf_hmm_scenario_stress.csv",
@@ -1027,9 +1142,9 @@ def main() -> None:
         out_dir / "vstf_event_cascade.pdf",
         out_dir / "vstf_hmm_benchmark.pdf",
     ]
-    write_event_sample_csv(output_files[6])
-    write_event_cascade_pdf(output_files[7])
-    write_pdf(output_files[8], aggregate, stats, sens)
+    write_event_sample_csv(output_files[7])
+    write_event_cascade_pdf(output_files[8])
+    write_pdf(output_files[9], aggregate, stats, sens)
     write_reproducibility_manifest(out_dir / "REPRODUCIBILITY.md", output_files)
 
     print("Monte Carlo benchmark")
@@ -1080,6 +1195,13 @@ def main() -> None:
             f"crossing_to_vste={row['crossing_to_vste_reversal_probability']:.3g}, "
             f"retained_to_vste={row['retained_to_vste_reversal_probability']:.3g}, "
             f"ratio={row['mean_vste_ratio_b_over_a']:.3g}"
+        )
+    for row in sampling_rows:
+        print(
+            f"sampling factor {row['sampling_factor_relative_to_dt0']}: "
+            f"raw_to_vste={row['raw_to_vste_reversal_probability']:.3g}, "
+            f"rel_valid_A={row['relative_valid_vst_a_vs_dt0']:.3g}, "
+            f"rel_valid_B={row['relative_valid_vst_b_vs_dt0']:.3g}"
         )
 
 

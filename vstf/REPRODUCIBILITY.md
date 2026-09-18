@@ -9,6 +9,7 @@ Trajectories per batch: 10000
 Monte Carlo batches: 30
 Sensitivity batches per cell: 3
 Ablation batches per cell: 8
+Sampling-resolution batches per cell: 2
 Event-sample rows: 40
 
 Reproduction command:
@@ -19,12 +20,13 @@ python3 vstf_hmm_benchmark.py
 
 SHA-256 outputs:
 
-- `vstf_hmm_benchmark_summary.csv`: `1507b8938c6a76d2f633e6ebb1e2e2cca2042f52563c20d92b37d3055879f4f7`
-- `vstf_hmm_benchmark_monte_carlo.csv`: `b22692b8c872d0bc0cd7adab5765da77a57dd7a780486e024322783b4ab835c7`
-- `vstf_hmm_benchmark_sensitivity.csv`: `8e99d8586fec9e4b6e100b65d16935fa05676ff274b7df60b0dc0dc0acf5e763`
-- `vstf_hmm_benchmark_ablations.csv`: `8d584bc46d859d68c1fac365ab337917b8f41fed7e7323c803deaf02e0346ec3`
-- `vstf_hmm_random_parameter_stress.csv`: `ff490183eeb75473c722a2ff7973857182e12714a7cb5225d45d6da96f65fa38`
-- `vstf_hmm_scenario_stress.csv`: `8ba355bf7dcb94462041b85a880bb9a95037f65efd919b5ebf5768f833f165e0`
-- `vstf_hmm_event_sample.csv`: `db88a8c971d834cb304758dfe6cccb57331298db82d052d0b5036c8626782b46`
-- `vstf_event_cascade.pdf`: `064d323e05c5b5e6c07acc0edc28c9c97e58da8f6d5f717ca51f56100b4ccae8`
-- `vstf_hmm_benchmark.pdf`: `3a08c8c754ebf4bea6c33f7543c6afb2f7ef82aad3b032b403b924caec2cdaf0`
+- `vstf_hmm_benchmark_summary.csv`: `aaef61896a7598c680e30997816060d2bbe8d4d18518c38b551be54a7d94eed1`
+- `vstf_hmm_benchmark_monte_carlo.csv`: `99fc93b5ba5315c947fbd4c0908f1ac96c86dd48da8b3772e7a53b781d58eb93`
+- `vstf_hmm_benchmark_sensitivity.csv`: `632544804bc86e26280ee58e8c3d7ab1eabc844ab52f133173d57773da4d35b6`
+- `vstf_hmm_sampling_resolution.csv`: `09feede75006fe9300bfc7ac21499c970926282ef80d8a6ee36ba129c72973ad`
+- `vstf_hmm_benchmark_ablations.csv`: `1bf2c156b6d752398ce68f3cf2dda7657eb4475764c8bab738012507c1f3fb00`
+- `vstf_hmm_random_parameter_stress.csv`: `dc15749362f5f047bf72130b91e42e66ed421364c245b53bba0c8c080d855d92`
+- `vstf_hmm_scenario_stress.csv`: `7e617ba4b0b3971634d18570ce1f9abd0b6adf8b259addbd3b7528e3ee7b8be1`
+- `vstf_hmm_event_sample.csv`: `68b25c926ebecf4dce7844e30690c9317cbc8b3fc8cb54e29380c0eb3e4dabfc`
+- `vstf_event_cascade.pdf`: `1e2c11ef83ddab052f1ff483ae613e4793b711568d982fbb357c65d8c14946ab`
+- `vstf_hmm_benchmark.pdf`: `d53e6a74e7aa1312b857be7b35926059bf82fed5f0629873f88c591428e174e6`
