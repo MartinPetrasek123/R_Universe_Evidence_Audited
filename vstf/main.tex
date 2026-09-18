@@ -38,6 +38,7 @@
 \newtheorem{conjecture}{Conjecture}
 \newtheorem{limitation}{Limitation}
 \newtheorem{assumption}{Assumption}
+\newtheorem{lemma}{Lemma}
 
 \newcommand{\VST}{\ensuremath{\mathrm{VST}}}
 \newcommand{\VSTR}{\ensuremath{\mathrm{VSTR}}}
@@ -54,6 +55,22 @@
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\Texit}{T_{\mathrm{exit}}}
 \newcommand{\Treturn}{T_{\mathrm{return}}}
+\newcommand{\VSTFgraphic}[3]{%
+  \IfFileExists{#1}{%
+    \includegraphics[width=#2\linewidth]{#1}%
+  }{%
+    \fbox{%
+      \begin{minipage}{0.92\linewidth}
+      \centering
+      \vspace{1em}
+      \textbf{Generated figure not found in this compile environment.}\\[0.5em]
+      The source artifact is available at:\\
+      \href{#3}{\texttt{#1}}
+      \vspace{1em}
+      \end{minipage}%
+    }%
+  }%
+}
 
 \title{\textbf{Valid State Transition Framework}\\
 \large A Pre-Specified Event-Level Adjudication Framework for Stabilized Outcomes}
@@ -883,14 +900,14 @@ Master random seed & 20260917 & 20260917 \\
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.98\linewidth]{vstf_event_cascade.pdf}
+\VSTFgraphic{vstf_event_cascade.pdf}{0.98}{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_event_cascade.pdf}
 \caption{VSTF event-cascade diagram. A dynamic signal first generates a candidate event. The event is countable only if the protocol-level measurement system is distinguishable, the event is localized, retained, domain-admissible, and supported by a complete denominator for the claim being made. Failure at any gate does not erase the observation; it changes the admissible claim and must remain auditable as rejected, unresolved, pending, or proxy evidence.}
 \label{fig:event-cascade}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.96\linewidth]{vstf_hmm_benchmark.pdf}
+\VSTFgraphic{vstf_hmm_benchmark.pdf}{0.96}{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark.pdf}
 \caption{Hidden-Markov benchmark showing nested attrition from raw activity to valid VST events, latent-ground-truth error rates, multi-seed ranking robustness, and a small sensitivity sweep. System A produces more raw activity per supplied energy, but most committed events fail validation or retention. System B produces fewer raw events but substantially higher valid VST yield per supplied energy.}
 \label{fig:hmm-benchmark}
 \end{figure}
