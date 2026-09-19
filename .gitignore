@@ -12,3 +12,14 @@
 *.log
 !evidence/**/*.log
 main.tex.bak-*
+vstf/STAR.csv
+vstf/data_banknote_authentication.txt
+vstf/energydata_complete.csv
+vstf/haberman.data
+vstf/household_power_consumption.txt
+vstf/household_power_consumption.zip
+vstf/ionosphere.data
+vstf/lalonde.csv
+vstf/processed.cleveland.data
+vstf/sonar.all-data
+vstf/spambase.data
