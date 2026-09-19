@@ -7,7 +7,7 @@ ReportLab: 5.0.0
 Master seed: 20260917
 Trajectories per batch: 10000
 Monte Carlo batches: 30
-Sensitivity batches per cell: 3
+Sensitivity batches per cell: 30
 Ablation batches per cell: 8
 Sampling-resolution batches per cell: 2
 Many-system benchmark: 30 systems x 5 seeds x 1500 trajectories per seed
@@ -24,15 +24,16 @@ SHA-256 outputs:
 
 - `vstf_hmm_benchmark_summary.csv`: `aaef61896a7598c680e30997816060d2bbe8d4d18518c38b551be54a7d94eed1`
 - `vstf_hmm_benchmark_monte_carlo.csv`: `99fc93b5ba5315c947fbd4c0908f1ac96c86dd48da8b3772e7a53b781d58eb93`
-- `vstf_hmm_benchmark_sensitivity.csv`: `632544804bc86e26280ee58e8c3d7ab1eabc844ab52f133173d57773da4d35b6`
+- `vstf_hmm_benchmark_batch_level.csv`: `241960a39308e5e0e569a30f16a586d98da33cdc9f163ea33e90b8dcff11e497`
+- `vstf_hmm_benchmark_sensitivity.csv`: `76ad58b9718db651602662aaeb0d0ea23bfa1812507e6443e60419fd03d0d223`
 - `vstf_hmm_sampling_resolution.csv`: `09feede75006fe9300bfc7ac21499c970926282ef80d8a6ee36ba129c72973ad`
 - `vstf_hmm_benchmark_ablations.csv`: `1bf2c156b6d752398ce68f3cf2dda7657eb4475764c8bab738012507c1f3fb00`
 - `vstf_hmm_random_parameter_stress.csv`: `dc15749362f5f047bf72130b91e42e66ed421364c245b53bba0c8c080d855d92`
 - `vstf_hmm_scenario_stress.csv`: `7e617ba4b0b3971634d18570ce1f9abd0b6adf8b259addbd3b7528e3ee7b8be1`
 - `vstf_model_misspecification_stress.csv`: `38626e0b6adcce412d2bb4fafd708a605bb187a09834da751012146167f5ba07`
 - `vstf_many_system_benchmark.csv`: `08d0eea2ddae2f18df831ae3e7e28d4e271f4785d943e063bd1d74d546f3fb62`
-- `vstf_many_system_discordance.csv`: `37f19767ab165fe565f4d1f649869789c78cc60c46c5bd263c9f862fb73ef130`
-- `vstf_hmm_event_sample.csv`: `68b25c926ebecf4dce7844e30690c9317cbc8b3fc8cb54e29380c0eb3e4dabfc`
-- `vstf_event_cascade.pdf`: `64b129738c7284897abc0426accb14af537ab3e80da8ecb1f373f23d8aa86794`
-- `vstf_hmm_benchmark.pdf`: `2170ad9bc34a82eee20154cec7147673c0d2ea51cf2b2ee94f406c7a98bc486b`
+- `vstf_many_system_discordance.csv`: `68b25c926ebecf4dce7844e30690c9317cbc8b3fc8cb54e29380c0eb3e4dabfc`
+- `vstf_hmm_event_sample.csv`: `2a6c494d9e6160f1cc29fd63508c410f17fe1f6e5bbfbeaaf3995e0d8dd8f411`
+- `vstf_event_cascade.pdf`: `f1a62ba328103985b9932c54bee0bb7f81eadcc3132a32781fbea3598b2b6067`
+- `vstf_hmm_benchmark.pdf`: `f7250e2b71b90e4c21d20745b51be2161bb70372c039c3baa93781589fcf09aa`
 - `vstf_many_system_rank_displacement.pdf`: `e291ef845a7be0856f5b8f709ac4bed8b9d211a5d2e4fc48426319e409f4bd52`
