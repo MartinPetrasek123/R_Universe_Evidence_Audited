@@ -12,6 +12,7 @@ computability:
 - static real-data acceptance and pending decisions are computed on five public datasets;
 - temporal event segmentation, dwell, first-exit retention, and cost-normalized VSTE are computed on a public household-power time series;
 - a descriptive treated-versus-PSID comparison is computed on the Lalonde/MatchIt data.
+- additional external component checks are computed on UCI Banknote Authentication, UCI Spambase, UCI Appliances Energy Prediction, and Project STAR and are included in the one-command reproduction pipeline.
 
 This is not full clinical, biological, or hardware validation.
 
@@ -66,3 +67,8 @@ A VSTF domain claim should be marked "fully validated" only if the manuscript,
 source code, generated outputs, data provenance, and checksums are all tied to
 one immutable release or DOI and the full validation protocol above is satisfied
 for that domain.
+
+The current working package is reproducible and component-audited, but a journal
+submission should still be frozen as a versioned GitHub release, Zenodo DOI, or
+equivalent immutable archive. The release should state the code/data license
+explicitly.

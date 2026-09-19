@@ -18,7 +18,7 @@ Run from this directory:
 python3 reproduce_all.py
 ```
 
-The workflow regenerates all synthetic CSV/PDF outputs, downloads or reuses public real datasets, regenerates all real-data ledgers, validates the sensitivity table values used by the manuscript, and writes `EVIDENCE_MANIFEST.sha256`.
+The workflow regenerates all synthetic CSV/PDF outputs, downloads or reuses public real datasets, regenerates all real-data ledgers including the additional external component checks, validates the manuscript values against generated CSV outputs, and writes `EVIDENCE_MANIFEST.sha256`.
 
 ## Core files
 
@@ -56,6 +56,11 @@ The workflow regenerates all synthetic CSV/PDF outputs, downloads or reuses publ
 - `vstf_real_component_validation_summary.csv` - component-level real-data summary.
 - `vstf_household_power_events.csv` - event-level household-power time-series ledger.
 - `vstf_lalonde_treatment_effect.csv` - descriptive Lalonde/MatchIt treated-versus-PSID comparison ledger.
+- `vstf_external_component_validation.py` - additional external public-data component checks for Banknote, Spambase, Appliances, and Project STAR.
+- `vstf_external_component_validation_summary.csv` - machine-readable summary for the additional external checks reported in the manuscript.
+- `vstf_external_component_validation_folds.csv` - fold-level ledger for the Banknote and Spambase acceptance/pending checks.
+- `vstf_external_appliances_events.csv` - event-level ledger for the Appliances temporal-retention check.
+- `vstf_external_star_contrast.csv` - small-versus-regular class-size contrast ledger for Project STAR.
 - `vstf_full_real_calculation_ledger.csv` - unified real-calculation ledger.
 
 Public source datasets:
@@ -67,9 +72,15 @@ Public source datasets:
 - Haberman Survival: https://archive.ics.uci.edu/ml/machine-learning-databases/haberman/haberman.data
 - UCI household electric power consumption: https://archive.ics.uci.edu/ml/machine-learning-databases/00235/household_power_consumption.zip
 - Lalonde/MatchIt: https://vincentarelbundock.github.io/Rdatasets/csv/MatchIt/lalonde.csv
+- UCI Banknote Authentication: https://archive.ics.uci.edu/ml/machine-learning-databases/00267/data_banknote_authentication.txt
+- UCI Spambase: https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data
+- UCI Appliances Energy Prediction: https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv
+- Project STAR: https://vincentarelbundock.github.io/Rdatasets/csv/AER/STAR.csv
 
 ## Interpretation guardrails
 
 - The current HMM sensitivity table reports raw-to-VSTE reversal probabilities exactly as regenerated from `vstf_hmm_benchmark_sensitivity.csv`: 0.00 for all cells at sigma factors 0.75 and 1.00, and 0.4333, 0.5333, 0.8333 at sigma factor 1.25 for retention windows 4, 6, and 10.
 - The Lalonde/MatchIt calculation is descriptive. The 429 comparison observations are PSID comparison cases, not randomized NSW controls. The unadjusted difference must not be interpreted as a causal treatment effect without a separate locked matching, weighting, balance, and sensitivity analysis.
 - Static classification datasets audit the acceptance/pending layer. They do not validate temporal retention or cost-normalized VSTE; those components are audited separately with the household-power time series.
+- The additional external component checks are in the one-command reproduction pipeline. They broaden component coverage, but they still do not supply one single end-to-end dataset containing every VSTF layer simultaneously.
+- No open-source license has been selected in this package. Reuse terms should be resolved before archival release or journal submission.

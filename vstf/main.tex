@@ -991,18 +991,18 @@ Master random seed & 20260917 & 20260917 \\
 \toprule
 Quantity & System A & System B \\
 \midrule
-Raw activity samples & 6,190,813 & 4,999,028 \\
-Crossing events & 2,338,552 & 466,134 \\
-Committed events & 1,563,423 & 393,575 \\
+Raw activity samples & 6,190,808 & 4,999,033 \\
+Crossing events & 2,338,551 & 466,134 \\
+Committed events & 1,563,422 & 393,575 \\
 Retained events & 105,241 & 217,484 \\
 Valid VST events & 75,677 & 191,463 \\
-Resolved committed events failing downstream VST criteria & 1,312,764 & 160,062 \\
+Resolved committed events failing downstream VST criteria & 1,312,763 & 160,062 \\
 Latent-ground-truth valid events & 124,952 & 198,042 \\
 True positives $(A_k=1,Z_k=1)$ & 46,641 & 166,962 \\
 False acceptances & 29,036 & 24,501 \\
 False rejections & 78,311 & 31,080 \\
 Pending/right-censored events & 174,982 & 42,050 \\
-Full-boundary energy & 38,328,212 & 28,151,714 \\
+Full-boundary energy & 38,328,212.25 & 28,151,713.55 \\
 Raw activity per energy & 0.16152 & 0.17757 \\
 Crossing events per energy & 0.06101 & 0.01656 \\
 Committed events per energy & 0.04079 & 0.01398 \\
@@ -1067,7 +1067,7 @@ Combined & 0.00 & 1.00 & 0.00 & 3.42 \\
 \end{adjustbox}
 \end{table}
 
-Under the corrected operation-based energy ledger, System A has more raw activity samples in aggregate, but it no longer has higher raw activity per unit full-boundary energy. This is intentional: the denominator charges validation/readout attempts as operations actually performed rather than as a retrospective function of the final VST label. The strongest remaining ranking contrast is therefore not raw-per-energy but event-level attrition: crossing and committed-event baselines rank System A above System B in every batch, while \VSTE{} ranks System B above System A. The retained-event baseline already ranks System B above System A in the main locked operating point, which is expected because retention is one of the core VSTF filters; this makes clear that the benchmark does not claim VSTF defeats every simpler event-level metric. The sensitivity table is deliberately reported in its current form: the raw-to-\VSTE{} reversal is absent at $\sigma=1.00$ and appears only in one high-noise, long-retention cell at $\sigma=1.25,\tau_\ast=10$ with three sensitivity batches per cell. Therefore the sensitivity sweep should be read as a small diagnostic stress test, not as a precise probability estimate. The VSTF claim is strongest in regimes where noise, retention failure, domain filtering, and cost accounting create a measurable separation between activity and retained domain-valid outcome. The accompanying random-parameter stress file samples eight additional A/B pairs over transition, noise, domain-validity, and energy-ledger ranges; it is a broader robustness check, not a substitute for a full domain-specific empirical benchmark. The reported intervals are Monte Carlo intervals across synthetic batches, not confidence intervals for a physical population parameter.
+Under the corrected operation-based energy ledger, System A has more raw activity samples in aggregate, but it no longer has higher raw activity per unit full-boundary energy. This is intentional: the denominator charges validation/readout attempts as operations actually performed rather than as a retrospective function of the final VST label. The strongest remaining ranking contrast is therefore not raw-per-energy but event-level attrition: crossing and committed-event baselines rank System A above System B in every batch, while \VSTE{} ranks System B above System A. The retained-event baseline already ranks System B above System A in the main locked operating point, which is expected because retention is one of the core VSTF filters; this makes clear that the benchmark does not claim VSTF defeats every simpler event-level metric. The sensitivity table is deliberately reported in its current form: the raw-to-\VSTE{} reversal is absent at $\sigma=1.00$ and appears only in high-noise $\sigma=1.25$ cells under a 30-batch-per-cell diagnostic sweep. Therefore the sensitivity sweep should be read as a finite Monte Carlo stress test, not as a precise population probability estimate. The VSTF claim is strongest in regimes where noise, retention failure, domain filtering, and cost accounting create a measurable separation between activity and retained domain-valid outcome. The accompanying random-parameter stress file samples eight additional A/B pairs over transition, noise, domain-validity, and energy-ledger ranges; it is a broader robustness check, not a substitute for a full domain-specific empirical benchmark. The reported intervals are Monte Carlo intervals across synthetic batches, not confidence intervals for a physical population parameter.
 
 \begin{table}[h]
 \centering
@@ -1168,7 +1168,7 @@ The many-system benchmark directly tests the nearest-baseline concern raised by 
 
 The synthetic benchmark is intended to be fully reproducible. The required companion files are:
 \begin{itemize}
-  \item \texttt{reproduce\_all.py}: single-command workflow that regenerates the synthetic benchmark, real-data component audits, unified real-calculation ledger, and checksum manifest.
+  \item \texttt{reproduce\_all.py}: single-command workflow that regenerates the synthetic benchmark, real-data component audits, additional external component checks, unified real-calculation ledger, manuscript-value consistency checks, and checksum manifest.
   \item \texttt{vstf\_hmm\_benchmark.py}: deterministic simulation script with fixed seed, model parameters, event filters, and figure generation.
   \item \texttt{vstf\_hmm\_benchmark\_summary.csv}: aggregate benchmark output used in Table~\ref{tab:hmm-summary}.
   \item \texttt{vstf\_hmm\_benchmark\_monte\_carlo.csv}: multi-seed robustness summary used in Table~\ref{tab:hmm-robustness}.
@@ -1189,6 +1189,11 @@ The synthetic benchmark is intended to be fully reproducible. The required compa
   \item \texttt{vstf\_real\_component\_validation\_summary.csv}: component-level real-data audit used in Table~\ref{tab:real-component-datasets}.
   \item \texttt{vstf\_household\_power\_events.csv}: event-level ledger for the real household-power time-series audit used in Table~\ref{tab:power-ledger}.
   \item \texttt{vstf\_lalonde\_treatment\_effect.csv}: treatment-effect ledger used in Table~\ref{tab:lalonde-ledger}.
+  \item \texttt{vstf\_external\_component\_validation.py}: additional public-data component audit for Banknote, Spambase, Appliances Energy Prediction, and Project STAR.
+  \item \texttt{vstf\_external\_component\_validation\_summary.csv}: generated external component-check summary used in Table~\ref{tab:external-component-check}.
+  \item \texttt{vstf\_external\_component\_validation\_folds.csv}: fold-level ledger for the Banknote and Spambase checks.
+  \item \texttt{vstf\_external\_appliances\_events.csv}: event-level ledger for the Appliances retention check.
+  \item \texttt{vstf\_external\_star\_contrast.csv}: generated Project STAR contrast ledger.
   \item \texttt{vstf\_full\_real\_calculation\_ledger.csv}: unified real-calculation ledger for all real-data components.
   \item \texttt{vstf\_event\_cascade.pdf}: optional exported workflow diagram matching Figure~\ref{fig:event-cascade}.
   \item \texttt{vstf\_hmm\_benchmark.pdf}: optional exported benchmark graphic matching Figure~\ref{fig:hmm-benchmark}.
@@ -1197,7 +1202,7 @@ The synthetic benchmark is intended to be fully reproducible. The required compa
   \item \texttt{FULL\_VALIDATION\_PROTOCOL.md}: domain-level checklist for any future claim that VSTF has been fully validated rather than only component-audited.
   \item \texttt{README.md}, \texttt{REPRODUCIBILITY.md}, and \texttt{requirements.txt}: package index, seed policy, preprocessing notes, one-command reproduction instructions, interpretation guardrails, and pinned minimal dependencies.
 \end{itemize}
-The current public repository is the \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{VSTF reproducibility package}; a submission archive should cite an immutable release DOI or exact commit hash. The command \texttt{python3 reproduce\_all.py} should be run from the package root before release; it fails if the sensitivity table regenerated from CSV no longer matches the manuscript. The benchmark does not require domain data and is not evidence for a biological or clinical claim; it is a reproducible methodological demonstration that the VSTF acceptance layer can alter ranking and false-success interpretation.
+The current public repository is the \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{VSTF reproducibility package}; a submission archive should cite an immutable release DOI or exact commit hash. The command \texttt{python3 reproduce\_all.py} should be run from the package root before release; it fails if regenerated CSV values used in the HMM summary or external component table are not present in the manuscript. The benchmark does not require domain data and is not evidence for a biological or clinical claim; it is a reproducible methodological demonstration that the VSTF acceptance layer can alter ranking and false-success interpretation.
 
 \section{Verification and Validation Status}
 
@@ -1396,7 +1401,7 @@ Thus, the strongest defensible statement is not that VSTF is fully empirically v
 
 \subsection{Additional External Component Check}
 
-An additional external component check was performed on public datasets not used in the preceding package-level real-data audit. These calculations are reported only as component checks, not as a claim of complete framework validation. The classification checks used the same locked acceptance rule as above: five stratified folds, training-fold standardization, shrinkage LDA with shrinkage 0.10, raw decision threshold $p\geq0.5$, and accepted decisions only when $p\leq0.02$ or $p\geq0.98$. Table~\ref{tab:external-component-check} reports the results.
+An additional external component check was performed on public datasets not used in the preceding package-level real-data audit. These calculations are reported only as component checks, not as a claim of complete framework validation. The classification checks used the same locked acceptance rule as above: five stratified folds, training-fold standardization, shrinkage LDA with shrinkage 0.10, raw decision threshold $p\geq0.5$, and accepted decisions only when $p\leq0.02$ or $p\geq0.98$. The temporal check uses the public UCI Appliances Energy Prediction time series with its native ten-minute sampling interval. The external table is regenerated by \texttt{vstf\_external\_component\_validation.py} and is included in the one-command \texttt{reproduce\_all.py} pipeline. Table~\ref{tab:external-component-check} reports the generated values.
 
 \begin{table}[h]
 \centering
@@ -1408,16 +1413,16 @@ An additional external component check was performed on public datasets not used
 \toprule
 Component & External dataset & Computed result \\
 \midrule
-Acceptance/pending layer & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00267/data_banknote_authentication.txt}{UCI Banknote Authentication} & Raw accuracy $=0.9767$; accepted accuracy $=1101/1101=1.0000$; coverage $=1101/1372=0.8025$; pending fraction $=271/1372=0.1975$. \\
-Acceptance/pending layer & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data}{UCI Spambase} & Raw accuracy $=0.8878$; accepted accuracy $=1379/1404=0.9822$; coverage $=1404/4601=0.3052$; pending fraction $=3197/4601=0.6948$. \\
-Temporal retention and cost denominator & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv}{UCI Appliances Energy Prediction} & With a 30-minute dwell and 60-minute retention window, 50 candidate appliance-use events were detected. Under first-exit below $q_{50}$, 46/50 were retained; under a stricter 120-minute window, 34/50 were retained. Total appliance energy was 1928.01 kWh, so the stricter retained-event yield was $34/1928.01=0.0176$ events/kWh. \\
+Acceptance/pending layer & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00267/data_banknote_authentication.txt}{UCI Banknote Authentication} & Raw accuracy $=0.9774$; accepted accuracy $=1097/1097=1.0000$; coverage $=1097/1372=0.7996$; pending fraction $=275/1372=0.2004$. \\
+Acceptance/pending layer & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data}{UCI Spambase} & Raw accuracy $=0.8872$; accepted accuracy $=1377/1406=0.9794$; coverage $=1406/4601=0.3056$; pending fraction $=3195/4601=0.6944$. \\
+Temporal retention and cost denominator & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv}{UCI Appliances Energy Prediction} & With a 30-minute dwell and a 60-minute retention window on ten-minute samples, 99 candidate appliance-use events were detected and 86/99 were retained. Under a stricter 120-minute retention window, 63/99 were retained. Total appliance energy was 1928.01 kWh, so the stricter retained-event yield was $63/1928.01=0.0327$ events/kWh. \\
 Intervention contrast & \href{https://vincentarelbundock.github.io/Rdatasets/csv/AER/STAR.csv}{Project STAR kindergarten class-size dataset} & Small-class versus regular-class contrast: reading difference $=440.5518-434.7327=5.8191$, 95\% CI $[3.7770,\,7.8612]$; mathematics difference $=491.3901-483.3102=8.0799$, 95\% CI $[4.9615,\,11.1982]$. \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
 \end{table}
 
-Table~\ref{tab:external-component-check} strengthens the component-level evidence: the acceptance gate generalizes to two additional external static datasets, temporal retention and cost-normalized retained-event yield can be computed on a separate energy time series, and an intervention contrast can be computed on an external experimental education dataset. It still does not make the framework completely validated. The reason is structural, not merely computational: no dataset used here contains all required VSTF layers at once.
+Table~\ref{tab:external-component-check} strengthens the component-level evidence: the acceptance gate generalizes to two additional external static datasets, temporal retention and cost-normalized retained-event yield can be computed on a separate energy time series, and an intervention contrast can be computed on an external experimental education dataset. Because these values are generated by the public script and written to \texttt{vstf\_external\_component\_validation\_summary.csv}, they are part of the reproducibility package rather than unsupported manuscript-only values. The table still does not make the framework completely validated. The reason is structural, not merely computational: no dataset used here contains all required VSTF layers at once.
 
 For a complete validation of VSTF as a full framework, a single locked study would need a time-indexed state trajectory, candidate events, dwell and first-exit retention, a reference endpoint or adjudicated ground truth, accepted/rejected/pending labels, a complete cost or exposure denominator, and, for intervention claims, a randomized or defensibly adjusted treatment/control structure. The present evidence covers these layers across separate public datasets. It therefore validates component computability and supports the methodological claim, but it does not establish one complete end-to-end validation of VSTF in a single clinical, biological, hardware, or intervention domain.
 
@@ -1921,7 +1926,7 @@ This question can be applied to hardware, physiological monitoring, cancer-state
 \textbf{Consent for publication.} Not applicable; the manuscript contains no identifiable individual-level human data.
 
 \begin{sloppypar}
-\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration and public real-data component audits. The simulation scripts, CSV summaries, event-level audit sample, multi-dataset real-data acceptance script, component-validation script, household-power event ledger, Lalonde treatment-effect ledger, full real-calculation ledger, reproducibility manifest, requirements file, workflow figure, benchmark figure, and many-system rank figure are provided in the companion VSTF package. The public repository is the \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{VSTF reproducibility package}; final submission should cite an immutable release DOI or exact commit hash. The real-data audit uses public datasets linked directly in Tables~\ref{tab:real-static-datasets} and \ref{tab:real-component-datasets}: WDBC, Ionosphere, Sonar, Cleveland Heart Disease, Haberman Survival, UCI Individual Household Electric Power Consumption, and the Lalonde NSW treatment dataset. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
+\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration and public real-data component audits. The simulation scripts, CSV summaries, event-level audit sample, multi-dataset real-data acceptance script, component-validation script, additional external component-check script, household-power event ledger, Lalonde treatment-effect ledger, external component ledgers, full real-calculation ledger, reproducibility manifest, requirements file, workflow figure, benchmark figure, and many-system rank figure are provided in the companion VSTF package. The public repository is the \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{VSTF reproducibility package}; final submission should cite an immutable release DOI or exact commit hash. The real-data audit uses public datasets linked directly in Tables~\ref{tab:real-static-datasets}, \ref{tab:real-component-datasets}, and \ref{tab:external-component-check}: WDBC, Ionosphere, Sonar, Cleveland Heart Disease, Haberman Survival, UCI Individual Household Electric Power Consumption, Lalonde/MatchIt, UCI Banknote Authentication, UCI Spambase, UCI Appliances Energy Prediction, and Project STAR. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
 \end{sloppypar}
 
 \textbf{Materials availability.} No biological materials, clinical specimens, proprietary devices, or physical samples are associated with this manuscript.

@@ -1,9 +1,9 @@
 # VSTF HMM Benchmark Reproducibility Manifest
 
-Python: 3.9.6
+Python: 3.12.14
 Platform: macOS-26.6.2-arm64-arm-64bit
-NumPy: 2.0.2
-ReportLab: 5.0.0
+NumPy: 2.3.5
+ReportLab: 4.4.9
 Master seed: 20260917
 Trajectories per batch: 10000
 Monte Carlo batches: 30
@@ -22,7 +22,7 @@ python3 vstf_hmm_benchmark.py
 
 SHA-256 outputs:
 
-- `vstf_hmm_benchmark_summary.csv`: `aaef61896a7598c680e30997816060d2bbe8d4d18518c38b551be54a7d94eed1`
+- `vstf_hmm_benchmark_summary.csv`: `cb957ebf8da90ea14c1c0c842caedb53049946d443b5d48c8a7b8662594b7e83`
 - `vstf_hmm_benchmark_monte_carlo.csv`: `99fc93b5ba5315c947fbd4c0908f1ac96c86dd48da8b3772e7a53b781d58eb93`
 - `vstf_hmm_benchmark_batch_level.csv`: `241960a39308e5e0e569a30f16a586d98da33cdc9f163ea33e90b8dcff11e497`
 - `vstf_hmm_benchmark_sensitivity.csv`: `76ad58b9718db651602662aaeb0d0ea23bfa1812507e6443e60419fd03d0d223`
@@ -33,7 +33,7 @@ SHA-256 outputs:
 - `vstf_model_misspecification_stress.csv`: `38626e0b6adcce412d2bb4fafd708a605bb187a09834da751012146167f5ba07`
 - `vstf_many_system_benchmark.csv`: `08d0eea2ddae2f18df831ae3e7e28d4e271f4785d943e063bd1d74d546f3fb62`
 - `vstf_many_system_discordance.csv`: `68b25c926ebecf4dce7844e30690c9317cbc8b3fc8cb54e29380c0eb3e4dabfc`
-- `vstf_hmm_event_sample.csv`: `2a6c494d9e6160f1cc29fd63508c410f17fe1f6e5bbfbeaaf3995e0d8dd8f411`
-- `vstf_event_cascade.pdf`: `f1a62ba328103985b9932c54bee0bb7f81eadcc3132a32781fbea3598b2b6067`
-- `vstf_hmm_benchmark.pdf`: `f7250e2b71b90e4c21d20745b51be2161bb70372c039c3baa93781589fcf09aa`
+- `vstf_hmm_event_sample.csv`: `72f521de724e219550becef9342355bcb4c3cb93cca7ff6682a98e3354f717cb`
+- `vstf_event_cascade.pdf`: `2128793c72ffd8561bc4b07cd4f6731c53ea04cd6543fcef53ce6a46112e258f`
+- `vstf_hmm_benchmark.pdf`: `e0640c18e787b00054683cbe195c783b8ad3fc95b09804a2ab07f016dbbc1651`
 - `vstf_many_system_rank_displacement.pdf`: `e291ef845a7be0856f5b8f709ac4bed8b9d211a5d2e4fc48426319e409f4bd52`
