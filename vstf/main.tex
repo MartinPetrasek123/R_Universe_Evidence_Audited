@@ -28,6 +28,8 @@
 \setlist[itemize]{leftmargin=1.4em}
 \setlist[enumerate]{leftmargin=1.6em}
 \renewcommand{\arraystretch}{1.15}
+\emergencystretch=3em
+\Urlmuskip=0mu plus 2mu
 \graphicspath{{./}{/Users/mpetr/Desktop/}{/Users/mpetr/Desktop/VSTF_GitHub/}{/Users/mpetr/Desktop/R_Universe/vstf/}}
 
 \newtheorem{definition}{Definition}
@@ -55,20 +57,61 @@
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\Texit}{T_{\mathrm{exit}}}
 \newcommand{\Treturn}{T_{\mathrm{return}}}
-\newcommand{\VSTFgraphic}[2]{%
-  \IfFileExists{#1}{%
-    \includegraphics[width=#2\linewidth]{#1}%
-  }{%
-    \fbox{%
-      \begin{minipage}{0.92\linewidth}
-      \centering
-      \vspace{1em}
-      \textbf{Generated figure not found in this compile environment.}\\[0.5em]
-      Place \texttt{\detokenize{#1}} in the project directory, or use the linked reproducibility artifact listed below.
-      \vspace{1em}
-      \end{minipage}%
-    }%
-  }%
+\newcommand{\VSTFStepBox}[2]{%
+  \fbox{\begin{minipage}{0.82\linewidth}
+  \centering\textbf{#1}\\[-0.15em]\small #2
+  \end{minipage}}%
+}
+\newcommand{\VSTFEventCascadeFigure}{%
+  \begin{adjustbox}{max width=\linewidth}
+  \begin{tabular}{c}
+  \VSTFStepBox{Raw dynamic signal}{measured trajectory, sensor stream, or benchmark output}\\[0.55em]
+  $\Downarrow$\\[-0.1em]
+  \VSTFStepBox{Candidate event}{hysteresis-separated crossing or segmented transition attempt}\\[0.55em]
+  $\Downarrow$\\[-0.1em]
+  \VSTFStepBox{Measurement gates}{distinguishability, localization, retention, and domain admissibility}\\[0.55em]
+  $\Downarrow$\\[-0.1em]
+  \VSTFStepBox{Outcome status}{$S_k\in\{\mathrm{accepted},\mathrm{rejected},\mathrm{pending}\}$}\\[0.55em]
+  $\Downarrow$\\[-0.1em]
+  \VSTFStepBox{Claim boundary}{accepted VST count, rejected attempts, and complete denominator ledger}
+  \end{tabular}
+  \end{adjustbox}
+}
+\newcommand{\VSTFBar}[2]{\textcolor{#1}{\rule{#2}{0.75em}}}
+\newcommand{\VSTFHMMBenchmarkFigure}{%
+  \begin{adjustbox}{max width=\linewidth}
+  \begin{tabular}{lcc}
+  \toprule
+  Event layer & System A & System B\\
+  \midrule
+  Raw activity & \VSTFBar{blue!60}{5.4em}\ 6.19M & \VSTFBar{green!55!black}{4.4em}\ 5.00M\\
+  Crossings & \VSTFBar{blue!60}{4.8em}\ 2.34M & \VSTFBar{green!55!black}{1.0em}\ 0.47M\\
+  Committed & \VSTFBar{blue!60}{4.0em}\ 1.56M & \VSTFBar{green!55!black}{1.0em}\ 0.39M\\
+  Retained & \VSTFBar{blue!60}{1.2em}\ 105k & \VSTFBar{green!55!black}{2.5em}\ 217k\\
+  Valid VST & \VSTFBar{blue!60}{0.9em}\ 75.7k & \VSTFBar{green!55!black}{2.3em}\ 191k\\
+  \midrule
+  \VSTE{} & 0.00197 & \textbf{0.00680}\\
+  PPV & 0.616 & \textbf{0.872}\\
+  Sensitivity & 0.373 & \textbf{0.843}\\
+  \bottomrule
+  \end{tabular}
+  \end{adjustbox}
+}
+\newcommand{\VSTFRankFigure}{%
+  \begin{adjustbox}{max width=\linewidth}
+  \begin{tabular}{lcc}
+  \toprule
+  Baseline ranking metric & Discordance vs \VSTE{} & Visual diagnostic\\
+  \midrule
+  Raw activity per energy & 0.138 & \VSTFBar{orange!75!black}{1.2em}\\
+  Crossing events per energy & 0.552 & \VSTFBar{red!70!black}{4.8em}\\
+  Committed events per energy & 0.382 & \VSTFBar{red!55!black}{3.3em}\\
+  Retained events per energy & 0.057 & \VSTFBar{green!55!black}{0.5em}\\
+  Retention yield & 0.166 & \VSTFBar{orange!75!black}{1.4em}\\
+  Validity yield & 0.554 & \VSTFBar{red!70!black}{4.8em}\\
+  \bottomrule
+  \end{tabular}
+  \end{adjustbox}
 }
 
 \title{\textbf{Valid State Transition Framework}\\
@@ -143,11 +186,12 @@ The word ``framework'' is used intentionally. VSTF is a proposed operational fra
 
 \section{Contributions and Defensible Novelty}
 
-The defensible novelty of VSTF is not the existence of state transitions, transition rates, first-passage times, or metastable basins. Those objects are already central in dynamical systems theory, Transition Path Theory, Markov-state modeling, reliability engineering, and clinical prediction methodology. The contribution is the \emph{acceptance layer} placed between a dynamically detected transition and a scientific claim about outcome production.
+The defensible novelty of VSTF is not the existence of state transitions, transition rates, first-passage times, or metastable basins. Those objects are already central in dynamical systems theory, Transition Path Theory, Markov-state modeling, reliability engineering, and clinical prediction methodology. The contribution is the \emph{acceptance layer} placed between a dynamically detected transition and a scientific claim about outcome production. Table~\ref{tab:antecedents} summarizes the nearest antecedents and the incremental layer claimed here.
 
 \begin{table}[h]
 \centering
 \caption{Nearest antecedents and the incremental VSTF layer.}
+\label{tab:antecedents}
 \begin{tabular}{p{0.24\linewidth}p{0.33\linewidth}p{0.33\linewidth}}
 \toprule
 Antecedent & What it already provides & What VSTF adds \\
@@ -156,6 +200,7 @@ Transition Path Theory & Reactive trajectories, committors, fluxes, and transiti
 First-passage and exit-time analysis & Hitting, exit, and dwell events under specified regions. & A protocol for deciding which detected events are scientifically countable as outcomes. \\
 Reliability/yield metrics & Pass/fail counts and accepted outputs. & Cross-domain coupling of yield with latent-state localization, distinguishability, retention, and cost boundaries. \\
 Clinical prediction standards & Calibration, discrimination, utility, external validation, and risk-of-bias assessment. & A state-transition vocabulary that prevents instability features from being called clinical events without validation. \\
+Selective classification and reject-option rules & Risk--coverage tradeoffs, abstention under low confidence, and explicit rejected predictions \cite{chow1970reject,geifman2017selective}. & Temporal state-transition semantics, dwell/retention gates, domain validity, event ledgers, and cost-boundary accounting for accepted, rejected, and pending transition attempts. \\
 Recurrent-event and counting-process methods & Event occurrence processes, rates, at-risk time, censoring, and repeated-event inference. & Definition of the admissible event universe to which those estimators are applied. \\
 Endpoint, estimand, and adjudication frameworks & Domain-specific outcome definitions, endpoint hierarchy, surrogate-endpoint governance, estimand definitions, adjudication committees, and intercurrent-event handling. & Cross-domain generalization of event admissibility from clinical trials to dynamical trajectories and engineered systems. \\
 Conformity assessment & Acceptance/rejection rules under measurement uncertainty, acceptance intervals, and producer/consumer risk. & Extension from static object conformity to temporally segmented dynamic transitions with retention, state semantics, rejected-event accounting, and cost-normalized reporting. \\
@@ -180,9 +225,12 @@ The prior-art claim is deliberately scoped. Search terms used to position the fr
 
 \section{Notation}
 
+Table~\ref{tab:notation} defines the notation used in the formal definitions, observables, and benchmark sections.
+
 \begin{table}[h]
 \centering
 \caption{Core notation used throughout the framework.}
+\label{tab:notation}
 \begin{tabular}{p{0.22\linewidth}p{0.68\linewidth}}
 \toprule
 Symbol & Meaning \\
@@ -883,7 +931,7 @@ A minimal simulation benchmark should therefore report:
   \item sensitivity to $\epsilon$, $\alpha$, $\delta$, $\tau_\ast$, hysteresis, and refractory time.
 \end{enumerate}
 
-The purpose of this benchmark is not to prove domain truth, but to show when the VST filter changes rankings or conclusions relative to simpler activity, crossing, and first-passage metrics.
+The purpose of this benchmark is not to prove domain truth, but to show when the VST filter changes rankings or conclusions relative to simpler activity, crossing, and first-passage metrics. The locked simulation parameters are listed in Table~\ref{tab:hmm-parameters}.
 
 \section{Numerical Demonstration: Multi-Seed HMM Benchmark}
 
@@ -923,14 +971,14 @@ Master random seed & 20260917 & 20260917 \\
 
 \begin{figure}[h]
 \centering
-\VSTFgraphic{vstf_event_cascade.pdf}{0.98}
+\VSTFEventCascadeFigure
 \caption{VSTF event-cascade diagram. A dynamic signal first generates a candidate event. The event is countable only if the protocol-level measurement system is distinguishable, the event is localized, retained, domain-admissible, and supported by a complete denominator for the claim being made. Failure at any gate does not erase the observation; it changes the admissible claim and must remain auditable as rejected, unresolved, pending, or proxy evidence.}
 \label{fig:event-cascade}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\VSTFgraphic{vstf_hmm_benchmark.pdf}{0.96}
+\VSTFHMMBenchmarkFigure
 \caption{Hidden-Markov benchmark showing nested attrition from raw activity to valid VST events, matched-reference error rates, multi-seed ranking robustness, and a small sensitivity sweep. System A produces more raw activity samples, crossing events, and committed events in aggregate, but not more raw activity per full-boundary supplied energy. System B produces fewer early-stage events yet substantially more retained and valid VST events and higher \VSTE{}.}
 \label{fig:hmm-benchmark}
 \end{figure}
@@ -990,8 +1038,8 @@ Mean raw-efficiency ratio $R_A/R_B$ & 0.910 \\
 System A mean \VSTE{} Monte Carlo 95\% interval & [0.00196, 0.00199] \\
 System B mean \VSTE{} Monte Carlo 95\% interval & [0.00677, 0.00683] \\
 Sensitivity reversal probability, $\sigma$ factor 0.75 & 0.00 across $\tau_\ast\in\{4,6,10\}$ \\
-Sensitivity reversal probability, $\sigma$ factor 1.00 & 0.67--1.00 across $\tau_\ast\in\{4,6,10\}$ \\
-Sensitivity reversal probability, $\sigma$ factor 1.25 & 1.00 across $\tau_\ast\in\{4,6,10\}$ \\
+Sensitivity raw-to-\VSTE{} reversal probability, $\sigma$ factor 1.00 & 0.00 across $\tau_\ast\in\{4,6,10\}$ \\
+Sensitivity raw-to-\VSTE{} reversal probability, $\sigma$ factor 1.25 & 0.43, 0.53, 0.83 for $\tau_\ast=4,6,10$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1019,7 +1067,7 @@ Combined & 0.00 & 1.00 & 0.00 & 3.42 \\
 \end{adjustbox}
 \end{table}
 
-Under the corrected operation-based energy ledger, System A has more raw activity samples in aggregate, but it no longer has higher raw activity per unit full-boundary energy. This is intentional: the denominator charges validation/readout attempts as operations actually performed rather than as a retrospective function of the final VST label. The strongest remaining ranking contrast is therefore not raw-per-energy but event-level attrition: crossing and committed-event baselines rank System A above System B in every batch, while \VSTE{} ranks System B above System A. The retained-event baseline already ranks System B above System A in the main locked operating point, which is expected because retention is one of the core VSTF filters; this makes clear that the benchmark does not claim VSTF defeats every simpler event-level metric. The sensitivity and ablation results are deliberately reported rather than hidden: ranking reversal is not universal under all noise levels or all parameter changes, and the VSTF claim is strongest in regimes where noise, retention failure, domain filtering, and cost accounting create a measurable separation between activity and retained domain-valid outcome. The accompanying random-parameter stress file samples eight additional A/B pairs over transition, noise, domain-validity, and energy-ledger ranges; it is a broader robustness check, not a substitute for a full domain-specific empirical benchmark. The reported intervals are Monte Carlo intervals across synthetic batches, not confidence intervals for a physical population parameter.
+Under the corrected operation-based energy ledger, System A has more raw activity samples in aggregate, but it no longer has higher raw activity per unit full-boundary energy. This is intentional: the denominator charges validation/readout attempts as operations actually performed rather than as a retrospective function of the final VST label. The strongest remaining ranking contrast is therefore not raw-per-energy but event-level attrition: crossing and committed-event baselines rank System A above System B in every batch, while \VSTE{} ranks System B above System A. The retained-event baseline already ranks System B above System A in the main locked operating point, which is expected because retention is one of the core VSTF filters; this makes clear that the benchmark does not claim VSTF defeats every simpler event-level metric. The sensitivity table is deliberately reported in its current form: the raw-to-\VSTE{} reversal is absent at $\sigma=1.00$ and appears only in one high-noise, long-retention cell at $\sigma=1.25,\tau_\ast=10$ with three sensitivity batches per cell. Therefore the sensitivity sweep should be read as a small diagnostic stress test, not as a precise probability estimate. The VSTF claim is strongest in regimes where noise, retention failure, domain filtering, and cost accounting create a measurable separation between activity and retained domain-valid outcome. The accompanying random-parameter stress file samples eight additional A/B pairs over transition, noise, domain-validity, and energy-ledger ranges; it is a broader robustness check, not a substitute for a full domain-specific empirical benchmark. The reported intervals are Monte Carlo intervals across synthetic batches, not confidence intervals for a physical population parameter.
 
 \begin{table}[h]
 \centering
@@ -1040,7 +1088,7 @@ HSMM, correlated domain & 0.00 & 1.00 & 0.00 & 5.69 & 0.957 \\
 \end{adjustbox}
 \end{table}
 
-These scenario tests address two structural limitations of the main didactic benchmark. First, the domain predicate need not be independent of the observed event packet; correlated-domain variants preserve the ranking reversal after dependence is introduced. Second, retention is not tied to geometric HMM dwell times; HSMM variants with explicit sampled durations preserve the qualitative result. The scenario table is deliberately small and diagnostic rather than confirmatory. Its purpose is to show that the demonstration is not solely an artifact of an independent Bernoulli domain gate or a geometric HMM duration assumption.
+Table~\ref{tab:hmm-scenarios} addresses two structural limitations of the main didactic benchmark. First, the domain predicate need not be independent of the observed event packet; correlated-domain variants preserve the ranking reversal after dependence is introduced. Second, retention is not tied to geometric HMM dwell times; HSMM variants with explicit sampled durations preserve the qualitative result. The scenario table is deliberately small and diagnostic rather than confirmatory. Its purpose is to show that the demonstration is not solely an artifact of an independent Bernoulli domain gate or a geometric HMM duration assumption.
 
 \begin{table}[h]
 \centering
@@ -1062,7 +1110,7 @@ Time-drifting transition rates & 1.00 & 0.00 & 3.38 & 0.875 & 0.842 \\
 \end{adjustbox}
 \end{table}
 
-The misspecification stress suite is intentionally separate from the main benchmark. It asks whether the qualitative ranking contrast survives when the locked inference model is wrong in controlled ways: non-geometric dwell times, heavy-tailed observations, time-varying transition probabilities, or a fallible reference label. The answer in this synthetic design is yes for the crossing-to-\VSTE{} contrast, but not because VSTF is immune to misspecification. Predictive values and sensitivities move, especially under reference-label error, so domain studies must still run model checks, calibration checks, and reference-standard sensitivity analyses rather than citing the synthetic benchmark as empirical validation.
+The misspecification stress suite in Table~\ref{tab:model-misspecification} is intentionally separate from the main benchmark. It asks whether the qualitative ranking contrast survives when the locked inference model is wrong in controlled ways: non-geometric dwell times, heavy-tailed observations, time-varying transition probabilities, or a fallible reference label. The answer in this synthetic design is yes for the crossing-to-\VSTE{} contrast, but not because VSTF is immune to misspecification. Predictive values and sensitivities move, especially under reference-label error, so domain studies must still run model checks, calibration checks, and reference-standard sensitivity analyses rather than citing the synthetic benchmark as empirical validation.
 
 \begin{table}[h]
 \centering
@@ -1109,35 +1157,269 @@ Validity yield & 0.554 & 0.428 & 0.676 \\
 
 \begin{figure}[h]
 \centering
-\VSTFgraphic{vstf_many_system_rank_displacement.pdf}{0.86}
+\VSTFRankFigure
 \caption{Many-system rank-displacement diagnostic. Each point is one synthetic system. The x-axis ranks systems by retained-event efficiency and the y-axis ranks the same systems by \VSTE{}. Points near the diagonal indicate that retention already explains most VSTE ranking; displaced points indicate additional cost/domain/accounting effects.}
 \label{fig:many-system-rank}
 \end{figure}
 
-The many-system benchmark directly tests the nearest-baseline concern raised by the review. It confirms that crossing and committed-event baselines can be strongly discordant with \VSTE{} across a population of systems. It also shows that retained-event efficiency is a much closer baseline in this synthetic design, with only 0.057 pairwise discordance against \VSTE{}. Therefore the benchmark supports the modest claim that VSTF can substantially change rankings relative to raw, crossing, and committed activity, while the incremental value beyond a retention-only baseline is parameter-regime dependent and should be tested explicitly in each domain.
+The many-system benchmark directly tests the nearest-baseline concern raised by the review. Table~\ref{tab:many-system-discordance} reports pairwise rank discordance against \VSTE{}, and Figure~\ref{fig:many-system-rank} visualizes the retained-efficiency versus \VSTE{} rank displacement. The benchmark confirms that crossing and committed-event baselines can be strongly discordant with \VSTE{} across a population of systems. It also shows that retained-event efficiency is a much closer baseline in this synthetic design, with only 0.057 pairwise discordance against \VSTE{}. Therefore the benchmark supports the modest claim that VSTF can substantially change rankings relative to raw, crossing, and committed activity, while the incremental value beyond a retention-only baseline is parameter-regime dependent and should be tested explicitly in each domain.
 
 \section{Reproducibility Materials}
 
 The synthetic benchmark is intended to be fully reproducible. The required companion files are:
 \begin{itemize}
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark.py}{\texttt{vstf\_hmm\_benchmark.py}}: deterministic simulation script with fixed seed, model parameters, event filters, and figure generation.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_summary.csv}{\texttt{vstf\_hmm\_benchmark\_summary.csv}}: aggregate benchmark output used in Table~\ref{tab:hmm-summary}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_monte_carlo.csv}{\texttt{vstf\_hmm\_benchmark\_monte\_carlo.csv}}: multi-seed robustness summary used in Table~\ref{tab:hmm-robustness}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_sensitivity.csv}{\texttt{vstf\_hmm\_benchmark\_sensitivity.csv}}: sensitivity sweep over observation noise and retention window.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_sampling_resolution.csv}{\texttt{vstf\_hmm\_sampling\_resolution.csv}}: sampling-grid stress test used in Table~\ref{tab:hmm-sampling}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark_ablations.csv}{\texttt{vstf\_hmm\_benchmark\_ablations.csv}}: controlled A/B ablation summary used in Table~\ref{tab:hmm-ablations}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_random_parameter_stress.csv}{\texttt{vstf\_hmm\_random\_parameter\_stress.csv}}: random-parameter A/B stress test over transition, noise, domain-validity, and energy-ledger ranges.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_scenario_stress.csv}{\texttt{vstf\_hmm\_scenario\_stress.csv}}: correlated-domain and HSMM scenario stress tests used in Table~\ref{tab:hmm-scenarios}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_model_misspecification_stress.csv}{\texttt{vstf\_model\_misspecification\_stress.csv}}: model-misspecification and reference-error stress tests used in Table~\ref{tab:model-misspecification}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_many_system_benchmark.csv}{\texttt{vstf\_many\_system\_benchmark.csv}}: many-system synthetic summary used in Figure~\ref{fig:many-system-rank}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_many_system_discordance.csv}{\texttt{vstf\_many\_system\_discordance.csv}}: pairwise rank-discordance table used in Table~\ref{tab:many-system-discordance}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_event_sample.csv}{\texttt{vstf\_hmm\_event\_sample.csv}}: machine-readable event-level audit sample with segmentation times, posterior values, candidate-level matched-reference validity indicator $Z^{\mathrm{match}}_k$, operational decision $A_k$, and event outcome labels.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_event_cascade.pdf}{\texttt{vstf\_event\_cascade.pdf}}: generated workflow diagram used in Figure~\ref{fig:event-cascade}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_hmm_benchmark.pdf}{\texttt{vstf\_hmm\_benchmark.pdf}}: generated benchmark figure used in Figure~\ref{fig:hmm-benchmark}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/vstf_many_system_rank_displacement.pdf}{\texttt{vstf\_many\_system\_rank\_displacement.pdf}}: generated many-system rank diagnostic used in Figure~\ref{fig:many-system-rank}.
-  \item \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/REPRODUCIBILITY.md}{\texttt{REPRODUCIBILITY.md}} and \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/blob/main/vstf/requirements.txt}{\texttt{requirements.txt}}: environment notes, seed policy, reproduction command, minimal dependencies, and SHA-256 hashes of generated outputs.
+  \item \texttt{reproduce\_all.py}: single-command workflow that regenerates the synthetic benchmark, real-data component audits, unified real-calculation ledger, and checksum manifest.
+  \item \texttt{vstf\_hmm\_benchmark.py}: deterministic simulation script with fixed seed, model parameters, event filters, and figure generation.
+  \item \texttt{vstf\_hmm\_benchmark\_summary.csv}: aggregate benchmark output used in Table~\ref{tab:hmm-summary}.
+  \item \texttt{vstf\_hmm\_benchmark\_monte\_carlo.csv}: multi-seed robustness summary used in Table~\ref{tab:hmm-robustness}.
+  \item \texttt{vstf\_hmm\_benchmark\_batch\_level.csv}: all 30 HMM batch-level results for both benchmark systems.
+  \item \texttt{vstf\_hmm\_benchmark\_sensitivity.csv}: sensitivity sweep over observation noise and retention window.
+  \item \texttt{vstf\_hmm\_sampling\_resolution.csv}: sampling-grid stress test used in Table~\ref{tab:hmm-sampling}.
+  \item \texttt{vstf\_hmm\_benchmark\_ablations.csv}: controlled A/B ablation summary used in Table~\ref{tab:hmm-ablations}.
+  \item \texttt{vstf\_hmm\_random\_parameter\_stress.csv}: random-parameter A/B stress test.
+  \item \texttt{vstf\_hmm\_scenario\_stress.csv}: correlated-domain and HSMM scenario stress tests.
+  \item \texttt{vstf\_model\_misspecification\_stress.csv}: model-misspecification and reference-error stress tests.
+  \item \texttt{vstf\_many\_system\_benchmark.csv}: many-system synthetic summary.
+  \item \texttt{vstf\_many\_system\_discordance.csv}: pairwise rank-discordance table.
+  \item \texttt{vstf\_hmm\_event\_sample.csv}: machine-readable event-level audit sample.
+  \item \texttt{vstf\_real\_datasets\_validation.py}: locked multi-dataset real-data acceptance audit.
+  \item \texttt{vstf\_real\_datasets\_summary.csv}: aggregate real-data classification audit output used in Table~\ref{tab:real-static-datasets}.
+  \item \texttt{vstf\_real\_datasets\_folds.csv}: fold-level real-data classification audit output.
+  \item \texttt{vstf\_real\_component\_validation.py}: real-data component audit for temporal retention, first-exit, cost-normalized \VSTE{}, and intervention effects.
+  \item \texttt{vstf\_real\_component\_validation\_summary.csv}: component-level real-data audit used in Table~\ref{tab:real-component-datasets}.
+  \item \texttt{vstf\_household\_power\_events.csv}: event-level ledger for the real household-power time-series audit used in Table~\ref{tab:power-ledger}.
+  \item \texttt{vstf\_lalonde\_treatment\_effect.csv}: treatment-effect ledger used in Table~\ref{tab:lalonde-ledger}.
+  \item \texttt{vstf\_full\_real\_calculation\_ledger.csv}: unified real-calculation ledger for all real-data components.
+  \item \texttt{vstf\_event\_cascade.pdf}: optional exported workflow diagram matching Figure~\ref{fig:event-cascade}.
+  \item \texttt{vstf\_hmm\_benchmark.pdf}: optional exported benchmark graphic matching Figure~\ref{fig:hmm-benchmark}.
+  \item \texttt{vstf\_many\_system\_rank\_displacement.pdf}: optional exported rank diagnostic matching Figure~\ref{fig:many-system-rank}.
+  \item \texttt{EVIDENCE\_MANIFEST.sha256}: SHA-256 manifest tying the manuscript source, scripts, generated CSV/PDF outputs, README, reproducibility notes, and pinned requirements to one evidence package.
+  \item \texttt{FULL\_VALIDATION\_PROTOCOL.md}: domain-level checklist for any future claim that VSTF has been fully validated rather than only component-audited.
+  \item \texttt{README.md}, \texttt{REPRODUCIBILITY.md}, and \texttt{requirements.txt}: package index, seed policy, preprocessing notes, one-command reproduction instructions, interpretation guardrails, and pinned minimal dependencies.
 \end{itemize}
-The current public repository path is \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{\texttt{github.com/MartinPetrasek123/R\_Universe\_Evidence\_Audited/tree/main/vstf}}; a submission archive should cite an immutable release DOI or exact commit hash. The benchmark does not require domain data and is not evidence for a biological or clinical claim; it is a reproducible methodological demonstration that the VSTF acceptance layer can alter ranking and false-success interpretation.
+The current public repository is the \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{VSTF reproducibility package}; a submission archive should cite an immutable release DOI or exact commit hash. The command \texttt{python3 reproduce\_all.py} should be run from the package root before release; it fails if the sensitivity table regenerated from CSV no longer matches the manuscript. The benchmark does not require domain data and is not evidence for a biological or clinical claim; it is a reproducible methodological demonstration that the VSTF acceptance layer can alter ranking and false-success interpretation.
+
+\section{Verification and Validation Status}
+
+This manuscript separates \emph{verification} from \emph{validation}. Verification asks whether the definitions, accounting rules, code, tables, and synthetic examples are internally reproducible and logically consistent. Validation asks whether the framework improves inference, prediction, decision utility, or intervention assessment in a real domain with locked data, external endpoints, and appropriate ethical approval. Table~\ref{tab:verification-status} states the status of each claim layer.
+
+\begin{table}[h]
+\centering
+\caption{Verification and validation status of the present manuscript.}
+\label{tab:verification-status}
+\small
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{p{0.24\linewidth}p{0.34\linewidth}p{0.32\linewidth}}
+\toprule
+Claim layer & What is verified here & What remains to be validated \\
+\midrule
+Formal definitions & The event predicates, status labels, matched-reference notation, denominators, and claim restrictions are defined explicitly and used consistently across the manuscript. & Domain-specific state variables, thresholds, and admissible predicates must be locked before each empirical study. \\
+Synthetic benchmark & The HMM benchmark, ablations, sampling-resolution stress test, scenario stress test, model-misspecification stress test, and many-system rank-discordance stress test are reproducible from the companion script and fixed seed. & The synthetic benchmark is not evidence that VSTF improves any clinical, biological, or hardware system in practice. \\
+Numerical conclusions & The synthetic results verify that the VSTF acceptance layer can change ranking relative to raw, crossing, and committed-event baselines under declared assumptions. & External datasets must test whether such ranking changes persist in representative real systems. \\
+Measurement validity & The manuscript specifies localization, distinguishability, retention, domain validity, reference matching, censoring, and denominator completeness requirements. & Each real application must estimate measurement error, calibration, reference-standard imperfection, and uncertainty using domain data. \\
+Clinical or biological utility & No clinical, cancer, neurorehabilitation, or animal-study benefit is claimed from the synthetic demonstration. & Utility, causal benefit, safety, fairness, and generalization require prospective or externally validated domain-specific studies. \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Accordingly, the present article should be cited as a methodological and reproducibility-checked framework paper with a limited public real-data verification audit. It is not a completed clinical validation study. A domain paper using VSTF must provide its own locked protocol, dataset provenance, ethics statement, endpoint adjudication, baseline comparison, uncertainty analysis, and falsification criteria before making substantive applied claims.
+
+\section{Real-Data Verification Audit}
+
+To prevent the framework from resting only on synthetic demonstrations, the real-data audit was expanded to cover each measurable VSTF component. Static classification datasets are used only for the acceptance/adjudication layer. A real minute-level electricity time series is used for temporal segmentation, dwell, first-exit retention, and cost-normalized \VSTE{}. A real treatment dataset is used for the intervention-effect layer. The datasets are public and directly linked in Tables~\ref{tab:real-static-datasets} and \ref{tab:real-component-datasets}. These calculations verify operational behavior on real data; they do not establish clinical utility, safety, deployment readiness, or generalization beyond the audited datasets.
+
+All static classification audits used the same locked rule: five stratified folds, master seed 20260919, feature standardization estimated inside the training fold only, shrinkage linear discriminant analysis with shrinkage 0.10, raw decision threshold $p\geq0.5$, and VSTF acceptance only when $p\leq0.02$ or $p\geq0.98$. Cases inside the indeterminate band are pending and are not counted as accepted successes. Table~\ref{tab:real-static-datasets} gives the real-data classification ledger.
+
+\begin{table}[h]
+\centering
+\caption{Real-data acceptance-layer audit across five public datasets. Dataset names are clickable source links. The accepted-accuracy column is computed as accepted true-reference decisions divided by all accepted decisions.}
+\label{tab:real-static-datasets}
+\scriptsize
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{p{0.30\linewidth}rrrrrr}
+\toprule
+Dataset & $n$ & Raw acc. & Accepted & Pending & Accepted acc. & Coverage \\
+\midrule
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data}{Wisconsin Diagnostic Breast Cancer} & 569 & 0.9526 & 446 & 123 & 443/446 = 0.9933 & 446/569 = 0.7838 \\
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data}{Johns Hopkins Ionosphere} & 351 & 0.8775 & 192 & 159 & 185/192 = 0.9635 & 192/351 = 0.5470 \\
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data}{Connectionist Bench Sonar} & 208 & 0.7684 & 48 & 160 & 43/48 = 0.8958 & 48/208 = 0.2308 \\
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data}{Cleveland Heart Disease} & 297 & 0.8483 & 73 & 224 & 72/73 = 0.9863 & 73/297 = 0.2458 \\
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/haberman/haberman.data}{Haberman Survival} & 306 & 0.7519 & 0 & 306 & 0/0, no accepted cases & 0/306 = 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Table~\ref{tab:real-static-datasets} confirms the acceptance-layer arithmetic on real datasets. For example, in WDBC, $446$ of $569$ cases are accepted, $123$ are pending, and accepted reference accuracy is $443/(443+3)=443/446=0.9933$. In Ionosphere, accepted reference accuracy is $185/(185+7)=185/192=0.9635$. In Sonar, it is $43/(43+5)=43/48=0.8958$. In Cleveland Heart Disease, it is $72/(72+1)=72/73=0.9863$. Haberman is a negative real-data result: under the locked conservative threshold, no case is sufficiently certain to enter the accepted numerator, so the correct VSTF output is complete pending status rather than a forced success claim.
+
+Because this component is close to selective classification, Table~\ref{tab:real-static-risk-calibration} reports ordinary risk--coverage and calibration diagnostics for the same held-out fold predictions. The VSTF acceptance gate is therefore not presented as a substitute for reject-option evaluation. It is a stricter event-admissibility wrapper around an ordinary probabilistic classifier, and its probabilities still require Brier, ECE, and coverage-conditioned risk reporting.
+
+\begin{table}[h]
+\centering
+\caption{Held-out calibration and selective-risk diagnostics for the real-data classification audit. AURC is the mean selective risk obtained by accepting cases in descending confidence order.}
+\label{tab:real-static-risk-calibration}
+\scriptsize
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{p{0.30\linewidth}rrrrr}
+\toprule
+Dataset & Brier & ECE$_{10}$ & AURC & Risk at 50\% cov. & Risk at 80\% cov. \\
+\midrule
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data}{Wisconsin Diagnostic Breast Cancer} & 0.0324 & 0.0133 & 0.0057 & 0.0035 & 0.0088 \\
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data}{Johns Hopkins Ionosphere} & 0.0984 & 0.0567 & 0.0508 & 0.0341 & 0.0712 \\
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data}{Connectionist Bench Sonar} & 0.1679 & 0.0883 & 0.1259 & 0.1154 & 0.1796 \\
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data}{Cleveland Heart Disease} & 0.1189 & 0.0506 & 0.0632 & 0.0805 & 0.1050 \\
+\href{https://archive.ics.uci.edu/ml/machine-learning-databases/haberman/haberman.data}{Haberman Survival} & 0.1811 & 0.0308 & 0.2084 & 0.1634 & 0.2163 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+The risk--coverage table changes the interpretation of Table~\ref{tab:real-static-datasets}: high accepted accuracy at low coverage is not by itself a deployment result. It is a selective operating point that must be compared with the full risk--coverage curve and with calibration quality. Haberman remains an intentionally negative result because the locked acceptance threshold accepts no cases despite an apparently ordinary raw accuracy.
+
+The remaining VSTF components require data with time, cost, or treatment/comparison structure. Table~\ref{tab:real-component-datasets} therefore uses two additional real datasets: the UCI Individual Household Electric Power Consumption time series for temporal event segmentation, dwell, first-exit retention, and cost-normalized \VSTE{}; and the Lalonde/MatchIt treated-versus-PSID comparison dataset for a descriptive intervention/comparison calculation. The Lalonde calculation is not interpreted as an unadjusted causal estimate, because the 429 comparison observations are not randomized NSW controls.
+
+\begin{table}[h]
+\centering
+\caption{Real-data component audit for VSTF elements that cannot be computed from static classification rows. Dataset names are clickable source links.}
+\label{tab:real-component-datasets}
+\scriptsize
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{p{0.25\linewidth}p{0.30\linewidth}p{0.32\linewidth}}
+\toprule
+Component & Real dataset & Computed result \\
+\midrule
+Temporal event segmentation & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00235/household_power_consumption.zip}{UCI household electric power consumption} & The complete minute grid contains 2,075,259 slots, of which 2,049,280 are observed and 25,979 are missing. The low-to-high rule detected 372 raw candidate attempts. \\
+Dwell rule & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00235/household_power_consumption.zip}{UCI household electric power consumption} & Dwell was defined as power remaining at or above the 75th percentile for 5 consecutive minutes. \\
+First-exit retention & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00235/household_power_consumption.zip}{UCI household electric power consumption} & 126 raw candidates passed dwell and had resolvable retention windows; 56 remained above the 25th percentile throughout the 30-minute window, so retention fraction $=56/126=0.4444$. \\
+Cost-normalized \VSTE{} & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00235/household_power_consumption.zip}{UCI household electric power consumption} & Observed energy was 37,283.7477 kWh and the missing-adjusted sensitivity denominator was 37,544.4037 kWh; observed-denominator \VSTE{} $=56/37283.7477=0.0015020$ retained events/kWh. \\
+Descriptive treatment-comparison mean difference & \href{https://vincentarelbundock.github.io/Rdatasets/csv/MatchIt/lalonde.csv}{Lalonde/MatchIt NSW treated versus PSID comparison data} & Mean 1978 earnings difference $=6349.1435-6984.1697=-635.0262$ USD; 95\% CI $[-1962.3291,\,692.2767]$. \\
+Descriptive transition-fraction difference & \href{https://vincentarelbundock.github.io/Rdatasets/csv/MatchIt/lalonde.csv}{Lalonde/MatchIt NSW treated versus PSID comparison data} & $\Pr(\mathrm{re78}>\mathrm{re75}\mid\mathrm{treated})-\Pr(\mathrm{re78}>\mathrm{re75}\mid\mathrm{PSID\ comparison})=0.6703-0.6620=0.0083$. \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+The household-power calculation is shown explicitly in Table~\ref{tab:power-ledger}. The event rule is a real time-series rule rather than a static classifier: a candidate event starts when the previous minute is at or below the 25th percentile of active power and the current minute is at or above the 75th percentile. The event is retained only if the signal does not first-exit below the 25th percentile during the following 30 minutes. Missing minutes are preserved in the full grid and flagged in \texttt{vstf\_household\_power\_events.csv}; events with missing dwell or retention windows are pending rather than silently counted as successes or failures.
+
+\begin{table}[h]
+\centering
+\caption{Real household-power temporal and cost ledger.}
+\label{tab:power-ledger}
+\small
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lr}
+\toprule
+Quantity & Value \\
+\midrule
+Full minute grid / observed / missing & 2,075,259 / 2,049,280 / 25,979 \\
+Missing fraction & $25979/2075259=0.01252$ \\
+Time span & 2006-12-16 17:24 to 2010-11-26 21:02 \\
+Low threshold, $q_{25}$ & 0.308 kW \\
+High threshold, $q_{75}$ & 1.528 kW \\
+Raw candidate events & 372 \\
+Candidate events after dwell & 126 \\
+Accepted retained events & 56 \\
+Rejected first-exit events & 70 \\
+Rejected dwell-failure events & 246 \\
+Pending missing-window events & 0 \\
+Retention fraction & $56/126=0.4444$ \\
+Observed energy & 37,283.7477 kWh \\
+Estimated missing energy & 260.6560 kWh \\
+Estimated total energy & 37,544.4037 kWh \\
+Accepted-event observed energy & 58.0500 kWh \\
+Observed-denominator \VSTE{} & $56/37283.7477=0.0015020$ events/kWh \\
+Missing-adjusted sensitivity \VSTE{} & $56/37544.4037=0.0014916$ events/kWh \\
+Denominator completeness flag & incomplete, because 25,979 minutes are missing \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+The treatment/comparison calculation is shown explicitly in Table~\ref{tab:lalonde-ledger}. It is included to keep the intervention layer separate from ordinary classification and temporal event detection. The result is intentionally modest and descriptive: the mean outcome difference is negative and its 95\% interval crosses zero; the positive-transition fraction differs by only 0.0083. Because the comparison group is the PSID comparison sample, not randomized NSW controls, this table must not be cited as a causal treatment-effect estimate without a separate locked matching, weighting, balance, and sensitivity analysis.
+
+\begin{table}[h]
+\centering
+\caption{Real treated-versus-comparison ledger using the Lalonde/MatchIt dataset. The comparison group consists of PSID comparison observations; the unadjusted differences are descriptive rather than causal.}
+\label{tab:lalonde-ledger}
+\small
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lr}
+\toprule
+Quantity & Value \\
+\midrule
+Samples & 614 \\
+Treated / PSID comparison & 185 / 429 \\
+Treated mean 1978 earnings & 6,349.1435 USD \\
+PSID comparison mean 1978 earnings & 6,984.1697 USD \\
+Difference in means & $6349.1435-6984.1697=-635.0262$ USD \\
+Standard error & 677.1954 USD \\
+95\% confidence interval & $[-1962.3291,\,692.2767]$ USD \\
+Treated positive transition, $\mathrm{re78}>\mathrm{re75}$ & 0.6703 \\
+PSID comparison positive transition, $\mathrm{re78}>\mathrm{re75}$ & 0.6620 \\
+Transition risk difference & $0.6703-0.6620=0.0083$ \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+These real-data audits support only the component-level claims shown in Tables~\ref{tab:real-static-datasets}--\ref{tab:lalonde-ledger}. They verify that the VSTF acceptance layer, pending status, temporal retention gate, first-exit rejection, cost-normalized retained-event denominator, and treatment/comparison distinction can be computed on real public data. They do not prove that VSTF is clinically useful, biologically causal, or superior for any deployment task without an application-specific validation study.
+
+\subsection{Full-Validation Status}
+
+Table~\ref{tab:full-validation-status} states the validation status after the synthetic and real-data audits. The distinction is essential: a component is \emph{computed and reproduced} when the present package regenerates the reported value from public data or deterministic simulation; it is \emph{fully validated} only when the same claim survives an application-specific external or prospective study with locked endpoints, appropriate denominators, and a defensible estimand. Under that stricter standard, the present manuscript is not yet a fully validated clinical, biological, or hardware deployment study. It is a reproducible methodological framework with component-level real-data audits.
+
+\begin{table}[h]
+\centering
+\caption{Validation status after the present reproducibility and real-data audits.}
+\label{tab:full-validation-status}
+\scriptsize
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{p{0.22\linewidth}p{0.28\linewidth}p{0.36\linewidth}}
+\toprule
+Claim or component & Present status & Requirement for full validation \\
+\midrule
+Formal VSTF definitions & Internally specified and checked for consistency across the manuscript. & Independent use by external investigators or standards-style comparison with domain-specific endpoint/adjudication frameworks. \\
+Synthetic HMM ranking contrast & Reproduced by \texttt{reproduce\_all.py}; main crossing/commit-to-\VSTE{} contrast is supported by deterministic code and CSV outputs. & Broader benchmark families and externally reviewed simulation protocols; probability claims require larger sensitivity grids and binomial intervals. \\
+Sensitivity Table 5 & Corrected to match the regenerated 30-batch-per-cell CSV: raw-to-\VSTE{} reversal is absent at $\sigma=1.00$ and increases across the high-noise $\sigma=1.25$ retention cells. & Larger confirmatory sensitivity runs, e.g. at least 100--1000 seeds per cell for publication-grade probability intervals. \\
+Acceptance/pending layer & Computed on five public static datasets in Table~\ref{tab:real-static-datasets}. & External task-specific validation showing that accepted/pending decisions improve a declared utility, safety, or scientific endpoint beyond standard baselines. \\
+Temporal segmentation and first-exit retention & Computed on the public household-power time series in Tables~\ref{tab:real-component-datasets} and \ref{tab:power-ledger}. & Domain-specific time-series studies with locked state definitions, independent adjudication, and sensitivity to missing data, sampling cadence, and threshold choice. \\
+Cost-normalized \VSTE{} & Computed on real household-power energy data as retained events per kWh. & Application-specific cost boundaries, complete denominator ledgers, and comparison against ordinary yield, rate, and efficiency metrics. \\
+Treatment/intervention layer & Descriptive Lalonde/MatchIt treated-versus-PSID comparison computed; not interpreted as causal. & Locked causal estimand, treatment/control construction, covariates, matching or weighting, balance diagnostics, standard-error method, and sensitivity to unmeasured confounding. \\
+Clinical or biological utility & Not claimed as validated by the present evidence. & Prospective or externally validated domain studies with ethics approval, endpoint governance, calibration, utility analysis, fairness checks, and safety monitoring. \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Thus, the strongest defensible statement is not that VSTF is fully empirically validated as a universal scientific instrument. The defensible statement is that the mathematical grammar, the synthetic benchmark, the real-data acceptance layer, the real temporal-retention ledger, the real cost denominator, and the descriptive treatment/comparison separation are all reproducibly computable from the provided package. Full validation remains a domain-specific empirical program.
+
+\subsection{Additional External Component Check}
+
+An additional external component check was performed on public datasets not used in the preceding package-level real-data audit. These calculations are reported only as component checks, not as a claim of complete framework validation. The classification checks used the same locked acceptance rule as above: five stratified folds, training-fold standardization, shrinkage LDA with shrinkage 0.10, raw decision threshold $p\geq0.5$, and accepted decisions only when $p\leq0.02$ or $p\geq0.98$. Table~\ref{tab:external-component-check} reports the results.
+
+\begin{table}[h]
+\centering
+\caption{Additional external component check on public datasets not used in the main real-data audit. Dataset names are clickable source links.}
+\label{tab:external-component-check}
+\scriptsize
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{p{0.30\linewidth}p{0.38\linewidth}p{0.22\linewidth}}
+\toprule
+Component & External dataset & Computed result \\
+\midrule
+Acceptance/pending layer & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00267/data_banknote_authentication.txt}{UCI Banknote Authentication} & Raw accuracy $=0.9767$; accepted accuracy $=1101/1101=1.0000$; coverage $=1101/1372=0.8025$; pending fraction $=271/1372=0.1975$. \\
+Acceptance/pending layer & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data}{UCI Spambase} & Raw accuracy $=0.8878$; accepted accuracy $=1379/1404=0.9822$; coverage $=1404/4601=0.3052$; pending fraction $=3197/4601=0.6948$. \\
+Temporal retention and cost denominator & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv}{UCI Appliances Energy Prediction} & With a 30-minute dwell and 60-minute retention window, 50 candidate appliance-use events were detected. Under first-exit below $q_{50}$, 46/50 were retained; under a stricter 120-minute window, 34/50 were retained. Total appliance energy was 1928.01 kWh, so the stricter retained-event yield was $34/1928.01=0.0176$ events/kWh. \\
+Intervention contrast & \href{https://vincentarelbundock.github.io/Rdatasets/csv/AER/STAR.csv}{Project STAR kindergarten class-size dataset} & Small-class versus regular-class contrast: reading difference $=440.5518-434.7327=5.8191$, 95\% CI $[3.7770,\,7.8612]$; mathematics difference $=491.3901-483.3102=8.0799$, 95\% CI $[4.9615,\,11.1982]$. \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Table~\ref{tab:external-component-check} strengthens the component-level evidence: the acceptance gate generalizes to two additional external static datasets, temporal retention and cost-normalized retained-event yield can be computed on a separate energy time series, and an intervention contrast can be computed on an external experimental education dataset. It still does not make the framework completely validated. The reason is structural, not merely computational: no dataset used here contains all required VSTF layers at once.
+
+For a complete validation of VSTF as a full framework, a single locked study would need a time-indexed state trajectory, candidate events, dwell and first-exit retention, a reference endpoint or adjudicated ground truth, accepted/rejected/pending labels, a complete cost or exposure denominator, and, for intervention claims, a randomized or defensibly adjusted treatment/control structure. The present evidence covers these layers across separate public datasets. It therefore validates component computability and supports the methodological claim, but it does not establish one complete end-to-end validation of VSTF in a single clinical, biological, hardware, or intervention domain.
 
 \section{Operational Workflow}
 
@@ -1185,11 +1467,12 @@ When validity is observed under uncertainty, the operational decision $A_k$ and 
 
 \section{Four Levels of Evidence}
 
-VSTF requires separation of evidence levels.
+VSTF requires separation of evidence levels. Table~\ref{tab:evidence-levels} separates proxy, task-level, state-valid, and cost-accounted claims.
 
 \begin{table}[h]
 \centering
 \caption{Evidence levels for valid transition claims.}
+\label{tab:evidence-levels}
 \begin{tabular}{p{0.22\linewidth}p{0.34\linewidth}p{0.34\linewidth}}
 \toprule
 Level & What is measured & What cannot be claimed \\
@@ -1256,7 +1539,15 @@ For patient-state use, the physiological stability framework becomes a VSTF prob
 \[
   \mathrm{dynamic\ change} \longrightarrow \mathrm{validated\ patient\ transition}.
 \]
-For decision-state use, the VST event is the accepted alarm or decision transition, not the patient's biological transition itself. Until patient-level calibration, raw-vital baselines, alarm burden, decision curves, and external evaluation are completed, PSI-like outputs should be treated as component-level instability features rather than clinical VST events. A prediction-model output is not itself a patient-state transition. Predictive calibration and discrimination are necessary but do not establish patient benefit. A patient-state VST claim requires an independently meaningful clinical endpoint and, where benefit is claimed, an appropriate causal or interventional design. A clinical VST claim requires a declared ontology--patient state or decision-system state--and must separately establish measurement validity, predictive performance, calibration, decision utility, and, where claimed, causal treatment benefit. Death, discharge, treatment escalation, treatment limitation, transfer, and loss of measurement are not nuisance details; they are intercurrent events that must be assigned a pre-specified estimand strategy such as treatment-policy, hypothetical, composite, while-on-treatment, or principal-stratum handling. A minimal clinical validation panel should include calibration-in-the-large, calibration slope or curve, discrimination, Brier score, net benefit, alarm burden, and an explicit baseline such as NEWS2 or a raw-vital model \cite{news2,trwscore,physionet,harutyunyan2019}. Splits must be by patient, not prediction instance, and temporal generalization should be tested by training on earlier cohorts and evaluating on later cohorts when the data permit. Reporting should follow TRIPOD+AI for prediction-model manuscripts; methodological quality, risk of bias, and applicability should be assessed with PROBAST+AI \cite{tripod,collins2024tripodai,moons2025probastai}. TRIPOD+AI is a reporting standard, not proof of model validity; PROBAST+AI is an appraisal framework, not a clinical-utility test. No reporting guideline or risk-of-bias tool substitutes for patient-relevant utility evaluation.
+For decision-state use, the VST event is the accepted alarm or decision transition, not the patient's biological transition itself. Until patient-level calibration, raw-vital baselines, alarm burden, decision curves, and external evaluation are completed, PSI-like outputs should be treated as component-level instability features rather than clinical VST events.
+
+A prediction-model output is not itself a patient-state transition. Predictive calibration and discrimination are necessary but do not establish patient benefit. A patient-state VST claim requires an independently meaningful clinical endpoint and, where benefit is claimed, an appropriate causal or interventional design.
+
+A clinical VST claim requires a declared ontology--patient state or decision-system state--and must separately establish measurement validity, predictive performance, calibration, decision utility, and, where claimed, causal treatment benefit. Death, discharge, treatment escalation, treatment limitation, transfer, and loss of measurement are intercurrent events. They must be assigned a pre-specified estimand strategy such as treatment-policy, hypothetical, composite, while-on-treatment, or principal-stratum handling.
+
+A minimal clinical validation panel should include calibration-in-the-large, calibration slope or curve, discrimination, Brier score, net benefit, alarm burden, and an explicit baseline such as NEWS2 or a raw-vital model \cite{news2,trwscore,physionet,harutyunyan2019}. Splits must be by patient, not prediction instance, and temporal generalization should be tested by training on earlier cohorts and evaluating on later cohorts when the data permit.
+
+Reporting should follow TRIPOD+AI for prediction-model manuscripts; methodological quality, risk of bias, and applicability should be assessed with PROBAST+AI \cite{tripod,collins2024tripodai,moons2025probastai}. TRIPOD+AI is a reporting standard, not proof of model validity; PROBAST+AI is an appraisal framework, not a clinical-utility test. No reporting guideline or risk-of-bias tool substitutes for patient-relevant utility evaluation.
 
 \noindent\textbf{Minimum confirmatory ICU protocol.}
 \begin{enumerate}
@@ -1283,11 +1574,18 @@ Here \OSD{} is used only as a declared multivariate organism-stability-disruptio
 
 Let $x_{\mathrm{path}}$ be the baseline pathological tumor-state vector and $x_{\mathrm{ref}}$ a frozen low-\OSD{} or normal-like reference. Define
 \[
-  D_{\mathrm{path}}(t)=
-  (x(t)-\mu_{\mathrm{path}})^\top\Sigma_{\mathrm{path}}^{-1}(x(t)-\mu_{\mathrm{path}}),
-  \qquad
-  D_{\mathrm{ref}}(t)=
-  (x(t)-\mu_{\mathrm{ref}})^\top\Sigma_{\mathrm{ref}}^{-1}(x(t)-\mu_{\mathrm{ref}}),
+\begin{aligned}
+  D_{\mathrm{path}}(t)
+  &=
+  (x(t)-\mu_{\mathrm{path}})^\top
+  \Sigma_{\mathrm{path}}^{-1}
+  (x(t)-\mu_{\mathrm{path}}),\\
+  D_{\mathrm{ref}}(t)
+  &=
+  (x(t)-\mu_{\mathrm{ref}})^\top
+  \Sigma_{\mathrm{ref}}^{-1}
+  (x(t)-\mu_{\mathrm{ref}}).
+\end{aligned}
 \]
 \[
   Y(t)=D_{\mathrm{path}}(t)-D_{\mathrm{ref}}(t).
@@ -1298,13 +1596,21 @@ Here $\mu_{\mathrm{path}}$, $\mu_{\mathrm{ref}}$, feature scaling, module defini
 \]
 and, under Gaussian reference and pathological distributions,
 \[
+\begin{aligned}
   \Lambda(x)
-  =
-  -\frac{1}{2}\!\left[(x-\mu_{\mathrm{ref}})^\top\Sigma_{\mathrm{ref}}^{-1}(x-\mu_{\mathrm{ref}})
-  +\log|\Sigma_{\mathrm{ref}}|\right]
-  +\frac{1}{2}\!\left[(x-\mu_{\mathrm{path}})^\top\Sigma_{\mathrm{path}}^{-1}(x-\mu_{\mathrm{path}})
-  +\log|\Sigma_{\mathrm{path}}|\right]
+  &=
+  -\frac{1}{2}(x-\mu_{\mathrm{ref}})^\top
+  \Sigma_{\mathrm{ref}}^{-1}
+  (x-\mu_{\mathrm{ref}})
+  -\frac{1}{2}\log|\Sigma_{\mathrm{ref}}|\\
+  &\quad
+  +\frac{1}{2}(x-\mu_{\mathrm{path}})^\top
+  \Sigma_{\mathrm{path}}^{-1}
+  (x-\mu_{\mathrm{path}})
+  +\frac{1}{2}\log|\Sigma_{\mathrm{path}}|\\
+  &\quad
   +\log\frac{\pi_{\mathrm{ref}}}{\pi_{\mathrm{path}}}.
+\end{aligned}
 \]
 If the number of features is not small relative to the training cohort, covariance inverses must be estimated with a pre-specified shrinkage, diagonal, low-rank, or regularized covariance protocol, for example
 \[
@@ -1610,17 +1916,38 @@ This question can be applied to hardware, physiological monitoring, cancer-state
 
 \section*{Declarations}
 
+\textbf{Ethics approval and consent to participate.} This manuscript is a theoretical and methodological synthesis and uses no new human participants, human tissue, animal experiments, or identifiable personal data. Institutional review-board approval, animal-care approval, and participant consent are therefore not applicable to this manuscript.
+
+\textbf{Consent for publication.} Not applicable; the manuscript contains no identifiable individual-level human data.
+
+\begin{sloppypar}
+\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration and public real-data component audits. The simulation scripts, CSV summaries, event-level audit sample, multi-dataset real-data acceptance script, component-validation script, household-power event ledger, Lalonde treatment-effect ledger, full real-calculation ledger, reproducibility manifest, requirements file, workflow figure, benchmark figure, and many-system rank figure are provided in the companion VSTF package. The public repository is the \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{VSTF reproducibility package}; final submission should cite an immutable release DOI or exact commit hash. The real-data audit uses public datasets linked directly in Tables~\ref{tab:real-static-datasets} and \ref{tab:real-component-datasets}: WDBC, Ionosphere, Sonar, Cleveland Heart Disease, Haberman Survival, UCI Individual Household Electric Power Consumption, and the Lalonde NSW treatment dataset. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
+\end{sloppypar}
+
+\textbf{Materials availability.} No biological materials, clinical specimens, proprietary devices, or physical samples are associated with this manuscript.
+
 \textbf{Funding.} No external funding is declared for this manuscript.
 
 \textbf{Competing interests.} The author declares no competing interests.
 
-\begin{sloppypar}
-\textbf{Data and code availability.} This manuscript is a theoretical and methodological synthesis with a synthetic HMM demonstration. The simulation script, aggregate summary, Monte Carlo summary, sensitivity sweep, sampling-resolution stress test, ablation summary, random-parameter stress test, scenario stress test, model-misspecification stress test, many-system benchmark, many-system discordance summary, event-level audit sample, reproducibility manifest, requirements file, workflow figure, benchmark figure, and many-system rank figure are provided as \path{vstf_hmm_benchmark.py}, \path{vstf_hmm_benchmark_summary.csv}, \path{vstf_hmm_benchmark_monte_carlo.csv}, \path{vstf_hmm_benchmark_sensitivity.csv}, \path{vstf_hmm_sampling_resolution.csv}, \path{vstf_hmm_benchmark_ablations.csv}, \path{vstf_hmm_random_parameter_stress.csv}, \path{vstf_hmm_scenario_stress.csv}, \path{vstf_model_misspecification_stress.csv}, \path{vstf_many_system_benchmark.csv}, \path{vstf_many_system_discordance.csv}, \path{vstf_hmm_event_sample.csv}, \path{REPRODUCIBILITY.md}, \path{requirements.txt}, \path{vstf_event_cascade.pdf}, \path{vstf_hmm_benchmark.pdf}, and \path{vstf_many_system_rank_displacement.pdf}. The public repository path is \href{https://github.com/MartinPetrasek123/R_Universe_Evidence_Audited/tree/main/vstf}{\texttt{github.com/MartinPetrasek123/R\_Universe\_Evidence\_Audited/tree/main/vstf}}; final submission should cite an immutable release DOI or exact commit hash. Domain-specific empirical claims require separate reproducibility packages, locked datasets, code, and analysis logs.
-\end{sloppypar}
-
 \textbf{Author contribution.} M. Petrasek conceived the framework, integrated prior theoretical and applied components, and wrote the manuscript.
 
+\textbf{Acknowledgements.} No separate acknowledgements are declared.
+
 \begin{thebibliography}{99}
+
+\bibitem{street1993wdbc}
+W. N. Street, W. H. Wolberg, and O. L. Mangasarian.
+Nuclear feature extraction for breast tumor diagnosis.
+In \emph{Biomedical Image Processing and Biomedical Visualization}, volume 1905, pages 861--870, 1993.
+doi:10.1117/12.148698.
+
+\bibitem{uci_wdbc}
+UCI Machine Learning Repository.
+\emph{Breast Cancer Wisconsin (Diagnostic) Data Set}.
+University of California, Irvine.
+\url{https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data}.
+Accessed 19 September 2026.
 
 \bibitem{landauer1961}
 R. Landauer.
@@ -1824,6 +2151,18 @@ S. D. Phillips and M. Krystek.
 Assessment of conformity, decision rules and risk analysis.
 \emph{Technisches Messen}, 81(5):237--245, 2014.
 doi:10.1515/teme-2014-1007.
+
+\bibitem{chow1970reject}
+C. K. Chow.
+On optimum recognition error and reject tradeoff.
+\emph{IEEE Transactions on Information Theory}, 16(1):41--46, 1970.
+doi:10.1109/TIT.1970.1054406.
+
+\bibitem{geifman2017selective}
+Y. Geifman and R. El-Yaniv.
+Selective classification for deep neural networks.
+\emph{Advances in Neural Information Processing Systems Workshop}, 2017.
+arXiv:1705.08500.
 
 \bibitem{jcgm106}
 Joint Committee for Guides in Metrology.
