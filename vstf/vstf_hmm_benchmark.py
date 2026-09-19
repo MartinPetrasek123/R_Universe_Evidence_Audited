@@ -40,7 +40,7 @@ POST_RET = 0.55
 HYST_LOW = 0.35
 SENS_SIGMA_FACTORS = (0.75, 1.0, 1.25)
 SENS_TAU_RET = (4, 6, 10)
-N_SENS_BATCHES = 3
+N_SENS_BATCHES = 30
 N_ABLATION_BATCHES = 8
 N_EVENT_SAMPLE_ROWS = 40
 N_RANDOM_SYSTEM_PAIRS = 8
@@ -434,7 +434,7 @@ def mean_ci(values: list[float]) -> tuple[float, float, float]:
     return m, m - 1.96 * se, m + 1.96 * se
 
 
-def monte_carlo() -> tuple[dict[str, dict[str, float]], dict[str, float]]:
+def monte_carlo() -> tuple[dict[str, dict[str, float]], dict[str, float], list[dict[str, dict[str, float]]]]:
     batches = [run_batch(MASTER_SEED + 1009 * i) for i in range(N_BATCHES)]
     aggregate: dict[str, dict[str, float]] = {}
     derived = {
@@ -490,7 +490,7 @@ def monte_carlo() -> tuple[dict[str, dict[str, float]], dict[str, float]]:
         "vste_b_ci_low": vste_b_ci[1],
         "vste_b_ci_high": vste_b_ci[2],
     }
-    return aggregate, stats
+    return aggregate, stats, batches
 
 
 def ablation_systems(kind: str) -> tuple[SystemSpec, SystemSpec]:
@@ -1061,6 +1061,35 @@ def write_metric_csv(path: Path, stats: dict[str, float]) -> None:
             writer.writerow({"metric": key, "value": value})
 
 
+def write_batch_level_csv(path: Path, batches: list[dict[str, dict[str, float]]]) -> None:
+    keys = [
+        "raw_per_energy",
+        "crossings_per_energy",
+        "committed_per_energy",
+        "retained_per_energy",
+        "vste",
+        "candidate_yield",
+        "commit_yield",
+        "retention_yield",
+        "validity_yield",
+        "precision_ppv",
+        "sensitivity_tpr",
+        "false_discovery_fraction",
+        "far",
+        "frr",
+        "pending_fraction",
+    ]
+    fields = ["batch", "system"] + keys
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        for batch_id, batch in enumerate(batches, start=1):
+            for system in ("A", "B"):
+                row = {"batch": batch_id, "system": system}
+                row.update({key: batch[system][key] for key in keys})
+                writer.writerow(row)
+
+
 def write_sensitivity_csv(path: Path, rows: list[dict[str, float]]) -> None:
     with path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["sigma_factor", "tau_ret", "reversal_probability"])
@@ -1556,8 +1585,8 @@ def write_many_system_rank_pdf(path: Path, rows: list[dict[str, float | str]], d
 
 
 def main() -> None:
-    out_dir = Path("/Users/mpetr/Desktop")
-    aggregate, stats = monte_carlo()
+    out_dir = Path(__file__).resolve().parent
+    aggregate, stats, batches = monte_carlo()
     sens = sensitivity()
     abl = ablations()
     random_stress = random_parameter_stress()
@@ -1567,6 +1596,7 @@ def main() -> None:
     many_rows, many_discordance = many_system_benchmark()
     write_summary_csv(out_dir / "vstf_hmm_benchmark_summary.csv", aggregate)
     write_metric_csv(out_dir / "vstf_hmm_benchmark_monte_carlo.csv", stats)
+    write_batch_level_csv(out_dir / "vstf_hmm_benchmark_batch_level.csv", batches)
     write_sensitivity_csv(out_dir / "vstf_hmm_benchmark_sensitivity.csv", sens)
     write_sampling_resolution_csv(out_dir / "vstf_hmm_sampling_resolution.csv", sampling_rows)
     write_ablation_csv(out_dir / "vstf_hmm_benchmark_ablations.csv", abl)
@@ -1578,6 +1608,7 @@ def main() -> None:
     output_files = [
         out_dir / "vstf_hmm_benchmark_summary.csv",
         out_dir / "vstf_hmm_benchmark_monte_carlo.csv",
+        out_dir / "vstf_hmm_benchmark_batch_level.csv",
         out_dir / "vstf_hmm_benchmark_sensitivity.csv",
         out_dir / "vstf_hmm_sampling_resolution.csv",
         out_dir / "vstf_hmm_benchmark_ablations.csv",

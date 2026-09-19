@@ -1,41 +1,74 @@
-system,trajectory_id,event_id,t_cross,t_validate,t_end,y_cross,posterior_commit,posterior_validate,min_posterior_retention,latent_retained,posterior_retained,domain_truth,domain_observed,reference_valid_z,operational_decision_a,outcome
-A,0,1,10,12,18,1.1468059705821576,0.804153414810725,0.06932086895837102,0.006127226662564688,0,0,1,0,0,0,true_negative_or_downstream_rejection
-A,0,2,21,23,29,1.1761360261102725,0.8448141488636406,0.9467228132638863,0.2618573598725503,0,0,0,0,0,0,true_negative_or_downstream_rejection
-A,0,3,27,29,35,0.899502216671116,0.8045469446215602,0.8647928953865919,0.0004153163629722134,0,0,1,0,0,0,true_negative_or_downstream_rejection
-A,0,4,31,33,39,1.946609096059017,0.9992784491647668,0.014222277452585032,0.0004153163629722134,0,0,1,1,0,0,true_negative_or_downstream_rejection
-A,0,5,43,45,51,0.9634152919805996,0.7691535120914874,0.9365326692243491,0.5084885310537329,1,0,0,1,0,0,true_negative_or_downstream_rejection
-A,0,6,52,54,60,0.9204589446890395,0.8801013833611863,0.9950317176602382,0.010157890332185235,0,0,1,1,0,0,true_negative_or_downstream_rejection
-A,1,1,7,9,15,1.570230019071231,0.9862894854757419,0.5326430030225521,0.0005835319236559861,0,0,0,1,0,0,true_negative_or_downstream_rejection
-A,1,2,18,20,26,1.1900744888479198,0.8482315035353348,0.004730149001203019,0.0003207068285319005,0,0,0,1,0,0,true_negative_or_downstream_rejection
-A,1,3,39,41,47,1.1854381621431482,0.8646512015764429,0.545397959814492,0.07957435122271377,0,0,1,0,0,0,true_negative_or_downstream_rejection
-A,1,4,42,44,50,1.2670142873189985,0.9797638193384125,0.9373872995144784,0.07957435122271377,0,0,1,1,0,0,true_negative_or_downstream_rejection
-A,1,5,52,54,60,1.024680698415992,0.9160255037472667,0.03224540908132844,6.398163099714483e-05,0,0,1,0,0,0,true_negative_or_downstream_rejection
-A,1,6,66,68,74,1.0150652198535763,0.9139598964438956,,,,,,,,,pending
-A,2,1,9,11,17,1.9500085697678153,0.998636760019234,0.0003176646686513804,0.0003176646686513804,0,0,1,1,0,0,true_negative_or_downstream_rejection
-A,2,2,15,17,23,1.2449422976796056,0.8708811526427597,0.2644777688825006,0.0003212446054052525,0,0,1,1,0,0,true_negative_or_downstream_rejection
-A,2,3,39,41,47,1.0453940129950317,0.7643238187261325,0.9004377099688783,0.8041453506089188,1,1,1,1,1,1,true_positive
-A,2,4,57,59,65,1.5028501857496832,0.9693209195463898,0.9386189967059955,0.813818793628242,1,1,1,1,1,1,true_positive
-A,3,1,8,10,16,1.5709792852378965,0.988734410866986,0.8903416852595708,0.026339818457155908,0,0,1,1,0,0,true_negative_or_downstream_rejection
-A,3,2,16,18,24,1.0275292244606353,0.7637381591541303,0.10381518769913198,0.001786299185293542,0,0,1,0,0,0,true_negative_or_downstream_rejection
-A,3,3,21,23,29,1.5940498746901668,0.9776764469587865,0.994350501557578,0.03699022349899072,0,0,1,0,0,0,true_negative_or_downstream_rejection
-A,3,4,33,35,41,1.081581557034825,0.8787161903224779,0.9897567006609274,0.012292606399900175,0,0,1,0,0,0,true_negative_or_downstream_rejection
-B,1,1,23,25,31,1.1680814702972422,0.9957700513875944,0.9999993957742499,0.9967501633090365,1,1,1,0,1,0,false_rejection
-B,2,1,45,47,53,0.8400793351389305,0.9829548176303697,0.9998917513479195,0.9786684117868956,1,1,1,1,1,1,true_positive
-B,3,1,27,29,35,1.0869892944338333,0.9872211022379831,0.9999988907955117,0.9973596158974504,1,1,0,0,0,0,true_negative_or_downstream_rejection
-B,3,2,71,73,79,1.0221655080216125,0.969452314151847,,,,,,,,,pending
-B,4,1,55,57,63,1.0318651949847903,0.98937512092798,0.9999981226863812,2.4820070388876173e-07,0,0,1,1,0,0,true_negative_or_downstream_rejection
-B,5,1,22,24,30,0.984710321668856,0.9499587287771574,0.9361515270839313,0.9361515270839313,1,1,0,0,0,0,true_negative_or_downstream_rejection
-B,5,2,60,62,68,0.9571851165386421,0.9960014366725819,0.99982358230069,2.4616205389172824e-07,0,0,1,1,0,0,true_negative_or_downstream_rejection
-B,6,1,32,34,40,1.3676896189893626,0.999724700564005,0.9999995158490341,0.9710101078972847,1,1,1,1,1,1,true_positive
-B,7,1,14,16,22,1.107070039544353,0.9902632700342189,0.9999983788955672,0.9998140513330499,1,1,1,1,1,1,true_positive
-B,8,1,31,33,39,1.1600371901503606,0.9953896074217486,0.9999780696099008,0.9996381269817366,1,1,1,1,1,1,true_positive
-B,9,1,52,54,60,1.0193989759005186,0.9683080875438642,2.4420855020489834e-05,2.785245603427238e-09,0,0,1,1,0,0,true_negative_or_downstream_rejection
-B,9,2,61,63,69,1.2873045730464134,0.9991798180320404,0.9846716044812133,0.9846716044812133,1,1,1,1,1,1,true_positive
-B,10,1,16,18,24,0.9610636073056403,0.9321322897609453,0.9999999954500025,0.9989324842068118,1,1,1,1,1,1,true_positive
-B,11,1,2,4,10,1.2342655035200127,0.9983635964183998,0.999999467572991,0.9901791291019567,1,1,1,1,1,1,true_positive
-B,12,1,33,35,41,0.8938307757713434,0.8451579039294932,0.06192487079984322,3.7226362079999655e-07,0,0,1,1,0,0,true_negative_or_downstream_rejection
-B,13,1,53,55,61,1.3240036319811697,0.999498695896442,0.9998575127050456,0.9932789462536278,1,1,0,1,0,1,false_acceptance
-B,15,1,11,13,19,0.7657816796782053,0.6646093949323644,5.190818301908641e-07,5.190818301908641e-07,0,0,1,0,0,0,true_negative_or_downstream_rejection
-B,15,2,23,25,31,1.2020337468629383,0.9973799389806101,0.9998285429991352,0.9976900695204297,1,1,0,1,0,1,false_acceptance
-B,15,3,70,72,78,1.002870609965806,0.9607753220851712,,,,,,,,,pending
-B,16,1,21,23,29,0.7840843875056562,0.6687197457816805,0.9998887471520608,1.0715539847629634e-05,0,0,1,1,0,0,true_negative_or_downstream_rejection
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document (opensource)
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/Contents 8 0 R /MediaBox [ 0 0 612 792 ] /Parent 7 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+5 0 obj
+<<
+/PageMode /UseNone /Pages 7 0 R /Type /Catalog
+>>
+endobj
+6 0 obj
+<<
+/Author (anonymous) /CreationDate (D:20260919213330+02'00') /Creator (anonymous) /Keywords () /ModDate (D:20260919213330+02'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (unspecified) /Title (untitled) /Trapped /False
+>>
+endobj
+7 0 obj
+<<
+/Count 1 /Kids [ 4 0 R ] /Type /Pages
+>>
+endobj
+8 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 2445
+>>
+stream
+Gb!Sm?'!aK&q0MXi8\[Y<^_h.W"aYnJg;bK8DD&lmX;(NQ"[A,qXC?BD;F4NpH(1,51]%;mCmEK`#<[8+Z\_)GXufi_EUf1H-P"-'mob:1G7<p_mg+#>@"SEWs.#]`ac#M;_@_RUgU0T[qk]@c_"8,f\:c%oZK2)bB76\D@6*7dUg+>hqf=,kU&7T=s&_%L981oeVg[Cc4kGa"j-!mKVCYZg_m0iZ>F^&Eq!BN\i1Z&A'N"qK,kdK"&rIAC>J'^VI2>pdmDGagKJ2p)^sl/2H'abd0(q"8k9_.4AB>ncR]B$`U%cq/7QGY,\6S"__51.=A]Y"6rB'o#s:Y<W(?\M_X[k5RA./(QA42&(n7CrAEXVt3Hg!D[?/Nk_NLFsPKmCHOKO5Y)8=k!'op=q2db>m2D5h3#]D(EV(e)Q^^PH=^g\DC5OYS">(jg.JB7=^"cffq+<Ju\'`mqS@[<sW89GAhBR866rPdiGCCcKJR34.A/.Jlu%[/.DGmNG(,P(TtFaq?NY(s<k`<2\4[?QV0;GG/>jse;+l%+XWiIQg%GQK&reJ&Ts5Tn,l+OD#/3]=rJUIPOlp>V1l=ZA^`eZ:28*#N2u)U97'0Jk))pi2qD[BF#!(QqO4&Z@BY8()fJ8llgL:'cQIPp>PMY(:KW48,RtZ*s\%'?qo/+EIekW<skh8Sj<Z`$6G%oLMN@:.P@@BBtTcL]gk6"Bs:F*LbEfQI7"/]f7:385)QBdB"c4*"lco'$_D/0Jk)-pi2qD[]a,"(U>WU=eIHiHF!Kodi!KCqqs]aEKQ33%#-\2m6?]n2R]_jD037rVT'=]ZYaTkmTfJ-<-`"`Q$?hKPtf?<R@&Td$A]*nKFD$oGfQZuGkC3]_-[&BPKMRePKoV+_/DH8(j;Kmf(ms_#iisR%f<tp3F9cjR3dFD,Pg1)3piPN3nP>QQ-JmT:R'sYFhbXP43rI]Lgd;Yh4QW(2crK<&eEH8"Z<4t*dVsmnE<F!,Wm5mK25B(BM@[q96/TY3cCg3Y_1(9ntEY2nbDXG.GUN\e1MJR15KBW_]m2B'p)0cig7p`;ULd60h@"#`T4(7o/k$SD.Al[]7^Eqq[1UZk7S3"JV*t,LkB-c-!3RS1<.3He0&IMkU"Ijc:JI2S4Ot<$m\(DLImgT:28A0'gaQf*#?h_8!8VZiQ$ALCjYSk]Mu<G&Vri6Pl&2iZ7j@jNhD^g[SR)]:\[JkT@ZNboiL5kp4?SRn)3pbrI/&hD1-R$i2i#r'Sm8)"skI@L3Q7[,b.4*`J?lme0nEeoeNX;.]>Yi&1Yt_NoUYOE%*q",Y!#6QT#%O1i)@`TpI\J'kbW5Gsc-4j$$P]4ngsC.cKAH8E2OtZ5qb,kWEeX9n.H&,=r`g!G%k\l6l:g]q_219Q,5e:SgtY"XjYh%Z+'q5J.IlNSn21-/r;M"UaAf9MCRg"Z9s4K#Lm?Og`*)P?K/48;Xk$B+ubM><6Qb$DH'0IKN2TSW?L%/UlL<lF5q?`s\j_6ZjBoW(0p6C^UmD6INt4#s^mPV#.Cqr+Yh>];,7c]WHCC!F8fpVQJ$2_ms;Q4i-.]+r#i8B!=E`'^/!r@0('DOq:N!%=:B7<lI6gIDi\"O$l%0QZ;*PV/PV`@uN8B%K,,nNei'GqN#(BE;n7Rr4@:I5LlNY="etpX<4T@6ONOd:d^94=.:9@T$1#`=LN.Ll.QJ?Cb6[`BZ''O*4'b?0F`A*YA^ESE27`$])d<0M9FTuTj8O_>I"bkF$%`!4LY3;?sU=^CXokm%c=RdAPLo88iB@eR!6cWG:1J/.rdPb_qo$s_!7=K!G/+.ndh2*X6J'`*<uG#\d(%";!VT\6l.>C]!)AlnArAipY[!<m3#`tMC-_:X@a<2qVLt^3qJ#3pcnVOSbNrSR`<u87mGqDDXZhol[6SX0`L/s9X/!]50)^P'A`cYdJGBh^OdGQ?oQ*ujk\e[H]/n<A\[!-[V)h%hS.4gY$W5B;\e^Eqmb\$V4QTTVe[Z/Rsg:*l`Ii=GCh>KW2J81hqm,*KXka4pRl?F%PZMb?5(F"nCft@:D`iacL+A?mU_I,W7kk<Z+_6^o8iA:s#T.%FaX4c);:*ESpru/L2D%_)?3e9:'$"#O,Y+jA%2%FNiTZPT,:#VE.<Lr26F!gUSEI$l(TT^7ucd6rr0M__>DREf>#19gf:Y7BYhk-5@qWn/@7REf9aA!L%(Mm^,3SB]A2Ti0P4kuS,Ws6d9juKV\'EXo^rG37[@f?R,;MD_F*/5JGmjT9,^]g=`uljQ^\UBRE93Q2:+jgmI\f)HMl0(2@/D0hGlU,D^8pk/.lmE_E8kI=BECA+[&]M,pe0E_66Hu^6k5+UR4EkFU;-@r,Cb]qg2![7/WMV]C5U@qR3QY2o)9E>2-Ys#:[,D2#XQ@+jnf:^MSn;C:=FKP^7+fmBV_NG9pcDaO3III@Q&Fir:JRJR8~>endstream
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000061 00000 n 
+0000000102 00000 n 
+0000000209 00000 n 
+0000000321 00000 n 
+0000000514 00000 n 
+0000000582 00000 n 
+0000000843 00000 n 
+0000000902 00000 n 
+trailer
+<<
+/ID 
+[<891530bd6dcc91c468bfe9cdb3c4f38c><891530bd6dcc91c468bfe9cdb3c4f38c>]
+% ReportLab generated PDF document -- digest (opensource)
+
+/Info 6 0 R
+/Root 5 0 R
+/Size 9
+>>
+startxref
+3438
+%%EOF

@@ -1,0 +1,15 @@
+metric,value
+dataset,Wisconsin Diagnostic Breast Cancer
+source,https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data
+n_samples,569
+n_features,30
+n_folds,5
+model,"training-fold-standardized shrinkage LDA, shrinkage=0.10"
+acceptance_rule,accepted if p<= 0.02 or p>= 0.98; otherwise pending
+raw_accuracy_mean_over_folds,0.952585002328831
+accepted_reference_accuracy_over_accepted,0.9954954954954955
+accepted_coverage,0.7803163444639719
+pending_fraction,0.21968365553602812
+accepted_false_reference,2
+accepted_true_reference,442
+data_sha256,d606af411f3e5be8a317a5a8b652b425aaf0ff38ca683d5327ffff94c3695f4a
