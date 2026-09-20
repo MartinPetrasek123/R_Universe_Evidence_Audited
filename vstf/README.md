@@ -25,6 +25,7 @@ The workflow regenerates all synthetic CSV/PDF outputs, downloads or reuses publ
 - `main.tex` - LaTeX manuscript.
 - `reproduce_all.py` - single evidence-package regeneration workflow.
 - `requirements.txt` - pinned minimal Python requirements.
+- `LICENSE.md` - explicit reuse terms for code, manuscript/documentation, and generated ledgers.
 - `EVIDENCE_MANIFEST.sha256` - checksums for manuscript, scripts, generated CSV/PDF outputs, and requirements.
 - `FULL_VALIDATION_PROTOCOL.md` - domain-level requirements for any future claim of full validation.
 
@@ -82,5 +83,10 @@ Public source datasets:
 - The current HMM sensitivity table reports raw-to-VSTE reversal probabilities exactly as regenerated from `vstf_hmm_benchmark_sensitivity.csv`: 0.00 for all cells at sigma factors 0.75 and 1.00, and 0.4333, 0.5333, 0.8333 at sigma factor 1.25 for retention windows 4, 6, and 10.
 - The Lalonde/MatchIt calculation is descriptive. The 429 comparison observations are PSID comparison cases, not randomized NSW controls. The unadjusted difference must not be interpreted as a causal treatment effect without a separate locked matching, weighting, balance, and sensitivity analysis.
 - Static classification datasets audit the acceptance/pending layer. They do not validate temporal retention or cost-normalized VSTE; those components are audited separately with the household-power time series.
+- The Project STAR component check uses ordinary individual-level Welch standard errors for a small-versus-regular class-size contrast. It is not a cluster-aware school/classroom causal analysis.
 - The additional external component checks are in the one-command reproduction pipeline. They broaden component coverage, but they still do not supply one single end-to-end dataset containing every VSTF layer simultaneously.
-- No open-source license has been selected in this package. Reuse terms should be resolved before archival release or journal submission.
+- Code is licensed under MIT, manuscript/documentation under CC BY 4.0, and generated public-data ledgers under CC0 1.0 to the extent legally possible. Third-party source datasets retain their own terms.
+
+## Continuous integration
+
+The repository includes `.github/workflows/vstf-reproduce.yml`, which installs `vstf/requirements.txt`, runs `python reproduce_all.py`, and verifies the generated checksum manifest. This workflow is intended as a reproducibility smoke test, not as a substitute for external domain validation.

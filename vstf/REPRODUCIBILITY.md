@@ -14,7 +14,13 @@ Many-system benchmark: 30 systems x 5 seeds x 1500 trajectories per seed
 Many-system bootstrap resamples: 500
 Event-sample rows: 40
 
-Reproduction command:
+Full package reproduction command:
+
+```bash
+python3 reproduce_all.py
+```
+
+Synthetic benchmark command only:
 
 ```bash
 python3 vstf_hmm_benchmark.py
@@ -33,7 +39,7 @@ SHA-256 outputs:
 - `vstf_model_misspecification_stress.csv`: `38626e0b6adcce412d2bb4fafd708a605bb187a09834da751012146167f5ba07`
 - `vstf_many_system_benchmark.csv`: `08d0eea2ddae2f18df831ae3e7e28d4e271f4785d943e063bd1d74d546f3fb62`
 - `vstf_many_system_discordance.csv`: `68b25c926ebecf4dce7844e30690c9317cbc8b3fc8cb54e29380c0eb3e4dabfc`
-- `vstf_hmm_event_sample.csv`: `72f521de724e219550becef9342355bcb4c3cb93cca7ff6682a98e3354f717cb`
-- `vstf_event_cascade.pdf`: `2128793c72ffd8561bc4b07cd4f6731c53ea04cd6543fcef53ce6a46112e258f`
-- `vstf_hmm_benchmark.pdf`: `e0640c18e787b00054683cbe195c783b8ad3fc95b09804a2ab07f016dbbc1651`
+- `vstf_hmm_event_sample.csv`: `9d4217fd10093a9d5db08d748c619fa42e6361e9717db3ff0707e8056aab83da`
+- `vstf_event_cascade.pdf`: `465371ae7b794001ab1ac8bdf45e866971271526dff9998c8c42f2c8bdd722cd`
+- `vstf_hmm_benchmark.pdf`: `33af4ed302b3d3d1610b768e7421e70658936d7d41edb8820c68a7887c42934c`
 - `vstf_many_system_rank_displacement.pdf`: `e291ef845a7be0856f5b8f709ac4bed8b9d211a5d2e4fc48426319e409f4bd52`

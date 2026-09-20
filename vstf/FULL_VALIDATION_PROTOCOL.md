@@ -72,3 +72,8 @@ The current working package is reproducible and component-audited, but a journal
 submission should still be frozen as a versioned GitHub release, Zenodo DOI, or
 equivalent immutable archive. The release should state the code/data license
 explicitly.
+
+The current package includes explicit reuse terms in `LICENSE.md` and a
+GitHub Actions workflow that reruns the public reproducibility pipeline. These
+engineering controls support auditability; they do not convert component-level
+evidence into full domain validation.

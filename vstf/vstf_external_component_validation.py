@@ -335,7 +335,8 @@ def audit_star() -> tuple[dict[str, object], dict[str, object]]:
         "math_difference": mathk["difference"],
         "math_ci95_low": mathk["ci95_low"],
         "math_ci95_high": mathk["ci95_high"],
-        "interpretation": "unadjusted small-versus-regular kindergarten contrast; not a full causal estimand analysis",
+        "standard_error_model": "ordinary individual-level Welch standard error; no school/classroom clustering adjustment",
+        "interpretation": "unadjusted small-versus-regular kindergarten contrast; illustrative intervention-component check, not a full cluster-aware causal estimand analysis",
         "data_sha256": sha256(STAR_CSV),
         "status": "real_calculated_external_component",
     }

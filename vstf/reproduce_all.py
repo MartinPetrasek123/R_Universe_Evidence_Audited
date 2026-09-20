@@ -12,6 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 import csv
 import hashlib
+import importlib.metadata
 import platform
 import subprocess
 import sys
@@ -68,6 +69,26 @@ def require_outputs(names: list[str]) -> None:
     missing = [name for name in names if not (ROOT / name).exists()]
     if missing:
         raise FileNotFoundError(f"missing expected outputs: {missing}")
+
+
+def validate_pinned_requirements() -> None:
+    expected: dict[str, str] = {}
+    for raw_line in (ROOT / "requirements.txt").read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "==" not in line:
+            raise AssertionError(f"requirements.txt must pin exact versions: {line}")
+        package, version = line.split("==", 1)
+        expected[package.strip().lower()] = version.strip()
+
+    mismatches = []
+    for package, expected_version in expected.items():
+        observed = importlib.metadata.version(package)
+        if observed != expected_version:
+            mismatches.append(f"{package}: expected {expected_version}, observed {observed}")
+    if mismatches:
+        raise AssertionError("runtime package versions do not match requirements.txt: " + "; ".join(mismatches))
 
 
 def validate_sensitivity_table() -> None:
@@ -402,6 +423,7 @@ def write_manifest() -> None:
         "README.md",
         "REPRODUCIBILITY.md",
         "FULL_VALIDATION_PROTOCOL.md",
+        "LICENSE.md",
         "requirements.txt",
     ]
     with (ROOT / "EVIDENCE_MANIFEST.sha256").open("w") as f:
@@ -414,6 +436,8 @@ def write_manifest() -> None:
 
 
 def main() -> None:
+    validate_pinned_requirements()
+
     run("vstf_hmm_benchmark.py")
     require_outputs(SYNTHETIC_OUTPUTS)
     validate_sensitivity_table()

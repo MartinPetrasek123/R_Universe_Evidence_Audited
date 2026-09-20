@@ -92,7 +92,7 @@
   \midrule
   \VSTE{} & 0.00197 & \textbf{0.00680}\\
   PPV & 0.616 & \textbf{0.872}\\
-  Sensitivity & 0.373 & \textbf{0.843}\\
+  Candidate-universe sensitivity & 0.373 & \textbf{0.843}\\
   \bottomrule
   \end{tabular}
   \end{adjustbox}
@@ -133,7 +133,7 @@ Many systems are evaluated by activity-like quantities: operations per watt, sig
 
 This manuscript introduces the \emph{Valid State Transition Framework} (VSTF), a conservative event-level measurement grammar in which the elementary unit of analysis is not raw activity but a \emph{valid stabilized state transition}. A state-valid transition is defined as a segmented movement between operationally specified state regions that satisfies localization under an observation model, distinguishability under a declared decision rule, first-exit or dwell-time stability over a declared window, and a domain-specific validity predicate. Cost-accounting completeness is reported as a separate quality flag that determines whether cost-normalized claims are allowed. The framework defines rate- and cost-normalized observables for accepted transitions, separates fully measured claims from task-level and proxy estimates, and gives falsification criteria that prevent overclaiming from transient responses or post-hoc thresholds.
 
-VSTF does not claim to replace transition path theory, first-passage analysis, stochastic thermodynamics, clinical prediction methodology, semi-Markov duration modeling, or domain-specific mechanistic models. Its contribution is narrower and operational: it changes which dynamically detected transitions are allowed to enter the numerator of a performance, validation, or intervention metric. The central question becomes: how many pre-specified, distinguishable, retained, domain-valid transitions does a system produce per unit time, energy, perturbation, or risk exposure, including failed attempts in the appropriate denominator? This formulation yields testable protocols in hardware benchmarking, ICU time-series evaluation, cancer tumor-state reset experiments, and motor-control rehabilitation studies.
+VSTF does not claim to replace transition path theory, first-passage analysis, stochastic thermodynamics, clinical prediction methodology, semi-Markov duration modeling, or domain-specific mechanistic models. Its contribution is narrower and operational: it changes which dynamically detected transitions are allowed to enter the numerator of a performance, validation, or intervention metric. The present evidence is a reproducible proof-of-use plus distributed component-level public-data audits, not a single end-to-end empirical validation of the framework in one domain. The central question becomes: how many pre-specified, distinguishable, retained, domain-valid transitions does a system produce per unit time, energy, perturbation, or risk exposure, including failed attempts in the appropriate denominator? This formulation yields testable protocols in hardware benchmarking, ICU time-series evaluation, cancer tumor-state reset experiments, and motor-control rehabilitation studies.
 \end{abstract}
 
 \noindent\textbf{Keywords:} stabilized transitions; irreversible decisions; state validity; event-level metrics; information thermodynamics; metastability; physiological stability; cancer systems biology; neurorehabilitation; reproducibility.
@@ -1013,11 +1013,20 @@ Retention yield & 0.067 & 0.552 \\
 Downstream-rejection fraction, committed denominator & 0.840 & 0.407 \\
 Downstream-rejection fraction, resolved denominator & 0.945 & 0.456 \\
 Positive predictive value $TP/(TP+FP)$ & 0.616 & 0.872 \\
-Sensitivity $TP/(TP+FN)$ & 0.373 & 0.843 \\
+Candidate-universe reference sensitivity $TP/(TP+FN)$ & 0.373 & 0.843 \\
 False discovery fraction $FP/(TP+FP)$ & 0.384 & 0.128 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+The benchmark sensitivity row is intentionally labelled as a candidate-universe
+reference sensitivity. In this synthetic proof-of-use, $TP$, $FP$, and $FN$ are
+computed after the locked candidate/commitment process has generated a resolved
+event universe. Latent transitions that never generate a candidate or committed
+event are not counted as false negatives in this estimand. A domain study that
+claims end-to-end detection sensitivity must separately define an independent
+latent reference-event universe, a one-to-one matching rule, and false negatives
+relative to that universe.
 
 \begin{table}[h]
 \centering
@@ -1037,9 +1046,9 @@ Mean $\VSTE_B/\VSTE_A$ & 3.45 \\
 Mean raw-efficiency ratio $R_A/R_B$ & 0.910 \\
 System A mean \VSTE{} Monte Carlo 95\% interval & [0.00196, 0.00199] \\
 System B mean \VSTE{} Monte Carlo 95\% interval & [0.00677, 0.00683] \\
-Sensitivity reversal probability, $\sigma$ factor 0.75 & 0.00 across $\tau_\ast\in\{4,6,10\}$ \\
-Sensitivity raw-to-\VSTE{} reversal probability, $\sigma$ factor 1.00 & 0.00 across $\tau_\ast\in\{4,6,10\}$ \\
-Sensitivity raw-to-\VSTE{} reversal probability, $\sigma$ factor 1.25 & 0.43, 0.53, 0.83 for $\tau_\ast=4,6,10$ \\
+Diagnostic raw-to-\VSTE{} reversal probability, $\sigma$ factor 0.75 & 0.00 across $\tau_\ast\in\{4,6,10\}$ \\
+Diagnostic raw-to-\VSTE{} reversal probability, $\sigma$ factor 1.00 & 0.00 across $\tau_\ast\in\{4,6,10\}$ \\
+Diagnostic raw-to-\VSTE{} reversal probability, $\sigma$ factor 1.25 & 0.43, 0.53, 0.83 for $\tau_\ast=4,6,10$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1098,7 +1107,7 @@ Table~\ref{tab:hmm-scenarios} addresses two structural limitations of the main d
 \begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lrrrrr}
 \toprule
-Scenario & Crossing$\to$\VSTE{} & Retained$\to$\VSTE{} & Mean $\VSTE_B/\VSTE_A$ & PPV B & TPR B \\
+Scenario & Crossing$\to$\VSTE{} & Retained$\to$\VSTE{} & Mean $\VSTE_B/\VSTE_A$ & PPV B & Cand.-sens. B \\
 \midrule
 Matched HMM/Gaussian reference & 1.00 & 0.00 & 3.42 & 0.872 & 0.836 \\
 HSMM truth, HMM filter & 1.00 & 0.00 & 6.56 & 0.876 & 0.843 \\
@@ -1110,7 +1119,7 @@ Time-drifting transition rates & 1.00 & 0.00 & 3.38 & 0.875 & 0.842 \\
 \end{adjustbox}
 \end{table}
 
-The misspecification stress suite in Table~\ref{tab:model-misspecification} is intentionally separate from the main benchmark. It asks whether the qualitative ranking contrast survives when the locked inference model is wrong in controlled ways: non-geometric dwell times, heavy-tailed observations, time-varying transition probabilities, or a fallible reference label. The answer in this synthetic design is yes for the crossing-to-\VSTE{} contrast, but not because VSTF is immune to misspecification. Predictive values and sensitivities move, especially under reference-label error, so domain studies must still run model checks, calibration checks, and reference-standard sensitivity analyses rather than citing the synthetic benchmark as empirical validation.
+The misspecification stress suite in Table~\ref{tab:model-misspecification} is intentionally separate from the main benchmark. It asks whether the qualitative ranking contrast survives when the locked inference model is wrong in controlled ways: non-geometric dwell times, heavy-tailed observations, time-varying transition probabilities, or a fallible reference label. The answer in this synthetic design is yes for the crossing-to-\VSTE{} contrast, but not because VSTF is immune to misspecification. Predictive values and candidate-universe reference sensitivities move, especially under reference-label error, so domain studies must still run model checks, calibration checks, and reference-standard sensitivity analyses rather than citing the synthetic benchmark as empirical validation.
 
 \begin{table}[h]
 \centering
@@ -1386,7 +1395,7 @@ Claim or component & Present status & Requirement for full validation \\
 \midrule
 Formal VSTF definitions & Internally specified and checked for consistency across the manuscript. & Independent use by external investigators or standards-style comparison with domain-specific endpoint/adjudication frameworks. \\
 Synthetic HMM ranking contrast & Reproduced by \texttt{reproduce\_all.py}; main crossing/commit-to-\VSTE{} contrast is supported by deterministic code and CSV outputs. & Broader benchmark families and externally reviewed simulation protocols; probability claims require larger sensitivity grids and binomial intervals. \\
-Sensitivity Table 5 & Corrected to match the regenerated 30-batch-per-cell CSV: raw-to-\VSTE{} reversal is absent at $\sigma=1.00$ and increases across the high-noise $\sigma=1.25$ retention cells. & Larger confirmatory sensitivity runs, e.g. at least 100--1000 seeds per cell for publication-grade probability intervals. \\
+Diagnostic reversal Table 5 & Corrected to match the regenerated 30-batch-per-cell CSV: raw-to-\VSTE{} reversal is absent at $\sigma=1.00$ and increases across the high-noise $\sigma=1.25$ retention cells. & Larger confirmatory sensitivity runs, e.g. at least 100--1000 seeds per cell for publication-grade probability intervals. \\
 Acceptance/pending layer & Computed on five public static datasets in Table~\ref{tab:real-static-datasets}. & External task-specific validation showing that accepted/pending decisions improve a declared utility, safety, or scientific endpoint beyond standard baselines. \\
 Temporal segmentation and first-exit retention & Computed on the public household-power time series in Tables~\ref{tab:real-component-datasets} and \ref{tab:power-ledger}. & Domain-specific time-series studies with locked state definitions, independent adjudication, and sensitivity to missing data, sampling cadence, and threshold choice. \\
 Cost-normalized \VSTE{} & Computed on real household-power energy data as retained events per kWh. & Application-specific cost boundaries, complete denominator ledgers, and comparison against ordinary yield, rate, and efficiency metrics. \\
@@ -1416,13 +1425,13 @@ Component & External dataset & Computed result \\
 Acceptance/pending layer & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00267/data_banknote_authentication.txt}{UCI Banknote Authentication} & Raw accuracy $=0.9774$; accepted accuracy $=1097/1097=1.0000$; coverage $=1097/1372=0.7996$; pending fraction $=275/1372=0.2004$. \\
 Acceptance/pending layer & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data}{UCI Spambase} & Raw accuracy $=0.8872$; accepted accuracy $=1377/1406=0.9794$; coverage $=1406/4601=0.3056$; pending fraction $=3195/4601=0.6944$. \\
 Temporal retention and cost denominator & \href{https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv}{UCI Appliances Energy Prediction} & With a 30-minute dwell and a 60-minute retention window on ten-minute samples, 99 candidate appliance-use events were detected and 86/99 were retained. Under a stricter 120-minute retention window, 63/99 were retained. Total appliance energy was 1928.01 kWh, so the stricter retained-event yield was $63/1928.01=0.0327$ events/kWh. \\
-Intervention contrast & \href{https://vincentarelbundock.github.io/Rdatasets/csv/AER/STAR.csv}{Project STAR kindergarten class-size dataset} & Small-class versus regular-class contrast: reading difference $=440.5518-434.7327=5.8191$, 95\% CI $[3.7770,\,7.8612]$; mathematics difference $=491.3901-483.3102=8.0799$, 95\% CI $[4.9615,\,11.1982]$. \\
+Intervention contrast & \href{https://vincentarelbundock.github.io/Rdatasets/csv/AER/STAR.csv}{Project STAR kindergarten class-size dataset} & Small-class versus regular-class contrast: reading difference $=440.5518-434.7327=5.8191$, ordinary individual-level 95\% CI $[3.7770,\,7.8612]$; mathematics difference $=491.3901-483.3102=8.0799$, ordinary individual-level 95\% CI $[4.9615,\,11.1982]$. These intervals are illustrative and are not a cluster-aware school/classroom causal analysis. \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
 \end{table}
 
-Table~\ref{tab:external-component-check} strengthens the component-level evidence: the acceptance gate generalizes to two additional external static datasets, temporal retention and cost-normalized retained-event yield can be computed on a separate energy time series, and an intervention contrast can be computed on an external experimental education dataset. Because these values are generated by the public script and written to \texttt{vstf\_external\_component\_validation\_summary.csv}, they are part of the reproducibility package rather than unsupported manuscript-only values. The table still does not make the framework completely validated. The reason is structural, not merely computational: no dataset used here contains all required VSTF layers at once.
+Table~\ref{tab:external-component-check} strengthens the component-level evidence: the acceptance gate generalizes to two additional external static datasets, temporal retention and cost-normalized retained-event yield can be computed on a separate energy time series, and an intervention contrast can be computed on an external experimental education dataset. The Project STAR row is included only as an external intervention-contrast component illustration; a causal education analysis would require the declared estimand, randomization structure, attrition handling, and cluster-aware standard errors. Because these values are generated by the public script and written to \texttt{vstf\_external\_component\_validation\_summary.csv}, they are part of the reproducibility package rather than unsupported manuscript-only values. The table still does not make the framework completely validated. The reason is structural, not merely computational: no dataset used here contains all required VSTF layers at once.
 
 For a complete validation of VSTF as a full framework, a single locked study would need a time-indexed state trajectory, candidate events, dwell and first-exit retention, a reference endpoint or adjudicated ground truth, accepted/rejected/pending labels, a complete cost or exposure denominator, and, for intervention claims, a randomized or defensibly adjusted treatment/control structure. The present evidence covers these layers across separate public datasets. It therefore validates component computability and supports the methodological claim, but it does not establish one complete end-to-end validation of VSTF in a single clinical, biological, hardware, or intervention domain.
 
@@ -1910,7 +1919,7 @@ The framework is strongest where the four state-validity predicates and the acco
 
 \section{Conclusion}
 
-The Valid State Transition Framework formalizes a cross-domain measurement principle: count stabilized, distinguishable, valid transitions rather than raw activity. The framework is compatible with thermodynamics, stochastic trajectories, critical-transition theory, clinical model validation, and systems biology, but it does not replace them. Its contribution is operational, auditable, and empirically contestable through domain-specific falsifiable hypotheses.
+The Valid State Transition Framework formalizes a cross-domain measurement principle: count stabilized, distinguishable, valid transitions rather than raw activity. The framework is compatible with thermodynamics, stochastic trajectories, critical-transition theory, clinical model validation, and systems biology, but it does not replace them. Its present evidence is distributed component-level evidence, not a single end-to-end empirical validation. Its contribution is operational, auditable, and empirically contestable through domain-specific falsifiable hypotheses.
 
 The practical question becomes:
 \[

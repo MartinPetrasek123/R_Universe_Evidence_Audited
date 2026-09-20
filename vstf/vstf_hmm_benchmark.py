@@ -1333,7 +1333,13 @@ def write_reproducibility_manifest(path: Path, output_files: list[Path]) -> None
         f"Many-system bootstrap resamples: {N_BOOTSTRAP_SYSTEMS}",
         f"Event-sample rows: {N_EVENT_SAMPLE_ROWS}",
         "",
-        "Reproduction command:",
+        "Full package reproduction command:",
+        "",
+        "```bash",
+        "python3 reproduce_all.py",
+        "```",
+        "",
+        "Synthetic benchmark command only:",
         "",
         "```bash",
         "python3 vstf_hmm_benchmark.py",
@@ -1491,7 +1497,7 @@ def write_pdf(path: Path, aggregate: dict[str, dict[str, float]], stats: dict[st
         c.drawString(58, yy - 8, "Valid VST / energy")
         draw_bar(c, 145, yy - 10, 155, 9, summary["vste"] / max_vste, colors.HexColor("#6d5cae"))
         c.drawRightString(350, yy - 9, f"{summary['vste']:.4f}")
-        c.drawString(375, yy + 4, f"PPV={summary['precision_ppv']:.1%}, TPR={summary['sensitivity_tpr']:.1%}")
+        c.drawString(375, yy + 4, f"PPV={summary['precision_ppv']:.1%}, cand. sens.={summary['sensitivity_tpr']:.1%}")
 
     c.setFont("Helvetica-Bold", 10)
     c.drawString(42, 146, "C. Multi-seed robustness")
@@ -1506,7 +1512,7 @@ def write_pdf(path: Path, aggregate: dict[str, dict[str, float]], stats: dict[st
         c.drawString(58, 128 - i * 12, line)
 
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(326, 146, "D. Sensitivity")
+    c.drawString(326, 146, "D. Diagnostic sweep")
     c.setFont("Helvetica", 7.2)
     c.drawString(326, 130, "sigma factor / tau -> reversal probability")
     for i, row in enumerate(sens[:9]):
