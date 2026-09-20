@@ -1,0 +1,31 @@
+name: VSTF reproduce
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "vstf/**"
+      - ".github/workflows/vstf-reproduce.yml"
+
+jobs:
+  reproduce:
+    runs-on: macos-15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install VSTF requirements
+        run: python -m pip install -r vstf/requirements.txt
+
+      - name: Regenerate VSTF package
+        working-directory: vstf
+        run: python reproduce_all.py
+
+      - name: Verify manifest hashes
+        working-directory: vstf
+        run: grep -E '^[0-9a-f]{64}  ' EVIDENCE_MANIFEST.sha256 | shasum -a 256 -c -
